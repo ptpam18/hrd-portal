@@ -42,6 +42,7 @@
   .btn-secondary { background: #e2e8f0; color: #475569; }
   .btn-secondary:hover { background: #cbd5e1; }
   .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+  .btn-link { background: none; border: none; color: #4f46e5; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 4px; }
 
   .app-wrapper { display: none; }
   .app-wrapper.active { display: block; animation: fadeIn 0.3s ease; }
@@ -125,6 +126,9 @@
     background: #eff6ff; border-left: 4px solid #3b82f6;
     padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #1e40af; margin-bottom: 14px;
   }
+  .hint-box.warning {
+    background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e;
+  }
   .table-wrapper { overflow-x: auto; }
   .loading { text-align: center; padding: 30px; color: #64748b; }
   
@@ -162,7 +166,10 @@
     </div>
     <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">Masuk</button>
     <div class="hint-box" style="margin-top: 16px; text-align: center;">
-      💡 Huruf besar atau kecil tidak masalah (Case-insensitive)
+       Huruf besar atau kecil tidak masalah (Case-insensitive)
+    </div>
+    <div style="text-align: center; margin-top: 12px;">
+      <button class="btn-link" onclick="resetDatabase()">🔄 Reset Database (Emergency)</button>
     </div>
   </div>
 </div>
@@ -171,7 +178,7 @@
 <div class="app-wrapper" id="appScreen">
   <div class="container">
     <div class="topbar">
-      <h2>🌿 HRD Portal</h2>
+      <h2> HRD Portal</h2>
       <div class="user-info">
         <div class="user-detail">
           <div class="name" id="userName">-</div>
@@ -246,30 +253,88 @@
   };
 
   // ==========================================
-  // SEED DATA (HANYA SUPERUSER)
+  // ✅ SEED DATA (DIPERBAIKI - SELALU CEK SUPERUSER)
   // ==========================================
   async function seedData() {
-    const usersSnap = await getDocs(collection(db, 'users'));
-    if (usersSnap.empty) {
-      const batch = writeBatch(db);
+    try {
+      // Cek apakah superuser sudah ada (tidak peduli ada data lain atau tidak)
+      const superCheck = await getDocs(query(collection(db, 'users'), where('username', '==', 'ptpam')));
+      
+      if (superCheck.empty) {
+        console.log("Superuser belum ada, membuat...");
+        const superUserRef = doc(collection(db, 'users'));
+        await updateDoc(superUserRef, {
+          username: 'ptpam',
+          password: '945766',
+          name: 'Superuser PTPAM',
+          role: 'superuser',
+          isSuperuser: true
+        }).catch(async () => {
+          // Fallback jika doc belum ada
+          const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+          await setDoc(superUserRef, {
+            username: 'ptpam',
+            password: '945766',
+            name: 'Superuser PTPAM',
+            role: 'superuser',
+            isSuperuser: true
+          });
+        });
+        console.log("✅ Superuser berhasil dibuat!");
+        return true;
+      } else {
+        console.log("Superuser sudah ada di database.");
+        return false;
+      }
+    } catch (e) {
+      console.error("Error seedData:", e);
+      return false;
+    }
+  }
+
+  // ==========================================
+  // 🔄 RESET DATABASE (EMERGENCY)
+  // ==========================================
+  window.resetDatabase = async () => {
+    if (!confirm("⚠️ PERINGATAN!\n\nTindakan ini akan MENGHAPUS SEMUA DATA di database (users, employees, leaveRequests, adjustmentRequests) dan membuat ulang Superuser.\n\nLanjutkan?")) return;
+    
+    const btn = document.getElementById('btnLogin');
+    btn.textContent = 'Merestart...'; btn.disabled = true;
+    
+    try {
+      const collections = ['users', 'employees', 'leaveRequests', 'adjustmentRequests'];
+      for (const colName of collections) {
+        const snap = await getDocs(collection(db, colName));
+        const batch = writeBatch(db);
+        snap.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        console.log(`Collection '${colName}' dihapus.`);
+      }
+      
+      // Buat ulang superuser
       const superUserRef = doc(collection(db, 'users'));
-      batch.set(superUserRef, {
+      const { setDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+      await setDoc(superUserRef, {
         username: 'ptpam',
         password: '945766',
         name: 'Superuser PTPAM',
         role: 'superuser',
         isSuperuser: true
       });
-      await batch.commit();
-      console.log("Superuser berhasil dibuat!");
+      
+      alert("✅ Database berhasil direset!\n\nSilakan login dengan:\nUsername: ptpam\nPassword: 945766");
+      location.reload();
+    } catch (e) {
+      console.error(e);
+      alert("❌ Gagal mereset database. Error: " + e.message);
     }
-  }
+    btn.textContent = 'Masuk'; btn.disabled = false;
+  };
 
   // ==========================================
   // AUTH (CASE-INSENSITIVE)
   // ==========================================
   window.doLogin = async () => {
-    // Dipaksa lowercase agar cocok dengan data yang tersimpan, membuat input user bebas huruf besar/kecil
     const u = document.getElementById('loginUsername').value.trim().toLowerCase();
     const p = document.getElementById('loginPassword').value;
     const btn = document.getElementById('btnLogin');
@@ -279,7 +344,14 @@
       const q = query(collection(db, 'users'), where('username', '==', u), where('password', '==', p));
       const snap = await getDocs(q);
       if (snap.empty) {
-        alert('Username atau password salah!');
+        // Coba cek apakah username ada tapi password salah
+        const q2 = query(collection(db, 'users'), where('username', '==', u));
+        const snap2 = await getDocs(q2);
+        if (!snap2.empty) {
+          alert('❌ Password salah untuk username "' + u + '"!');
+        } else {
+          alert('❌ Username "' + u + '" tidak ditemukan!\n\nJika ini pertama kali, klik tombol "Reset Database" di bawah.');
+        }
       } else {
         currentUser = snap.docs[0].data();
         currentUserDocId = snap.docs[0].id;
@@ -289,7 +361,7 @@
       }
     } catch (e) {
       console.error(e);
-      alert('Gagal terhubung ke database. Periksa koneksi internet.');
+      alert('❌ Gagal terhubung ke database.\n\nError: ' + e.message + '\n\nPeriksa:\n1. Koneksi internet\n2. Firebase Config sudah benar\n3. Firestore Rules mengizinkan akses');
     }
     btn.textContent = 'Masuk'; btn.disabled = false;
   };
@@ -333,14 +405,14 @@
     if (r === 'superuser') {
       tabs.push({ id: 'manage_accounts', label: '👑 Manajemen Akun' });
       tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
-      tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
+      tabs.push({ id: 'leave_view', label: ' Mutasi Cuti' });
     } else if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
       tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
       tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
     }
     
     if (r === 'staff_hrd') {
-      tabs.push({ id: 'employees', label: '👥 Karyawan' });
+      tabs.push({ id: 'employees', label: ' Karyawan' });
       tabs.push({ id: 'leave_mgmt', label: '⚙️ Request Adjust' });
       tabs.push({ id: 'leave_requests', label: '📬 Review Cuti' });
     }
@@ -392,7 +464,7 @@
   }
 
   // ==========================================
-  // TAB: MANAGE ACCOUNTS (SUPERUSER ONLY) - FITUR BARU
+  // TAB: MANAGE ACCOUNTS (SUPERUSER ONLY)
   // ==========================================
   async function renderManageAccounts() {
     const snap = await getDocs(query(collection(db, 'users'), orderBy('role')));
@@ -413,7 +485,7 @@
     return `
       <div class="card">
         <h3>👑 Manajemen Akun & Password</h3>
-        <div class="hint-box">💡 Superuser dapat melihat dan mengubah password akun manapun secara langsung. Perubahan akan langsung tersinkronisasi.</div>
+        <div class="hint-box"> Superuser dapat melihat dan mengubah password akun manapun secara langsung. Perubahan akan langsung tersinkronisasi.</div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Password Saat Ini</th><th>Aksi</th></tr></thead>
@@ -444,7 +516,7 @@
       await updateDoc(doc(db, 'users', userId), { password: newPass });
       window.closeModal();
       alert('✅ Password berhasil diubah!');
-      showTab('manage_accounts'); // Refresh tabel
+      showTab('manage_accounts');
     } catch (e) {
       console.error(e);
       alert('Gagal mengubah password. Periksa koneksi internet.');
@@ -458,11 +530,11 @@
     const r = currentUser.role;
     if (r === 'staff') return await renderStaffDashboard();
     if (r === 'staff_hrd' || r === 'kepala_hrd') return await renderHRDDashboard();
-    return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
+    return '<div class="card"><div class="empty-state"><div class="icon"></div><p>Silakan pilih menu di atas.</p></div></div>';
   }
 
   async function renderStaffDashboard() {
-    if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak terhubung.</p></div></div>`;
+    if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon"></div><p>Data karyawan tidak terhubung.</p></div></div>`;
     
     const q = query(collection(db, 'employees'), where('id', '==', currentUser.employeeId));
     const snap = await getDocs(q);
@@ -612,7 +684,7 @@
   };
 
   window.deleteEmployee = async (docId, empName, empId) => {
-    if (!confirm(`⚠️ Yakin ingin menghapus "${empName}"?\nData karyawan dan akun loginnya akan dihapus permanen.`)) return;
+    if (!confirm(`️ Yakin ingin menghapus "${empName}"?\nData karyawan dan akun loginnya akan dihapus permanen.`)) return;
     
     try {
       await deleteDoc(doc(db, 'employees', docId));
