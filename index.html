@@ -451,6 +451,7 @@
     `);
   };
 
+  // ✅ DIPERBAIKI: Validasi ID yang lebih aman
   window.saveNewAccount = async () => {
     const name = document.getElementById('newAccName').value.trim();
     const username = document.getElementById('newAccUsername').value.trim().toLowerCase();
@@ -470,8 +471,18 @@
       
       const snap = await getDocs(collection(db, 'employees'));
       const emps = snap.docs.map(d => d.data());
-      const lastId = emps.length > 0 ? emps.sort((a, b) => b.id.localeCompare(a.id))[0].id : 'E000';
-      const num = parseInt(lastId.substring(1)) + 1;
+      
+      let num = 1;
+      if (emps.length > 0) {
+        // Hanya ambil ID yang formatnya valid (E diikuti angka)
+        const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
+        if (validEmps.length > 0) {
+          validEmps.sort((a, b) => b.id.localeCompare(a.id));
+          num = parseInt(validEmps[0].id.substring(1)) + 1;
+        } else {
+          num = emps.length + 1; // Fallback jika format ID rusak
+        }
+      }
       const newEmpId = 'E' + String(num).padStart(3, '0');
       
       const batch = writeBatch(db);
@@ -588,7 +599,7 @@
     return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
   }
 
-  // Helper untuk render notifikasi pengajuan
+  // ✅ DIPERBAIKI: Sorting tanggal dengan fallback aman
   function renderMyNotifications(notifications) {
     if (notifications.length === 0) {
       return `<div class="empty-state" style="padding: 20px;"><div class="icon">🔔</div><p>Belum ada notifikasi pengajuan.</p></div>`;
@@ -603,7 +614,9 @@
       const date = isLeave ? `${fmtDate(n.startDate)} - ${fmtDate(n.endDate)}` : `${days} hari`;
       const reason = n.reason || n.note;
       const decisionBy = n.approvedBy || n.rejectedBy || 'Sistem';
-      const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || n.createdAt;
+      
+      // Fallback ke 0 jika semua field tanggal tidak ada, mencegah Invalid Date
+      const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || n.createdAt || 0;
 
       return `
         <div class="notification" style="border-left-color: ${isApproved ? '#10b981' : '#ef4444'}; background: ${isApproved ? '#f0fdf4' : '#fef2f2'}; margin-bottom: 8px;">
@@ -628,21 +641,20 @@
     const emp = snap.docs[0].data();
     const eligible = getEligibleLeave(emp.joinDate);
     
-    // Fetch notifications
     const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
     const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(r => r.status === 'approved' || r.status === 'rejected')
-      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
       .slice(0, 5);
 
     const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
     const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
       .filter(r => r.status === 'approved' || r.status === 'rejected')
-      .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+      .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
       .slice(0, 5);
 
     const allNotifications = [...leaveReqs, ...adjustReqs]
-      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
       .slice(0, 5);
     
     return `
@@ -666,39 +678,36 @@
 
   async function renderHRDStaffDashboard() {
     try {
-      // 1. Notifikasi Pengajuan Saya
       let myNotifHTML = '';
       if (currentUser.employeeId) {
         const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
         const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
           .filter(r => r.status === 'approved' || r.status === 'rejected')
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
           .slice(0, 3);
 
         const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
         const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
           .filter(r => r.status === 'approved' || r.status === 'rejected')
-          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
           .slice(0, 3);
 
         const allNotifications = [...leaveReqs, ...adjustReqs]
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
           .slice(0, 5);
         
         myNotifHTML = renderMyNotifications(allNotifications);
       }
 
-      // 2. Ambil semua data karyawan untuk mapping
       const empSnap = await getDocs(collection(db, 'employees'));
       const empMap = {};
       empSnap.docs.forEach(d => { empMap[d.data().id] = d.data(); });
 
-      // 3. Ambil semua request cuti
       const allReqs = await getDocs(collection(db, 'leaveRequests'));
       const pending = allReqs.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.status === 'pending_staff')
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       
       let pendingHTML = '';
       if (pending.length === 0) {
@@ -755,29 +764,27 @@
 
   async function renderKepalaHRDDashboard() {
     try {
-      // 1. Notifikasi Pengajuan Saya
       let myNotifHTML = '';
       if (currentUser.employeeId) {
         const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
         const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
           .filter(r => r.status === 'approved' || r.status === 'rejected')
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
           .slice(0, 3);
 
         const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
         const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
           .filter(r => r.status === 'approved' || r.status === 'rejected')
-          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
           .slice(0, 3);
 
         const allNotifications = [...leaveReqs, ...adjustReqs]
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
           .slice(0, 5);
         
         myNotifHTML = renderMyNotifications(allNotifications);
       }
 
-      // 2. Pending Approvals
       const [allLeaveReqs, allAdjustReqs] = await Promise.all([
         getDocs(collection(db, 'leaveRequests')),
         getDocs(collection(db, 'adjustmentRequests'))
@@ -786,12 +793,12 @@
       const pendingLeave = allLeaveReqs.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.status === 'pending_head')
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       
       const pendingAdjust = allAdjustReqs.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.status === 'pending_head')
-        .sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
+        .sort((a, b) => new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime());
       
       let leaveNotifHTML = '';
       if (pendingLeave.length === 0) {
@@ -869,7 +876,7 @@
     const isSuperuser = currentUser.role === 'superuser';
     
     const snap = await getDocs(collection(db, 'employees'));
-    const emps = snap.docs.map(d => ({ docId: d.id, ...d.data() })).sort((a, b) => new Date(b.joinDate) - new Date(a.joinDate));
+    const emps = snap.docs.map(d => ({ docId: d.id, ...d.data() })).sort((a, b) => new Date(b.joinDate || 0).getTime() - new Date(a.joinDate || 0).getTime());
     
     const rows = emps.map(e => {
       const eligible = getEligibleLeave(e.joinDate);
@@ -917,6 +924,7 @@
     `);
   };
 
+  // ✅ DIPERBAIKI: Validasi ID yang lebih aman (sama seperti saveNewAccount)
   window.saveNewStaff = async () => {
     const name = document.getElementById('newStaffName').value.trim();
     const username = document.getElementById('newStaffUsername').value.trim().toLowerCase();
@@ -929,8 +937,17 @@
     
     const snap = await getDocs(collection(db, 'employees'));
     const emps = snap.docs.map(d => d.data());
-    const lastId = emps.length > 0 ? emps.sort((a, b) => b.id.localeCompare(a.id))[0].id : 'E000';
-    const num = parseInt(lastId.substring(1)) + 1;
+    
+    let num = 1;
+    if (emps.length > 0) {
+      const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
+      if (validEmps.length > 0) {
+        validEmps.sort((a, b) => b.id.localeCompare(a.id));
+        num = parseInt(validEmps[0].id.substring(1)) + 1;
+      } else {
+        num = emps.length + 1;
+      }
+    }
     const newEmpId = 'E' + String(num).padStart(3, '0');
     
     const batch = writeBatch(db);
@@ -995,7 +1012,7 @@
     const myReqs = reqSnap.docs
       .map(d => ({ id: d.id, ...d.data() }))
       .filter(r => r.employeeId === emp.id)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     
     const rows = myReqs.map(r => {
       const days = daysBetween(r.startDate, r.endDate);
@@ -1096,7 +1113,7 @@
       note: note,
       status: 'pending_head', 
       requestedBy: currentUser.name,
-      requesterEmployeeId: currentUser.employeeId, // ✅ PENTING: Agar notifikasi muncul di dashboard
+      requesterEmployeeId: currentUser.employeeId, 
       requestedAt: new Date().toISOString()
     });
     window.closeModal();
@@ -1116,8 +1133,8 @@
       const allReqs = await getDocs(collection(db, 'leaveRequests'));
       const all = allReqs.docs.map(d => ({ id: d.id, ...d.data() }));
       
-      const pending = all.filter(r => r.status === 'pending_staff').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      const processed = all.filter(r => r.status !== 'pending_staff').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pending = all.filter(r => r.status === 'pending_staff').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const processed = all.filter(r => r.status !== 'pending_staff').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       
       const renderRows = (list, showAction) => list.map(r => {
         const days = daysBetween(r.startDate, r.endDate);
