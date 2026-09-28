@@ -14,23 +14,10 @@
   }
   .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
   
-  /* LOGIN */
-  .login-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
+  .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .login-card {
-    background: rgba(255,255,255,0.98);
-    backdrop-filter: blur(12px);
-    padding: 32px 28px;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 380px;
-    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); padding: 32px 28px;
+    border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 380px; border: 1px solid rgba(255,255,255,0.3);
   }
   .login-card h1 { color: #4f46e5; text-align: center; margin-bottom: 8px; font-size: 24px; }
   .login-card p.subtitle { text-align: center; color: #64748b; margin-bottom: 28px; font-size: 13px; }
@@ -60,30 +47,21 @@
   .btn-secondary:hover { background: #cbd5e1; }
   .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
 
-  /* APP LAYOUT */
   .app-wrapper { display: none; }
   .app-wrapper.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   .topbar {
-    background: rgba(255,255,255,0.98);
-    backdrop-filter: blur(12px);
-    padding: 14px 18px;
-    border-radius: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.98); backdrop-filter: blur(12px); padding: 14px 18px;
+    border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.6);
   }
   .topbar h2 { color: #4f46e5; font-size: 18px; display: flex; align-items: center; gap: 8px; }
   .user-info { display: flex; align-items: center; gap: 10px; }
   .user-avatar {
     width: 38px; height: 38px; border-radius: 50%;
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 14px;
+    color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
   }
   .user-detail { text-align: right; }
   .user-detail .name { font-weight: 600; font-size: 13px; color: #1e293b; }
@@ -96,26 +74,16 @@
     font-family: inherit; color: #64748b; font-size: 12px; white-space: nowrap;
   }
   .nav-tab:hover { background: white; color: #4f46e5; }
-  .nav-tab.active {
-    background: #4f46e5; color: white; border-color: #4f46e5;
-    box-shadow: 0 4px 12px rgba(79,70,229,0.25);
-  }
+  .nav-tab.active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
 
   .card {
-    background: rgba(255,255,255,0.98);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.98); border-radius: 14px; padding: 18px;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.6);
   }
   .card h3 { color: #334155; margin-bottom: 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
-  .stat-card {
-    background: white; padding: 16px; border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;
-  }
+  .stat-card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
   .stat-card .label { font-size: 11px; color: #64748b; font-weight: 500; }
   .stat-card .value { font-size: 24px; font-weight: 700; color: #1e293b; margin-top: 4px; }
   .stat-card.indigo { border-left: 4px solid #4f46e5; }
@@ -135,16 +103,8 @@
   .badge-plus { background: #d1fae5; color: #065f46; }
 
   .notification {
-    background: #fffbeb;
-    border-left: 4px solid #f59e0b;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 2px 8px rgba(245,158,11,0.1);
+    background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 10px;
+    margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(245,158,11,0.1);
   }
   .notification .notif-text { font-size: 12px; color: #78350f; line-height: 1.4; }
   .notification .notif-text strong { color: #451a03; }
@@ -170,10 +130,8 @@
     padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #1e40af; margin-bottom: 14px;
   }
   .table-wrapper { overflow-x: auto; }
-  
   .loading { text-align: center; padding: 30px; color: #64748b; }
   
-  /* Responsive */
   @media (max-width: 640px) {
     .container { padding: 10px; }
     .login-card { padding: 24px 20px; }
@@ -238,18 +196,21 @@
 <!-- FIREBASE WEB SDK (Modular v10) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  import { 
+    getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, 
+    query, where, orderBy, onSnapshot, writeBatch 
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   // ==========================================
-  // ⚠️ GANTI DENGAN CONFIG WEB APP ANDA
+  // ✅ FIREBASE CONFIG (SUDAH DIPERBAIKI)
   // ==========================================
   const firebaseConfig = {
-    apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+    apiKey: "AIzaSyDhGxzuzU-pQo6p8xJwdmC6bQIZV-po-A4",
     authDomain: "hrd-portal-9a5fd.firebaseapp.com",
     projectId: "hrd-portal-9a5fd",
-    storageBucket: "hrd-portal-9a5fd.appspot.com",
-    messagingSenderId: "GANTI_DENGAN_SENDER_ID",
-    appId: "GANTI_DENGAN_APP_ID"
+    storageBucket: "hrd-portal-9a5fd.firebasestorage.app",
+    messagingSenderId: "938883233737",
+    appId: "1:938883233737:web:9368aac16b5b6a12685a18"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -260,8 +221,9 @@
   // STATE & HELPERS
   // ==========================================
   let currentUser = null;
-  let currentUserDocId = null; // Store user document ID
+  let currentUserDocId = null;
   let unsubscribeLeave = null;
+  let unsubscribeAdjust = null;
 
   const ROLE_LABEL = {
     direktur: 'Direktur',
@@ -303,20 +265,14 @@
         { username: 'lily', password: '1234', name: 'Lily', role: 'staff_hrd' },
         { username: 'wilson', password: '1234', name: 'Wilson', role: 'staff' },
       ];
-      users.forEach(u => {
-        const ref = doc(collection(db, 'users'));
-        batch.set(ref, u);
-      });
+      users.forEach(u => { batch.set(doc(collection(db, 'users')), u); });
       
       const emps = [
         { id: 'E001', name: 'Wilson', joinDate: '2024-03-15', leaveBalance: 8, leaveHistory: [] },
         { id: 'E002', name: 'Budi Santoso', joinDate: '2023-06-01', leaveBalance: 12, leaveHistory: [] },
         { id: 'E003', name: 'Siti Aminah', joinDate: '2025-01-10', leaveBalance: 0, leaveHistory: [] },
       ];
-      emps.forEach(e => {
-        const ref = doc(collection(db, 'employees'));
-        batch.set(ref, e);
-      });
+      emps.forEach(e => { batch.set(doc(collection(db, 'employees')), e); });
       
       await batch.commit();
       console.log("Data awal berhasil dibuat!");
@@ -346,7 +302,7 @@
       }
     } catch (e) {
       console.error(e);
-      alert('Gagal terhubung ke database. Periksa konfigurasi Firebase.');
+      alert('Gagal terhubung ke database. Periksa koneksi internet.');
     }
     btn.textContent = 'Masuk'; btn.disabled = false;
   };
@@ -357,6 +313,7 @@
     sessionStorage.removeItem('hrd_user');
     sessionStorage.removeItem('hrd_user_doc_id');
     if (unsubscribeLeave) unsubscribeLeave();
+    if (unsubscribeAdjust) unsubscribeAdjust();
     document.getElementById('appScreen').classList.remove('active');
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('loginUsername').value = '';
@@ -389,37 +346,25 @@
     const tabs = [];
     const r = currentUser.role;
     
-    // Semua role bisa lihat dashboard
     if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
       tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
-    }
-    
-    // Staff dan HRD bisa ajukan cuti
-    if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
       tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
     }
-    
-    // Staff HRD
     if (r === 'staff_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
-      tabs.push({ id: 'leave_mgmt', label: '️ Kelola Cuti' });
-      tabs.push({ id: 'leave_requests', label: ' Review Cuti' });
+      tabs.push({ id: 'leave_mgmt', label: '⚙️ Request Adjust' });
+      tabs.push({ id: 'leave_requests', label: '📬 Review Cuti' });
     }
-    
-    // Kepala HRD
     if (r === 'kepala_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
       tabs.push({ id: 'leave_approval', label: '✅ Approval Cuti' });
+      tabs.push({ id: 'adjust_approval', label: '✅ Approval Adjust' });
     }
-    
-    // Direktur & Komisaris
     if (r === 'direktur' || r === 'komisaris') {
       tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
     }
-    
-    // Semua user bisa ganti password
-    tabs.push({ id: 'change_password', label: ' Ganti Password' });
+    tabs.push({ id: 'change_password', label: '🔒 Ganti Password' });
 
     const nav = document.getElementById('navTabs');
     nav.innerHTML = '';
@@ -442,6 +387,7 @@
     c.innerHTML = '<div class="loading">Memuat...</div>';
     
     if (unsubscribeLeave) { unsubscribeLeave(); unsubscribeLeave = null; }
+    if (unsubscribeAdjust) { unsubscribeAdjust(); unsubscribeAdjust = null; }
 
     if (id === 'dashboard') c.innerHTML = await renderDashboard();
     else if (id === 'apply_leave') c.innerHTML = await renderApplyLeave();
@@ -449,6 +395,7 @@
     else if (id === 'leave_mgmt') c.innerHTML = await renderLeaveMgmt();
     else if (id === 'leave_requests') c.innerHTML = await renderLeaveRequests();
     else if (id === 'leave_approval') c.innerHTML = await renderLeaveApproval();
+    else if (id === 'adjust_approval') c.innerHTML = await renderAdjustApproval();
     else if (id === 'leave_view') c.innerHTML = await renderLeaveView();
     else if (id === 'change_password') c.innerHTML = renderChangePassword();
   }
@@ -458,16 +405,15 @@
   // ==========================================
   async function renderDashboard() {
     const r = currentUser.role;
-    if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
-      return await renderStaffDashboard();
-    }
-    return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
+    if (r === 'staff') return await renderStaffDashboard();
+    if (r === 'staff_hrd' || r === 'kepala_hrd') return await renderHRDDashboard();
+    return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu Data Karyawan atau Mutasi Cuti.</p></div></div>';
   }
 
   async function renderStaffDashboard() {
     const q = query(collection(db, 'employees'), where('name', '==', currentUser.name));
     const snap = await getDocs(q);
-    if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terdaftar. Hubungi HRD.</p></div></div>`;
+    if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terdaftar.</p></div></div>`;
     
     const emp = snap.docs[0].data();
     const eligible = getEligibleLeave(emp.joinDate);
@@ -521,15 +467,9 @@
             `;
           });
         }
-        
         const html = `
-          <div class="stats-grid">
-            <div class="stat-card amber"><div class="label">${label}</div><div class="value">${pending.length}</div></div>
-          </div>
-          <div class="card">
-            <h3> Pengajuan Cuti Terbaru</h3>
-            ${notifHTML}
-          </div>
+          <div class="stats-grid"><div class="stat-card amber"><div class="label">${label}</div><div class="value">${pending.length}</div></div></div>
+          <div class="card"><h3>📬 Pengajuan Cuti Terbaru</h3>${notifHTML}</div>
         `;
         document.getElementById('mainContent').innerHTML = html;
         resolve();
@@ -538,10 +478,10 @@
   }
 
   // ==========================================
-  // TAB: EMPLOYEES
+  // TAB: EMPLOYEES (DENGAN FITUR HAPUS)
   // ==========================================
   async function renderEmployees() {
-    const canAdd = currentUser.role === 'staff_hrd';
+    const canManage = currentUser.role === 'staff_hrd';
     const snap = await getDocs(query(collection(db, 'employees'), orderBy('joinDate', 'desc')));
     const emps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     
@@ -553,7 +493,10 @@
           <td><strong>${e.name}</strong></td>
           <td>${fmtDate(e.joinDate)}</td>
           <td>${eligible ? '✅' : '⏳'} <strong>${e.leaveBalance}</strong> hari</td>
-          <td><button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button></td>
+          <td>
+            <button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>
+            ${canManage ? `<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}', '${e.name}')">Hapus</button>` : ''}
+          </td>
         </tr>
       `;
     }).join('');
@@ -562,7 +505,7 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
           <h3 style="margin:0">Data Karyawan</h3>
-          ${canAdd ? `<button class="btn btn-primary" style="width:auto" onclick="openAddEmployee()">+ Tambah Karyawan</button>` : ''}
+          ${canManage ? `<button class="btn btn-primary" style="width:auto" onclick="openAddEmployee()">+ Tambah Karyawan</button>` : ''}
         </div>
         <div class="table-wrapper">
           <table>
@@ -595,11 +538,9 @@
     
     if (!name || !username || !join) { alert('Lengkapi semua field!'); return; }
     
-    // Cek username sudah ada atau belum
     const userCheck = await getDocs(query(collection(db, 'users'), where('username', '==', username)));
     if (!userCheck.empty) { alert('Username sudah digunakan!'); return; }
     
-    // Cek nama karyawan sudah ada atau belum
     const empCheck = await getDocs(query(collection(db, 'employees'), where('name', '==', name)));
     if (!empCheck.empty) { alert('Nama karyawan sudah terdaftar!'); return; }
     
@@ -609,26 +550,35 @@
     const newId = 'E' + String(num).padStart(3, '0');
     
     const batch = writeBatch(db);
-    
-    // Tambah user
-    const userRef = doc(collection(db, 'users'));
-    batch.set(userRef, {
-      username: username,
-      password: '1234',
-      name: name,
-      role: 'staff'
-    });
-    
-    // Tambah employee
-    const empRef = doc(collection(db, 'employees'));
-    batch.set(empRef, {
-      id: newId, name, joinDate: join, leaveBalance: 0, leaveHistory: []
-    });
+    batch.set(doc(collection(db, 'users')), { username: username, password: '1234', name: name, role: 'staff' });
+    batch.set(doc(collection(db, 'employees')), { id: newId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
     
     await batch.commit();
     window.closeModal();
     showTab('employees');
     alert('✅ Karyawan berhasil ditambahkan!\nUsername: ' + username + '\nPassword: 1234');
+  };
+
+  window.deleteEmployee = async (empId, empName) => {
+    if (!confirm(`⚠️ Yakin ingin menghapus karyawan "${empName}"?\nTindakan ini akan menghapus data karyawan dan akun loginnya secara permanen.`)) return;
+    
+    try {
+      // Hapus data employee
+      const eq = query(collection(db, 'employees'), where('id', '==', empId));
+      const eSnap = await getDocs(eq);
+      if (!eSnap.empty) await deleteDoc(eSnap.docs[0].ref);
+
+      // Hapus akun user yang terkait (berdasarkan nama)
+      const uq = query(collection(db, 'users'), where('name', '==', empName));
+      const uSnap = await getDocs(uq);
+      uSnap.forEach(async (d) => await deleteDoc(d.ref));
+
+      alert('✅ Karyawan berhasil dihapus dari sistem.');
+      showTab('employees');
+    } catch (e) {
+      console.error(e);
+      alert('Gagal menghapus karyawan.');
+    }
   };
 
   window.viewEmpDetail = async (empId) => {
@@ -652,7 +602,7 @@
   };
 
   // ==========================================
-  // TAB: APPLY LEAVE (Staff & HRD)
+  // TAB: APPLY LEAVE
   // ==========================================
   async function renderApplyLeave() {
     const q = query(collection(db, 'employees'), where('name', '==', currentUser.name));
@@ -710,7 +660,7 @@
   };
 
   // ==========================================
-  // TAB: LEAVE MGMT (Staff HRD Adjust)
+  // TAB: LEAVE MGMT & ADJUST REQUEST (Staff HRD)
   // ==========================================
   async function renderLeaveMgmt() {
     const snap = await getDocs(query(collection(db, 'employees'), orderBy('name')));
@@ -718,14 +668,14 @@
     const rows = emps.map(e => `
       <tr>
         <td>${e.id}</td><td><strong>${e.name}</strong></td><td>${e.leaveBalance} hari</td>
-        <td><button class="btn btn-warning btn-sm" onclick="openAdjustLeave('${e.id}', '${e.name}', ${e.leaveBalance})">Adjust Cuti</button></td>
+        <td><button class="btn btn-warning btn-sm" onclick="openRequestAdjust('${e.id}', '${e.name}', ${e.leaveBalance})">Request Adjust</button></td>
       </tr>
     `).join('');
     
     return `
       <div class="card">
-        <h3>Manajemen Cuti Karyawan</h3>
-        <div class="hint-box">💡 Gunakan fitur ini untuk menginput pengurangan/penambahan cuti (misal: karena tidak mengikuti tanggal merah, atau hutang cuti). Nilai bisa minus.</div>
+        <h3>Request Adjust Cuti Karyawan</h3>
+        <div class="hint-box">💡 Pengajuan adjust cuti (misal: hutang cuti / tidak ikut tanggal merah) harus disetujui oleh Kepala HRD. Direktur & Komisaris akan melihat riwayat persetujuannya.</div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead>
@@ -736,46 +686,41 @@
     `;
   }
 
-  window.openAdjustLeave = (empId, name, currentBalance) => {
+  window.openRequestAdjust = (empId, name, currentBalance) => {
     window.openModal(`
-      <h3>Adjust Cuti - ${name}</h3>
+      <h3>Request Adjust Cuti - ${name}</h3>
       <p>Sisa cuti saat ini: <strong>${currentBalance} hari</strong></p>
       <div class="form-group"><label>Jumlah Hari (gunakan minus untuk pengurangan)</label><input type="number" id="adjDays" placeholder="Contoh: -2 atau 12"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="adjNote" rows="2" placeholder="Misal: Pengurangan karena tidak mengikuti tanggal merah"></textarea></div>
+      <div class="form-group"><label>Catatan / Alasan</label><textarea id="adjNote" rows="2" placeholder="Misal: Pengurangan karena tidak mengikuti tanggal merah"></textarea></div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
-        <button class="btn btn-primary" style="width:auto" onclick="saveAdjustLeave('${empId}')">Simpan</button>
+        <button class="btn btn-primary" style="width:auto" onclick="submitRequestAdjust('${empId}', '${name}', ${currentBalance})">Kirim Request</button>
       </div>
     `);
   };
 
-  window.saveAdjustLeave = async (empId) => {
+  window.submitRequestAdjust = async (empId, empName, currentBalance) => {
     const days = parseInt(document.getElementById('adjDays').value);
     const note = document.getElementById('adjNote').value.trim() || 'Adjustment manual';
     if (isNaN(days)) { alert('Masukkan jumlah hari yang valid'); return; }
     
-    const q = query(collection(db, 'employees'), where('id', '==', empId));
-    const snap = await getDocs(q);
-    if (snap.empty) return;
-    
-    const empRef = snap.docs[0].ref;
-    const currentData = snap.docs[0].data();
-    const newBalance = currentData.leaveBalance + days;
-    const newHistory = [...(currentData.leaveHistory || []), {
-      date: new Date().toISOString().split('T')[0],
-      type: 'Adjustment',
-      days: Math.abs(days),
-      amount: days,
-      note: note
-    }];
-    
-    await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
+    await addDoc(collection(db, 'adjustmentRequests'), {
+      employeeId: empId,
+      employeeName: empName,
+      currentBalance: currentBalance,
+      adjustmentDays: days,
+      note: note,
+      status: 'pending_head',
+      requestedBy: currentUser.name,
+      requestedAt: new Date().toISOString()
+    });
     window.closeModal();
+    alert('✅ Request adjust cuti berhasil dikirim ke Kepala HRD untuk persetujuan.');
     showTab('leave_mgmt');
   };
 
   // ==========================================
-  // TAB: LEAVE REQUESTS (Staff HRD Review)
+  // TAB: LEAVE REQUESTS (Staff HRD Review Cuti)
   // ==========================================
   async function renderLeaveRequests() {
     const qPending = query(collection(db, 'leaveRequests'), where('status', '==', 'pending_staff'), orderBy('createdAt', 'desc'));
@@ -835,10 +780,7 @@
   };
 
   window.staffReject = async (reqId) => {
-    await updateDoc(doc(db, 'leaveRequests', reqId), { 
-      status: 'rejected', 
-      rejectedBy: currentUser.name 
-    });
+    await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name });
     showTab('leave_requests');
   };
 
@@ -882,7 +824,7 @@
         </div>
       </div>
       <div class="card">
-        <h3>Riwayat Approval</h3>
+        <h3>Riwayat Approval Cuti</h3>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead>
@@ -899,16 +841,113 @@
       headApprovedAt: new Date().toISOString(),
       approvedBy: currentUser.name
     });
-    alert('✅ Cuti disetujui. Silakan minta Staff HRD melakukan pengurangan cuti di menu "Kelola Cuti".');
+    alert('✅ Cuti disetujui. Silakan minta Staff HRD melakukan pengurangan cuti di menu "Request Adjust".');
     showTab('leave_approval');
   };
 
   window.headReject = async (reqId) => {
-    await updateDoc(doc(db, 'leaveRequests', reqId), { 
-      status: 'rejected', 
-      rejectedBy: currentUser.name 
-    });
+    await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name });
     showTab('leave_approval');
+  };
+
+  // ==========================================
+  // TAB: ADJUST APPROVAL (Kepala HRD)
+  // ==========================================
+  async function renderAdjustApproval() {
+    const qPending = query(collection(db, 'adjustmentRequests'), where('status', '==', 'pending_head'), orderBy('requestedAt', 'desc'));
+    const qProcessed = query(collection(db, 'adjustmentRequests'), where('status', 'in', ['approved', 'rejected']), orderBy('requestedAt', 'desc'));
+    
+    const [snapPending, snapProcessed] = await Promise.all([getDocs(qPending), getDocs(qProcessed)]);
+    const pending = snapPending.docs.map(d => ({ id: d.id, ...d.data() }));
+    const processed = snapProcessed.docs.map(d => ({ id: d.id, ...d.data() }));
+    
+    const renderRows = (list, showAction) => list.map(r => {
+      const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+      const actionText = r.adjustmentDays > 0 ? `+${r.adjustmentDays} hari` : `${r.adjustmentDays} hari`;
+      return `
+        <tr>
+          <td><strong>${r.employeeName}</strong></td>
+          <td>${r.currentBalance} hari</td>
+          <td><span class="${r.adjustmentDays > 0 ? 'badge-plus' : 'badge-minus'}" style="padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600">${actionText}</span></td>
+          <td>${r.note}<br><small style="color:#64748b">Diajukan oleh: ${r.requestedBy}</small></td>
+          <td><span class="badge ${badge}">${r.status}</span></td>
+          ${showAction ? `<td>
+            <button class="btn btn-success btn-sm" onclick="approveAdjustment('${r.id}')">Setujui</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectAdjustment('${r.id}')">Tolak</button>
+          </td>` : `<td><small>${r.approvedBy || r.rejectedBy || '-'}</small></td>`}
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="card">
+        <h3>Menunggu Approval Adjust Cuti (${pending.length})</h3>
+        <div class="hint-box">💡 Setelah disetujui, saldo cuti karyawan akan otomatis berubah dan tercatat di riwayat mutasi yang dapat dilihat oleh Direktur & Komisaris.</div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Karyawan</th><th>Saldo Awal</th><th>Adjust</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
+            <tbody>${renderRows(pending, pending.length>0) || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px">Tidak ada permintaan adjust</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Riwayat Approval Adjust</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Karyawan</th><th>Saldo Awal</th><th>Adjust</th><th>Alasan</th><th>Status</th><th>Keputusan Oleh</th></tr></thead>
+            <tbody>${renderRows(processed, false) || '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px">Belum ada riwayat</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  window.approveAdjustment = async (reqId) => {
+    try {
+      const reqRef = doc(db, 'adjustmentRequests', reqId);
+      const reqSnap = await getDoc(reqRef);
+      if (!reqSnap.exists()) return;
+      const reqData = reqSnap.data();
+
+      // Update saldo dan riwayat karyawan
+      const eq = query(collection(db, 'employees'), where('id', '==', reqData.employeeId));
+      const eSnap = await getDocs(eq);
+      if (!eSnap.empty) {
+        const empRef = eSnap.docs[0].ref;
+        const empData = eSnap.docs[0].data();
+        const newBalance = empData.leaveBalance + reqData.adjustmentDays;
+        const newHistory = [...(empData.leaveHistory || []), {
+          date: new Date().toISOString().split('T')[0],
+          type: 'Adjustment (Disetujui)',
+          days: Math.abs(reqData.adjustmentDays),
+          amount: reqData.adjustmentDays,
+          note: `${reqData.note} | Diajukan: ${reqData.requestedBy}, Disetujui: ${currentUser.name}`
+        }];
+        await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
+      }
+
+      // Update status request
+      await updateDoc(reqRef, { 
+        status: 'approved', 
+        approvedBy: currentUser.name,
+        approvedAt: new Date().toISOString()
+      });
+      
+      alert('✅ Adjust cuti disetujui dan saldo karyawan telah diperbarui. Direktur & Komisaris dapat melihatnya di menu Mutasi Cuti.');
+      showTab('adjust_approval');
+    } catch (e) {
+      console.error(e);
+      alert('Gagal memproses approval.');
+    }
+  };
+
+  window.rejectAdjustment = async (reqId) => {
+    await updateDoc(doc(db, 'adjustmentRequests', reqId), { 
+      status: 'rejected', 
+      rejectedBy: currentUser.name,
+      rejectedAt: new Date().toISOString()
+    });
+    showTab('adjust_approval');
   };
 
   // ==========================================
@@ -919,10 +958,13 @@
     const emps = snap.docs.map(d => d.data());
     
     const rows = emps.map(e => {
-      const history = (e.leaveHistory || []).slice().reverse().slice(0, 3);
+      const history = (e.leaveHistory || []).slice().reverse().slice(0, 5); // Tampilkan 5 terakhir agar lebih jelas
       const histStr = history.length ? history.map(h =>
-        `<div style="font-size:11px;color:#64748b;margin-top:4px">• ${fmtDate(h.date)}: <span class="${h.amount>0?'badge-plus':'badge-minus'}" style="padding:2px 6px;border-radius:4px;font-size:10px">${h.amount>0?'+':''}${h.amount} hari</span> (${h.type}) <em style="color:#94a3b8">- ${h.note}</em></div>`
-      ).join('') : '<div style="font-size:11px;color:#94a3b8">Belum ada mutasi</div>';
+        `<div style="font-size:11px;color:#64748b;margin-top:6px;padding:6px;background:#f8fafc;border-radius:6px">
+           • ${fmtDate(h.date)}: <span class="${h.amount>0?'badge-plus':'badge-minus'}" style="padding:2px 6px;border-radius:4px;font-size:10px">${h.amount>0?'+':''}${h.amount} hari</span> (${h.type})<br>
+           <em style="color:#475569">Ket: ${h.note}</em>
+         </div>`
+      ).join('') : '<div style="font-size:11px;color:#94a3b8;padding:6px">Belum ada mutasi</div>';
       return `
         <tr>
           <td>${e.id}</td>
@@ -936,9 +978,10 @@
     return `
       <div class="card">
         <h3>Sisa Cuti & Mutasi Karyawan</h3>
+        <div class="hint-box">💡 Catatan: Riwayat mutasi menampilkan detail siapa yang mengajukan dan siapa yang menyetujui adjust cuti untuk transparansi.</div>
         <div class="table-wrapper">
           <table>
-            <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Mutasi Terakhir (3 Terbaru)</th></tr></thead>
+            <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Riwayat Mutasi (5 Terbaru)</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
         </div>
@@ -953,7 +996,7 @@
     return `
       <div class="card">
         <h3>🔒 Ganti Password</h3>
-        <div class="hint-box"> Password akan disimpan di Firestore dan tersinkronisasi ke semua device.</div>
+        <div class="hint-box">Password akan disimpan di Firestore dan tersinkronisasi ke semua device.</div>
         <div class="form-group"><label>Password Lama</label><input type="password" id="oldPassword" placeholder="Masukkan password lama"></div>
         <div class="form-group"><label>Password Baru</label><input type="password" id="newPassword" placeholder="Masukkan password baru"></div>
         <div class="form-group"><label>Konfirmasi Password Baru</label><input type="password" id="confirmPassword" placeholder="Ketik ulang password baru"></div>
@@ -974,7 +1017,6 @@
     
     try {
       await updateDoc(doc(db, 'users', currentUserDocId), { password: newPass });
-      // Update session storage
       currentUser.password = newPass;
       sessionStorage.setItem('hrd_user', JSON.stringify(currentUser));
       alert('✅ Password berhasil diubah! Silakan login ulang dengan password baru.');
