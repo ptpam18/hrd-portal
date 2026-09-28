@@ -106,6 +106,7 @@
   }
   .notification .notif-text { font-size: 12px; color: #78350f; line-height: 1.5; }
   .notification .notif-text strong { color: #451a03; }
+  
   .balance-info { 
     background: rgba(255,255,255,0.7); padding: 8px 12px; border-radius: 8px; 
     font-size: 12px; margin-top: 6px; border: 1px solid #e2e8f0;
@@ -260,17 +261,13 @@
     try {
       const superCheck = await getDocs(query(collection(db, 'users'), where('username', '==', 'ptpam')));
       if (superCheck.empty) {
-        console.log("Membuat superuser...");
         const superUserRef = doc(collection(db, 'users'));
         await setDoc(superUserRef, {
           username: 'ptpam', password: '945766',
           name: 'Superuser PTPAM', role: 'superuser', isSuperuser: true
         });
-        console.log("✅ Superuser berhasil dibuat!");
       }
-    } catch (e) {
-      console.error("Error seedData:", e);
-    }
+    } catch (e) { console.error("Error seedData:", e); }
   }
 
   // ==========================================
@@ -591,6 +588,36 @@
     return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
   }
 
+  // Helper untuk render notifikasi pengajuan
+  function renderMyNotifications(notifications) {
+    if (notifications.length === 0) {
+      return `<div class="empty-state" style="padding: 20px;"><div class="icon">🔔</div><p>Belum ada notifikasi pengajuan.</p></div>`;
+    }
+    return notifications.map(n => {
+      const isLeave = n.startDate !== undefined;
+      const type = isLeave ? 'Pengajuan Cuti' : 'Request Adjust Cuti';
+      const days = isLeave ? daysBetween(n.startDate, n.endDate) : n.adjustmentDays;
+      const isApproved = n.status === 'approved';
+      const badgeClass = isApproved ? 'badge-approved' : 'badge-rejected';
+      const statusText = isApproved ? 'Disetujui' : 'Ditolak';
+      const date = isLeave ? `${fmtDate(n.startDate)} - ${fmtDate(n.endDate)}` : `${days} hari`;
+      const reason = n.reason || n.note;
+      const decisionBy = n.approvedBy || n.rejectedBy || 'Sistem';
+      const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || n.createdAt;
+
+      return `
+        <div class="notification" style="border-left-color: ${isApproved ? '#10b981' : '#ef4444'}; background: ${isApproved ? '#f0fdf4' : '#fef2f2'}; margin-bottom: 8px;">
+          <div class="notif-text" style="color: ${isApproved ? '#065f46' : '#991b1b'};">
+            <strong>${type}</strong> Anda <span class="badge ${badgeClass}">${statusText}</span><br>
+            Periode/Jumlah: <strong>${date}</strong><br>
+            <em>${reason}</em><br>
+            <small style="opacity: 0.8;">Oleh: ${decisionBy} pada ${fmtDate(decisionDate)}</small>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   async function renderStaffDashboard() {
     if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak terhubung.</p></div></div>`;
     
@@ -601,12 +628,35 @@
     const emp = snap.docs[0].data();
     const eligible = getEligibleLeave(emp.joinDate);
     
+    // Fetch notifications
+    const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
+    const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => r.status === 'approved' || r.status === 'rejected')
+      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+      .slice(0, 5);
+
+    const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
+    const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => r.status === 'approved' || r.status === 'rejected')
+      .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+      .slice(0, 5);
+
+    const allNotifications = [...leaveReqs, ...adjustReqs]
+      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+      .slice(0, 5);
+    
     return `
       <div class="stats-grid">
         <div class="stat-card indigo"><div class="label">Sisa Cuti</div><div class="value">${emp.leaveBalance} <span style="font-size:14px;color:#64748b">hari</span></div></div>
         <div class="stat-card emerald"><div class="label">Status Kelayakan</div><div class="value" style="font-size:16px">${eligible ? '✅ Layak Cuti' : '⏳ Belum 1 Thn'}</div></div>
         <div class="stat-card amber"><div class="label">Tanggal Bergabung</div><div class="value" style="font-size:16px">${fmtDate(emp.joinDate)}</div></div>
       </div>
+      
+      <div class="card">
+        <h3>🔔 Notifikasi Pengajuan Saya</h3>
+        ${renderMyNotifications(allNotifications)}
+      </div>
+
       <div class="card">
         <h3>📜 Mutasi Cuti Saya</h3>
         ${renderLeaveHistory(emp.leaveHistory || [])}
@@ -614,42 +664,58 @@
     `;
   }
 
-  // ✅ DIPERBAIKI: Menampilkan kalkulasi sisa cuti pada notifikasi Staff HRD
   async function renderHRDStaffDashboard() {
     try {
-      // 1. Ambil semua data karyawan sekali saja untuk performa (mapping by ID)
+      // 1. Notifikasi Pengajuan Saya
+      let myNotifHTML = '';
+      if (currentUser.employeeId) {
+        const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
+        const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(r => r.status === 'approved' || r.status === 'rejected')
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+          .slice(0, 3);
+
+        const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
+        const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(r => r.status === 'approved' || r.status === 'rejected')
+          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+          .slice(0, 3);
+
+        const allNotifications = [...leaveReqs, ...adjustReqs]
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+          .slice(0, 5);
+        
+        myNotifHTML = renderMyNotifications(allNotifications);
+      }
+
+      // 2. Ambil semua data karyawan untuk mapping
       const empSnap = await getDocs(collection(db, 'employees'));
       const empMap = {};
-      empSnap.docs.forEach(d => {
-        const data = d.data();
-        empMap[data.id] = data;
-      });
+      empSnap.docs.forEach(d => { empMap[d.data().id] = d.data(); });
 
-      // 2. Ambil semua request cuti
+      // 3. Ambil semua request cuti
       const allReqs = await getDocs(collection(db, 'leaveRequests'));
       const pending = allReqs.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.status === 'pending_staff')
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       
-      let notifHTML = '';
+      let pendingHTML = '';
       if (pending.length === 0) {
-        notifHTML = `<div class="empty-state"><div class="icon">✨</div><p>Tidak ada pengajuan cuti yang menunggu review Anda.</p></div>`;
+        pendingHTML = `<div class="empty-state"><div class="icon">✨</div><p>Tidak ada pengajuan cuti yang menunggu review Anda.</p></div>`;
       } else {
         pending.forEach(req => {
           const days = daysBetween(req.startDate, req.endDate);
           const emp = empMap[req.employeeId];
           const currentBalance = emp ? emp.leaveBalance : 0;
           const projectedBalance = currentBalance - days;
-          
-          // Tentukan warna dan teks berdasarkan proyeksi saldo
           const isDebt = projectedBalance < 0;
           const balanceClass = isDebt ? 'balance-debt' : 'balance-safe';
           const balanceText = isDebt 
             ? `⚠️ Proyeksi: <strong class="${balanceClass}">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
             : `✅ Proyeksi Sisa: <strong class="${balanceClass}">${projectedBalance} hari</strong>`;
 
-          notifHTML += `
+          pendingHTML += `
             <div class="notification">
               <div style="flex: 1;">
                 <div class="notif-text">
@@ -658,9 +724,8 @@
                   <em>Alasan: ${req.reason}</em>
                 </div>
                 <div class="balance-info">
-                  Sisa cuti saat ini: <strong>${currentBalance} hari</strong> 
-                  &nbsp;|&nbsp; Pengajuan: <strong>${days} hari</strong>
-                  <br>${balanceText}
+                  Sisa cuti saat ini: <strong>${currentBalance} hari</strong> &nbsp;|&nbsp; Pengajuan: <strong>${days} hari</strong><br>
+                  ${balanceText}
                 </div>
               </div>
               <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:flex-start">
@@ -673,12 +738,13 @@
       }
       
       return `
+        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Pengajuan Saya</h3>${myNotifHTML}</div>` : ''}
         <div class="stats-grid">
           <div class="stat-card amber"><div class="label">Menunggu Review Anda</div><div class="value">${pending.length}</div></div>
         </div>
         <div class="card">
           <h3>📬 Pengajuan Cuti Perlu Review</h3>
-          ${notifHTML}
+          ${pendingHTML}
         </div>
       `;
     } catch (e) {
@@ -689,6 +755,29 @@
 
   async function renderKepalaHRDDashboard() {
     try {
+      // 1. Notifikasi Pengajuan Saya
+      let myNotifHTML = '';
+      if (currentUser.employeeId) {
+        const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
+        const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(r => r.status === 'approved' || r.status === 'rejected')
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt))
+          .slice(0, 3);
+
+        const adjustReqsSnap = await getDocs(query(collection(db, 'adjustmentRequests'), where('requesterEmployeeId', '==', currentUser.employeeId)));
+        const adjustReqs = adjustReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(r => r.status === 'approved' || r.status === 'rejected')
+          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt) - new Date(a.approvedAt || a.rejectedAt || a.requestedAt))
+          .slice(0, 3);
+
+        const allNotifications = [...leaveReqs, ...adjustReqs]
+          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt) - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt))
+          .slice(0, 5);
+        
+        myNotifHTML = renderMyNotifications(allNotifications);
+      }
+
+      // 2. Pending Approvals
       const [allLeaveReqs, allAdjustReqs] = await Promise.all([
         getDocs(collection(db, 'leaveRequests')),
         getDocs(collection(db, 'adjustmentRequests'))
@@ -751,6 +840,7 @@
       }
       
       return `
+        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Pengajuan Saya</h3>${myNotifHTML}</div>` : ''}
         <div class="stats-grid">
           <div class="stat-card amber"><div class="label">Cuti Menunggu Approval</div><div class="value">${pendingLeave.length}</div></div>
           <div class="stat-card rose"><div class="label">Adjust Menunggu Approval</div><div class="value">${pendingAdjust.length}</div></div>
@@ -999,9 +1089,14 @@
     if (isNaN(days)) { alert('Masukkan jumlah hari yang valid'); return; }
     
     await addDoc(collection(db, 'adjustmentRequests'), {
-      employeeId: empId, employeeName: empName,
-      currentBalance: currentBalance, adjustmentDays: days, note: note,
-      status: 'pending_head', requestedBy: currentUser.name,
+      employeeId: empId, 
+      employeeName: empName,
+      currentBalance: currentBalance, 
+      adjustmentDays: days, 
+      note: note,
+      status: 'pending_head', 
+      requestedBy: currentUser.name,
+      requesterEmployeeId: currentUser.employeeId, // ✅ PENTING: Agar notifikasi muncul di dashboard
       requestedAt: new Date().toISOString()
     });
     window.closeModal();
@@ -1011,17 +1106,12 @@
 
   // ==========================================
   // TAB: LEAVE REQUESTS (Staff HRD Review)
-  // ✅ DIPERBAIKI: Menambahkan info saldo cuti di tabel juga
   // ==========================================
   async function renderLeaveRequests() {
     try {
-      // 1. Ambil data karyawan untuk mapping
       const empSnap = await getDocs(collection(db, 'employees'));
       const empMap = {};
-      empSnap.docs.forEach(d => {
-        const data = d.data();
-        empMap[data.id] = data;
-      });
+      empSnap.docs.forEach(d => { empMap[d.data().id] = d.data(); });
 
       const allReqs = await getDocs(collection(db, 'leaveRequests'));
       const all = allReqs.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1033,7 +1123,6 @@
         const days = daysBetween(r.startDate, r.endDate);
         const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
         
-        // Kalkulasi saldo
         const emp = empMap[r.employeeId];
         const currentBalance = emp ? emp.leaveBalance : 0;
         const projectedBalance = currentBalance - days;
