@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRD Portal - Manajemen Karyawan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  /* LOGIN */
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .login-card {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 420px;
+  }
+  .login-card h1 {
+    color: #667eea;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 28px;
+  }
+  .login-card p.subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #555;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+  }
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 100%;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,126,234,0.3); }
+  .btn-success { background: #10b981; color: white; }
+  .btn-success:hover { background: #059669; }
+  .btn-danger { background: #ef4444; color: white; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-warning { background: #f59e0b; color: white; }
+  .btn-warning:hover { background: #d97706; }
+  .btn-secondary { background: #6b7280; color: white; }
+  .btn-secondary:hover { background: #4b5563; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* DASHBOARD */
+  .app-wrapper { display: none; }
+  .app-wrapper.active { display: block; }
+  .topbar {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .topbar h2 { color: #667eea; font-size: 20px; }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .user-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .user-detail { text-align: right; }
+  .user-detail .name { font-weight: 600; font-size: 14px; }
+  .user-detail .role { font-size: 12px; color: #888; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .nav-tab {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.8);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-family: inherit;
+    color: #555;
+  }
+  .nav-tab:hover { background: white; }
+  .nav-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .card h3 { color: #667eea; margin-bottom: 16px; font-size: 18px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+  }
+  .stat-card.green { background: linear-gradient(135deg, #10b981, #059669); }
+  .stat-card.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .stat-card.pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+  .stat-card .label { font-size: 13px; opacity: 0.9; }
+  .stat-card .value { font-size: 32px; font-weight: 700; margin-top: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+  }
+  th { background: #f9fafb; color: #555; font-weight: 600; }
+  tr:hover { background: #f9fafb; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-approved { background: #d1fae5; color: #065f46; }
+  .badge-rejected { background: #fee2e2; color: #991b1b; }
+  .badge-minus { background: #fee2e2; color: #991b1b; }
+  .badge-plus { background: #d1fae5; color: #065f46; }
+
+  .notification {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .notification .notif-text { font-size: 13px; color: #78350f; }
+  .notification .notif-text strong { color: #451a03; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 10px; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 { color: #667eea; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+  .hint-box {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1e40af;
+    margin-bottom: 16px;
+  }
+
+  .table-wrapper { overflow-x: auto; }
+
+  @media (max-width: 640px) {
+    .topbar { flex-direction: column; gap: 12px; text-align: center; }
+    .user-detail { text-align: center; }
+    .stat-card .value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-wrapper" id="loginScreen">
+  <div class="login-card">
+    <h1>🌿 HRD Portal</h1>
+    <p class="subtitle">Sistem Manajemen Karyawan & Cuti</p>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="loginUsername" placeholder="Masukkan username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Masukkan password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk</button>
+    <div class="hint-box" style="margin-top: 20px;">
+      <strong>Demo Account:</strong><br>
+      • abdul / 123 (Direktur)<br>
+      • andre / 123 (Komisaris)<br>
+      • rosihan / 123 (Kepala HRD)<br>
+      • lily / 123 (Staff HRD)<br>
+      • wilson / 123 (Staff Biasa)
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div class="app-wrapper" id="appScreen">
+  <div class="container">
+    <div class="topbar">
+      <h2>🌿 HRD Portal</h2>
+      <div class="user-info">
+        <div class="user-detail">
+          <div class="name" id="userName"></div>
+          <div class="role" id="userRole"></div>
+        </div>
+        <div class="user-avatar" id="userAvatar"></div>
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+
+    <div class="nav-tabs" id="navTabs"></div>
+    <div id="mainContent"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+/* =================== DATA LAYER =================== */
+const DB_KEY = 'hrd_app_db_v1';
+
+const defaultUsers = [
+  { username: 'abdul',   password: '123', name: 'Abdul Halek', role: 'direktur' },
+  { username: 'andre',   password: '123', name: 'Andre',       role: 'komisaris' },
+  { username: 'rosihan', password: '123', name: 'Rosihan',     role: 'kepala_hrd' },
+  { username: 'lily',    password: '123', name: 'Lily',        role: 'staff_hrd' },
+  { username: 'wilson',  password: '123', name: 'Wilson',      role: 'staff' },
+];
+
+function loadDB() {
+  const raw = localStorage.getItem(DB_KEY);
+  if (raw) return JSON.parse(raw);
+  const db = {
+    users: defaultUsers,
+    employees: [
+      { id: 'E001', name: 'Wilson', joinDate: '2024-03-15', leaveBalance: 8, leaveHistory: [] },
+      { id: 'E002', name: 'Budi Santoso', joinDate: '2023-06-01', leaveBalance: 12, leaveHistory: [] },
+      { id: 'E003', name: 'Siti Aminah', joinDate: '2025-01-10', leaveBalance: 0, leaveHistory: [] },
+    ],
+    leaveRequests: [],
+  };
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+  return db;
+}
+function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+let db = loadDB();
+let currentUser = null;
+
+/* =================== AUTH =================== */
+function doLogin() {
+  const u = document.getElementById('loginUsername').value.trim().toLowerCase();
+  const p = document.getElementById('loginPassword').value;
+  const user = db.users.find(x => x.username === u && x.password === p);
+  if (!user) { alert('Username atau password salah!'); return; }
+  currentUser = user;
+  sessionStorage.setItem('hrd_current_user', JSON.stringify(user));
+  renderApp();
+}
+function doLogout() {
+  currentUser = null;
+  sessionStorage.removeItem('hrd_current_user');
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+function checkSession() {
+  const s = sessionStorage.getItem('hrd_current_user');
+  if (s) { currentUser = JSON.parse(s); renderApp(); }
+}
+
+/* =================== HELPERS =================== */
+const ROLE_LABEL = {
+  direktur: 'Direktur',
+  komisaris: 'Komisaris',
+  kepala_hrd: 'Kepala HRD',
+  staff_hrd: 'Staff HRD',
+  staff: 'Staff Biasa'
+};
+function fmtDate(d) {
+  if (!d) return '-';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function daysBetween(a, b) {
+  const d1 = new Date(a), d2 = new Date(b);
+  return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+}
+function getEligibleLeave(emp) {
+  const join = new Date(emp.joinDate);
+  const now = new Date();
+  const diffYears = (now - join) / (1000 * 60 * 60 * 24 * 365.25);
+  return diffYears >= 1;
+}
+function findEmployeeByName(name) {
+  return db.employees.find(e => e.name.toLowerCase() === name.toLowerCase());
+}
+function getCurrentEmployee() {
+  return findEmployeeByName(currentUser.name);
+}
+
+/* =================== RENDER APP =================== */
+function renderApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userRole').textContent = ROLE_LABEL[currentUser.role];
+  document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  buildNav();
+}
+
+function buildNav() {
+  const tabs = [];
+  const r = currentUser.role;
+  if (r === 'staff') {
+    tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
+    tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
+  } else if (r === 'staff_hrd') {
+    tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
+    tabs.push({ id: 'employees', label: '👥 Karyawan' });
+    tabs.push({ id: 'leave_mgmt', label: '📅 Kelola Cuti' });
+    tabs.push({ id: 'leave_requests', label: '📬 Pengajuan Cuti' });
+  } else if (r === 'kepala_hrd') {
+    tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
+    tabs.push({ id: 'employees', label: '👥 Karyawan' });
+    tabs.push({ id: 'leave_approval', label: '✅ Approval Cuti' });
+  } else if (r === 'direktur' || r === 'komisaris') {
+    tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
+    tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
+  }
+  const nav = document.getElementById('navTabs');
+  nav.innerHTML = '';
+  tabs.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = t.label;
+    btn.onclick = () => {
+      document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      showTab(t.id);
+    };
+    nav.appendChild(btn);
+  });
+  showTab(tabs[0].id);
+}
+
+function showTab(id) {
+  const c = document.getElementById('mainContent');
+  if (id === 'dashboard') c.innerHTML = renderDashboard();
+  else if (id === 'apply_leave') c.innerHTML = renderApplyLeave();
+  else if (id === 'employees') c.innerHTML = renderEmployees();
+  else if (id === 'leave_mgmt') c.innerHTML = renderLeaveMgmt();
+  else if (id === 'leave_requests') c.innerHTML = renderLeaveRequests();
+  else if (id === 'leave_approval') c.innerHTML = renderLeaveApproval();
+  else if (id === 'leave_view') c.innerHTML = renderLeaveView();
+}
+
+/* =================== DASHBOARD =================== */
+function renderDashboard() {
+  const r = currentUser.role;
+  if (r === 'staff') return renderStaffDashboard();
+  if (r === 'staff_hrd' || r === 'kepala_hrd') return renderHRDDashboard();
+  return '';
+}
+
+function renderStaffDashboard() {
+  const emp = getCurrentEmployee();
+  if (!emp) {
+    return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terdaftar. Hubungi HRD.</p></div></div>`;
+  }
+  const eligible = getEligibleLeave(emp);
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Sisa Cuti</div>
+        <div class="value">${emp.leaveBalance} <span style="font-size:14px;opacity:0.8">hari</span></div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">Status Kelayakan</div>
+        <div class="value" style="font-size:18px">${eligible ? '✅ Layak Cuti' : '⏳ Belum 1 Thn'}</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="label">Tanggal Bergabung</div>
+        <div class="value" style="font-size:18px">${fmtDate(emp.joinDate)}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Mutasi Cuti Saya</h3>
+      ${renderLeaveHistory(emp.leaveHistory)}
+    </div>
+  `;
+}
+
+function renderHRDDashboard() {
+  // Notifikasi: pengajuan cuti yang perlu ditindaklanjuti
+  const r = currentUser.role;
+  let pending = [];
+  if (r === 'staff_hrd') {
+    pending = db.leaveRequests.filter(x => x.status === 'pending_staff_hrd');
+  } else if (r === 'kepala_hrd') {
+    pending = db.leaveRequests.filter(x => x.status === 'pending_kepala_hrd');
+  }
+  const totalEmp = db.employees.length;
+  const totalApproved = db.leaveRequests.filter(x => x.status === 'approved').length;
+
+  let notifHTML = '';
+  if (pending.length === 0) {
+    notifHTML = `<div class="empty-state"><div class="icon">✨</div><p>Tidak ada pengajuan cuti yang menunggu tindakan.</p></div>`;
+  } else {
+    pending.forEach(req => {
+      const emp = db.employees.find(e => e.id === req.employeeId);
+      const days = daysBetween(req.startDate, req.endDate);
+      notifHTML += `
+        <div class="notification">
+          <div class="notif-text">
+            <strong>${emp?.name || req.employeeId}</strong> mengajukan cuti <strong>${days} hari</strong>
+            (${fmtDate(req.startDate)} - ${fmtDate(req.endDate)})<br>
+            <em>Alasan: ${req.reason}</em>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            ${r === 'staff_hrd' ? `
+              <button class="btn btn-success btn-sm" onclick="staffApprove('${req.id}')">Terima</button>
+              <button class="btn btn-danger btn-sm" onclick="staffReject('${req.id}')">Tolak</button>
+            ` : `
+              <button class="btn btn-success btn-sm" onclick="headApprove('${req.id}')">Setujui</button>
+              <button class="btn btn-danger btn-sm" onclick="headReject('${req.id}')">Tolak</button>
+            `}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Total Karyawan</div>
+        <div class="value">${totalEmp}</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="label">Menunggu Approval</div>
+        <div class="value">${pending.length}</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">Cuti Disetujui</div>
+        <div class="value">${totalApproved}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📬 Pengajuan Cuti Terbaru</h3>
+      ${notifHTML}
+    </div>
+  `;
+}
+
+/* =================== EMPLOYEES =================== */
+function renderEmployees() {
+  const canAdd = currentUser.role === 'staff_hrd';
+  let rows = db.employees.map(e => {
+    const eligible = getEligibleLeave(e);
+    return `
+      <tr>
+        <td>${e.id}</td>
+        <td>${e.name}</td>
+        <td>${fmtDate(e.joinDate)}</td>
+        <td>${eligible ? '✅' : '⏳'} ${e.leaveBalance} hari</td>
+        <td>${canAdd ? `<button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>` : `<button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Lihat</button>`}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h3 style="margin:0">Data Karyawan</h3>
+        ${canAdd ? `<button class="btn btn-primary" style="width:auto" onclick="openAddEmployee()">+ Tambah Karyawan</button>` : ''}
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>ID</th><th>Nama</th><th>Tanggal Join</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead>
+          <tbody>${rows || '<tr><td colspan="5" style="text-align:center;color:#9ca3af">Belum ada data</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function openAddEmployee() {
+  openModal(`
+    <h3>Tambah Karyawan Baru</h3>
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="newEmpName">
+    </div>
+    <div class="form-group">
+      <label>Tanggal Bergabung</label>
+      <input type="date" id="newEmpJoin">
+    </div>
+    <div class="hint-box">
+      💡 Jatah cuti 12 hari akan otomatis aktif setelah 1 tahun dari tanggal bergabung.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" style="width:auto" onclick="saveNewEmployee()">Simpan</button>
+    </div>
+  `);
+}
+function saveNewEmployee() {
+  const name = document.getElementById('newEmpName').value.trim();
+  const join = document.getElementById('newEmpJoin').value;
+  if (!name || !join) { alert('Lengkapi semua field!'); return; }
+  const id = 'E' + String(db.employees.length + 1).padStart(3, '0');
+  db.employees.push({ id, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
+  saveDB(db);
+  closeModal();
+  showTab('employees');
+}
+function viewEmpDetail(id) {
+  const e = db.employees.find(x => x.id === id);
+  if (!e) return;
+  openModal(`
+    <h3>Detail Karyawan</h3>
+    <p><strong>ID:</strong> ${e.id}</p>
+    <p><strong>Nama:</strong> ${e.name}</p>
+    <p><strong>Tanggal Join:</strong> ${fmtDate(e.joinDate)}</p>
+    <p><strong>Sisa Cuti:</strong> ${e.leaveBalance} hari</p>
+    <p><strong>Layak Cuti:</strong> ${getEligibleLeave(e) ? '✅ Ya' : '⏳ Belum 1 tahun'}</p>
+    <hr style="margin:16px 0">
+    <h3 style="font-size:15px">Mutasi Cuti</h3>
+    ${renderLeaveHistory(e.leaveHistory)}
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Tutup</button>
+    </div>
+  `);
+}
+
+/* =================== LEAVE HISTORY =================== */
+function renderLeaveHistory(history) {
+  if (!history || history.length === 0) {
+    return `<div class="empty-state"><div class="icon">📋</div><p>Belum ada mutasi cuti</p></div>`;
+  }
+  const rows = history.slice().reverse().map(h => `
+    <tr>
+      <td>${fmtDate(h.date)}</td>
+      <td>${h.type}</td>
+      <td>${h.days}</td>
+      <td>
+        <span class="badge ${h.amount > 0 ? 'badge-plus' : 'badge-minus'}">
+          ${h.amount > 0 ? '+' : ''}${h.amount} hari
+        </span>
+      </td>
+      <td>${h.note || '-'}</td>
+    </tr>
+  `).join('');
+  return `
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Tanggal</th><th>Tipe</th><th>Durasi</th><th>Perubahan</th><th>Catatan</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* =================== APPLY LEAVE (Staff Biasa) =================== */
+function renderApplyLeave() {
+  const emp = getCurrentEmployee();
+  if (!emp) {
+    return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terdaftar di sistem.</p></div></div>`;
+  }
+  const myReqs = db.leaveRequests.filter(r => r.employeeId === emp.id);
+  const rows = myReqs.slice().reverse().map(r => {
+    const days = daysBetween(r.startDate, r.endDate);
+    const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+    const label = r.status === 'approved' ? 'Disetujui' : r.status === 'rejected' ? 'Ditolak' :
+                  r.status === 'pending_kepala_hrd' ? 'Menunggu Kepala HRD' : 'Menunggu Staff HRD';
+    return `
+      <tr>
+        <td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td>
+        <td>${days} hari</td>
+        <td>${r.reason}</td>
+        <td><span class="badge ${badge}">${label}</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="card">
+      <h3>Form Pengajuan Cuti</h3>
+      <div class="hint-box">💡 Sisa cuti Anda saat ini: <strong>${emp.leaveBalance} hari</strong></div>
+      <div class="form-group">
+        <label>Tanggal Mulai</label>
+        <input type="date" id="leaveStart">
+      </div>
+      <div class="form-group">
+        <label>Tanggal Selesai</label>
+        <input type="date" id="leaveEnd">
+      </div>
+      <div class="form-group">
+        <label>Alasan Cuti</label>
+        <textarea id="leaveReason" rows="3" placeholder="Tuliskan alasan cuti Anda..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:auto" onclick="submitLeave()">Kirim Pengajuan</button>
+    </div>
+    <div class="card">
+      <h3>Riwayat Pengajuan Saya</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead>
+          <tbody>${rows || '<tr><td colspan="4" style="text-align:center;color:#9ca3af">Belum ada pengajuan</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function submitLeave() {
+  const emp = getCurrentEmployee();
+  if (!emp) { alert('Data karyawan tidak ditemukan'); return; }
+  const s = document.getElementById('leaveStart').value;
+  const e = document.getElementById('leaveEnd').value;
+  const r = document.getElementById('leaveReason').value.trim();
+  if (!s || !e || !r) { alert('Lengkapi semua field!'); return; }
+  if (new Date(e) < new Date(s)) { alert('Tanggal selesai harus setelah tanggal mulai'); return; }
+  db.leaveRequests.push({
+    id: 'LR' + Date.now(),
+    employeeId: emp.id,
+    employeeName: emp.name,
+    startDate: s, endDate: e, reason: r,
+    status: 'pending_staff_hrd',
+    createdAt: new Date().toISOString()
+  });
+  saveDB(db);
+  alert('✅ Pengajuan cuti berhasil dikirim!');
+  showTab('apply_leave');
+}
+
+/* =================== LEAVE MGMT (Staff HRD - input pengurangan cuti) =================== */
+function renderLeaveMgmt() {
+  const rows = db.employees.map(e => `
+    <tr>
+      <td>${e.id}</td>
+      <td>${e.name}</td>
+      <td>${e.leaveBalance} hari</td>
+      <td>
+        <button class="btn btn-warning btn-sm" onclick="openAdjustLeave('${e.id}')">Adjust Cuti</button>
+      </td>
+    </tr>
+  `).join('');
+  return `
+    <div class="card">
+      <h3>Manajemen Cuti Karyawan</h3>
+      <div class="hint-box">💡 Gunakan fitur ini untuk menginput pengurangan cuti (misal: karena tidak mengikuti tanggal merah, atau hutang cuti).</div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function openAdjustLeave(empId) {
+  const e = db.employees.find(x => x.id === empId);
+  openModal(`
+    <h3>Adjust Cuti - ${e.name}</h3>
+    <p>Sisa cuti saat ini: <strong>${e.leaveBalance} hari</strong></p>
+    <div class="form-group">
+      <label>Jumlah Hari (gunakan minus untuk pengurangan)</label>
+      <input type="number" id="adjDays" placeholder="Contoh: -2 atau 12">
+    </div>
+    <div class="form-group">
+      <label>Catatan</label>
+      <textarea id="adjNote" rows="2" placeholder="Misal: Pengurangan karena tidak mengikuti tanggal merah"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" style="width:auto" onclick="saveAdjustLeave('${empId}')">Simpan</button>
+    </div>
+  `);
+}
+function saveAdjustLeave(empId) {
+  const days = parseInt(document.getElementById('adjDays').value);
+  const note = document.getElementById('adjNote').value.trim() || 'Adjustment manual';
+  if (isNaN(days)) { alert('Masukkan jumlah hari yang valid'); return; }
+  const e = db.employees.find(x => x.id === empId);
+  e.leaveBalance += days;
+  e.leaveHistory.push({
+    date: new Date().toISOString().split('T')[0],
+    type: 'Adjustment',
+    days: Math.abs(days),
+    amount: days,
+    note: note
+  });
+  saveDB(db);
+  closeModal();
+  showTab('leave_mgmt');
+}
+
+/* =================== LEAVE REQUESTS (Staff HRD review) =================== */
+function renderLeaveRequests() {
+  const pending = db.leaveRequests.filter(r => r.status === 'pending_staff_hrd');
+  const processed = db.leaveRequests.filter(r => r.status !== 'pending_staff_hrd');
+  const rows = (list, showAction) => list.slice().reverse().map(r => {
+    const days = daysBetween(r.startDate, r.endDate);
+    const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+    return `
+      <tr>
+        <td>${r.employeeName}</td>
+        <td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td>
+        <td>${days} hari</td>
+        <td>${r.reason}</td>
+        <td><span class="badge ${badge}">${r.status}</span></td>
+        ${showAction ? `<td>
+          <button class="btn btn-success btn-sm" onclick="staffApprove('${r.id}')">Terima</button>
+          <button class="btn btn-danger btn-sm" onclick="staffReject('${r.id}')">Tolak</button>
+        </td>` : ''}
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="card">
+      <h3>Pengajuan Menunggu Review (${pending.length})</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
+          <tbody>${rows(pending, pending.length>0) || '<tr><td colspan="6" style="text-align:center;color:#9ca3af">Tidak ada pengajuan</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Riwayat Pengajuan</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead>
+          <tbody>${rows(processed, false) || '<tr><td colspan="5" style="text-align:center;color:#9ca3af">Belum ada riwayat</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function staffApprove(reqId) {
+  const r = db.leaveRequests.find(x => x.id === reqId);
+  if (!r) return;
+  r.status = 'pending_kepala_hrd';
+  r.staffHrdApprovedAt = new Date().toISOString();
+  saveDB(db);
+  showTab(currentUser.role === 'kepala_hrd' ? 'leave_approval' : 'leave_requests');
+  buildNav();
+}
+function staffReject(reqId) {
+  const r = db.leaveRequests.find(x => x.id === reqId);
+  if (!r) return;
+  r.status = 'rejected';
+  r.rejectedBy = currentUser.name;
+  saveDB(db);
+  showTab(currentUser.role === 'kepala_hrd' ? 'leave_approval' : 'leave_requests');
+  buildNav();
+}
+
+/* =================== LEAVE APPROVAL (Kepala HRD) =================== */
+function renderLeaveApproval() {
+  const pending = db.leaveRequests.filter(r => r.status === 'pending_kepala_hrd');
+  const processed = db.leaveRequests.filter(r => r.status === 'approved' || r.status === 'rejected');
+  const rows = (list, showAction) => list.slice().reverse().map(r => {
+    const days = daysBetween(r.startDate, r.endDate);
+    const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+    return `
+      <tr>
+        <td>${r.employeeName}</td>
+        <td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td>
+        <td>${days} hari</td>
+        <td>${r.reason}</td>
+        <td><span class="badge ${badge}">${r.status}</span></td>
+        ${showAction ? `<td>
+          <button class="btn btn-success btn-sm" onclick="headApprove('${r.id}')">Setujui</button>
+          <button class="btn btn-danger btn-sm" onclick="headReject('${r.id}')">Tolak</button>
+        </td>` : ''}
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="card">
+      <h3>Menunggu Approval Kepala HRD (${pending.length})</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
+          <tbody>${rows(pending, pending.length>0) || '<tr><td colspan="6" style="text-align:center;color:#9ca3af">Tidak ada pengajuan</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Riwayat Approval</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead>
+          <tbody>${rows(processed, false) || '<tr><td colspan="5" style="text-align:center;color:#9ca3af">Belum ada riwayat</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+function headApprove(reqId) {
+  const r = db.leaveRequests.find(x => x.id === reqId);
+  if (!r) return;
+  r.status = 'approved';
+  r.headApprovedAt = new Date().toISOString();
+  r.approvedBy = currentUser.name;
+  saveDB(db);
+  // Catatan: pengurangan cuti dilakukan manual oleh Staff HRD via menu Kelola Cuti
+  alert('✅ Cuti disetujui. Silakan minta Staff HRD melakukan pengurangan cuti di menu Kelola Cuti.');
+  showTab('leave_approval');
+  buildNav();
+}
+function headReject(reqId) {
+  const r = db.leaveRequests.find(x => x.id === reqId);
+  if (!r) return;
+  r.status = 'rejected';
+  r.rejectedBy = currentUser.name;
+  saveDB(db);
+  showTab('leave_approval');
+  buildNav();
+}
+
+/* =================== LEAVE VIEW (Direktur/Komisaris) =================== */
+function renderLeaveView() {
+  const rows = db.employees.map(e => {
+    const history = (e.leaveHistory || []).slice().reverse().slice(0, 3);
+    const histStr = history.length ? history.map(h =>
+      `<div style="font-size:12px;color:#555;margin-top:4px">• ${fmtDate(h.date)}: ${h.amount>0?'+':''}${h.amount} hari (${h.type})</div>`
+    ).join('') : '<div style="font-size:12px;color:#9ca3af">Belum ada mutasi</div>';
+    return `
+      <tr>
+        <td>${e.id}</td>
+        <td>${e.name}</td>
+        <td><strong>${e.leaveBalance}</strong> hari</td>
+        <td>${histStr}</td>
+      </tr>
+    `;
+  }).join('');
+  return `
+    <div class="card">
+      <h3>Sisa Cuti & Mutasi Karyawan</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Mutasi Terakhir</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* =================== MODAL =================== */
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+/* =================== INIT =================== */
+checkSession();
+</script>
+</body>
+</html>
