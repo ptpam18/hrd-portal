@@ -7,11 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-  body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #334155;
-  }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #334155; }
   .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
   
   .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -165,6 +161,9 @@
       <input type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="current-password">
     </div>
     <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">Masuk</button>
+    <div class="hint-box" style="margin-top: 16px; text-align: center;">
+      💡 Huruf besar atau kecil tidak masalah (Case-insensitive)
+    </div>
   </div>
 </div>
 
@@ -201,9 +200,6 @@
     query, where, orderBy, onSnapshot, writeBatch 
   } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-  // ==========================================
-  // ✅ FIREBASE CONFIG (SUDAH DIPERBAIKI)
-  // ==========================================
   const firebaseConfig = {
     apiKey: "AIzaSyDhGxzuzU-pQo6p8xJwdmC6bQIZV-po-A4",
     authDomain: "hrd-portal-9a5fd.firebaseapp.com",
@@ -217,15 +213,13 @@
   const db = getFirestore(app);
   window.db = db;
 
-  // ==========================================
-  // STATE & HELPERS
-  // ==========================================
   let currentUser = null;
   let currentUserDocId = null;
   let unsubscribeLeave = null;
   let unsubscribeAdjust = null;
 
   const ROLE_LABEL = {
+    superuser: 'Superuser',
     direktur: 'Direktur',
     komisaris: 'Komisaris',
     kepala_hrd: 'Kepala HRD',
@@ -252,37 +246,30 @@
   };
 
   // ==========================================
-  // SEED DATA
+  // SEED DATA (HANYA SUPERUSER)
   // ==========================================
   async function seedData() {
     const usersSnap = await getDocs(collection(db, 'users'));
     if (usersSnap.empty) {
       const batch = writeBatch(db);
-      const users = [
-        { username: 'abdul', password: '1234', name: 'Abdul Halek', role: 'direktur' },
-        { username: 'andre', password: '1234', name: 'Andre', role: 'komisaris' },
-        { username: 'rosihan', password: '1234', name: 'Rosihan', role: 'kepala_hrd' },
-        { username: 'lily', password: '1234', name: 'Lily', role: 'staff_hrd' },
-        { username: 'wilson', password: '1234', name: 'Wilson', role: 'staff' },
-      ];
-      users.forEach(u => { batch.set(doc(collection(db, 'users')), u); });
-      
-      const emps = [
-        { id: 'E001', name: 'Wilson', joinDate: '2024-03-15', leaveBalance: 8, leaveHistory: [] },
-        { id: 'E002', name: 'Budi Santoso', joinDate: '2023-06-01', leaveBalance: 12, leaveHistory: [] },
-        { id: 'E003', name: 'Siti Aminah', joinDate: '2025-01-10', leaveBalance: 0, leaveHistory: [] },
-      ];
-      emps.forEach(e => { batch.set(doc(collection(db, 'employees')), e); });
-      
+      const superUserRef = doc(collection(db, 'users'));
+      batch.set(superUserRef, {
+        username: 'ptpam',
+        password: '945766',
+        name: 'Superuser PTPAM',
+        role: 'superuser',
+        isSuperuser: true
+      });
       await batch.commit();
-      console.log("Data awal berhasil dibuat!");
+      console.log("Superuser berhasil dibuat!");
     }
   }
 
   // ==========================================
-  // AUTH
+  // AUTH (CASE-INSENSITIVE)
   // ==========================================
   window.doLogin = async () => {
+    // Dipaksa lowercase agar cocok dengan data yang tersimpan, membuat input user bebas huruf besar/kecil
     const u = document.getElementById('loginUsername').value.trim().toLowerCase();
     const p = document.getElementById('loginPassword').value;
     const btn = document.getElementById('btnLogin');
@@ -330,9 +317,6 @@
     }
   }
 
-  // ==========================================
-  // RENDER APP
-  // ==========================================
   function renderApp() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appScreen').classList.add('active');
@@ -346,10 +330,15 @@
     const tabs = [];
     const r = currentUser.role;
     
-    if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
+    if (r === 'superuser') {
+      tabs.push({ id: 'manage_accounts', label: '👑 Manajemen Akun' });
+      tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
+      tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
+    } else if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
       tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
       tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
     }
+    
     if (r === 'staff_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
       tabs.push({ id: 'leave_mgmt', label: '⚙️ Request Adjust' });
@@ -364,6 +353,7 @@
       tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
     }
+    
     tabs.push({ id: 'change_password', label: '🔒 Ganti Password' });
 
     const nav = document.getElementById('navTabs');
@@ -389,7 +379,8 @@
     if (unsubscribeLeave) { unsubscribeLeave(); unsubscribeLeave = null; }
     if (unsubscribeAdjust) { unsubscribeAdjust(); unsubscribeAdjust = null; }
 
-    if (id === 'dashboard') c.innerHTML = await renderDashboard();
+    if (id === 'manage_accounts') c.innerHTML = await renderManageAccounts();
+    else if (id === 'dashboard') c.innerHTML = await renderDashboard();
     else if (id === 'apply_leave') c.innerHTML = await renderApplyLeave();
     else if (id === 'employees') c.innerHTML = await renderEmployees();
     else if (id === 'leave_mgmt') c.innerHTML = await renderLeaveMgmt();
@@ -401,19 +392,81 @@
   }
 
   // ==========================================
+  // TAB: MANAGE ACCOUNTS (SUPERUSER ONLY) - FITUR BARU
+  // ==========================================
+  async function renderManageAccounts() {
+    const snap = await getDocs(query(collection(db, 'users'), orderBy('role')));
+    const users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    
+    const rows = users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td>${u.username}</td>
+        <td>${ROLE_LABEL[u.role] || u.role}</td>
+        <td><span style="font-family:monospace; background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:12px; color:#475569;">${u.password}</span></td>
+        <td>
+          <button class="btn btn-warning btn-sm" onclick="openEditPassword('${u.id}', '${u.name}', '${u.username}')">Edit Password</button>
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="card">
+        <h3>👑 Manajemen Akun & Password</h3>
+        <div class="hint-box">💡 Superuser dapat melihat dan mengubah password akun manapun secara langsung. Perubahan akan langsung tersinkronisasi.</div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Password Saat Ini</th><th>Aksi</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">Belum ada akun</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  window.openEditPassword = (userId, name, username) => {
+    window.openModal(`
+      <h3>Edit Password: ${name}</h3>
+      <p style="margin-bottom:12px; color:#64748b; font-size:13px;">Username: <strong>${username}</strong></p>
+      <div class="form-group"><label>Password Baru</label><input type="text" id="editNewPass" placeholder="Masukkan password baru (min. 4 karakter)"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
+        <button class="btn btn-primary" style="width:auto" onclick="saveEditPassword('${userId}')">Simpan Perubahan</button>
+      </div>
+    `);
+  };
+
+  window.saveEditPassword = async (userId) => {
+    const newPass = document.getElementById('editNewPass').value.trim();
+    if (!newPass || newPass.length < 4) { alert('Password minimal 4 karakter!'); return; }
+    
+    try {
+      await updateDoc(doc(db, 'users', userId), { password: newPass });
+      window.closeModal();
+      alert('✅ Password berhasil diubah!');
+      showTab('manage_accounts'); // Refresh tabel
+    } catch (e) {
+      console.error(e);
+      alert('Gagal mengubah password. Periksa koneksi internet.');
+    }
+  };
+
+  // ==========================================
   // TAB: DASHBOARD
   // ==========================================
   async function renderDashboard() {
     const r = currentUser.role;
     if (r === 'staff') return await renderStaffDashboard();
     if (r === 'staff_hrd' || r === 'kepala_hrd') return await renderHRDDashboard();
-    return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu Data Karyawan atau Mutasi Cuti.</p></div></div>';
+    return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
   }
 
   async function renderStaffDashboard() {
-    const q = query(collection(db, 'employees'), where('name', '==', currentUser.name));
+    if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak terhubung.</p></div></div>`;
+    
+    const q = query(collection(db, 'employees'), where('id', '==', currentUser.employeeId));
     const snap = await getDocs(q);
-    if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terdaftar.</p></div></div>`;
+    if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak ditemukan.</p></div></div>`;
     
     const emp = snap.docs[0].data();
     const eligible = getEligibleLeave(emp.joinDate);
@@ -478,12 +531,14 @@
   }
 
   // ==========================================
-  // TAB: EMPLOYEES (DENGAN FITUR HAPUS)
+  // TAB: EMPLOYEES
   // ==========================================
   async function renderEmployees() {
-    const canManage = currentUser.role === 'staff_hrd';
+    const canManage = currentUser.role === 'staff_hrd' || currentUser.role === 'superuser';
+    const isSuperuser = currentUser.role === 'superuser';
+    
     const snap = await getDocs(query(collection(db, 'employees'), orderBy('joinDate', 'desc')));
-    const emps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const emps = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
     
     const rows = emps.map(e => {
       const eligible = getEligibleLeave(e.joinDate);
@@ -495,7 +550,7 @@
           <td>${eligible ? '✅' : '⏳'} <strong>${e.leaveBalance}</strong> hari</td>
           <td>
             <button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>
-            ${canManage ? `<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}', '${e.name}')">Hapus</button>` : ''}
+            ${canManage && !e.isSuperuser ? `<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.docId}', '${e.name}', '${e.id}')">Hapus</button>` : ''}
           </td>
         </tr>
       `;
@@ -505,7 +560,7 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
           <h3 style="margin:0">Data Karyawan</h3>
-          ${canManage ? `<button class="btn btn-primary" style="width:auto" onclick="openAddEmployee()">+ Tambah Karyawan</button>` : ''}
+          ${canManage && !isSuperuser ? `<button class="btn btn-primary" style="width:auto" onclick="openAddStaff()">+ Tambah Staff</button>` : ''}
         </div>
         <div class="table-wrapper">
           <table>
@@ -517,67 +572,59 @@
     `;
   }
 
-  window.openAddEmployee = () => {
+  window.openAddStaff = () => {
     window.openModal(`
-      <h3>Tambah Karyawan Baru</h3>
-      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="newEmpName"></div>
-      <div class="form-group"><label>Username (untuk login)</label><input type="text" id="newEmpUsername" placeholder="huruf kecil semua"></div>
-      <div class="form-group"><label>Tanggal Bergabung</label><input type="date" id="newEmpJoin"></div>
-      <div class="hint-box">💡 Password default: <strong>1234</strong> (dapat diganti setelah login pertama kali)</div>
+      <h3>Tambah Staff Baru</h3>
+      <div class="form-group"><label>Nama Lengkap</label><input type="text" id="newStaffName"></div>
+      <div class="form-group"><label>Username (huruf kecil)</label><input type="text" id="newStaffUsername"></div>
+      <div class="form-group"><label>Tanggal Bergabung</label><input type="date" id="newStaffJoin"></div>
+      <div class="hint-box">💡 Password default: <strong>1234</strong></div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
-        <button class="btn btn-primary" style="width:auto" onclick="saveNewEmployee()">Simpan</button>
+        <button class="btn btn-primary" style="width:auto" onclick="saveNewStaff()">Simpan</button>
       </div>
     `);
   };
 
-  window.saveNewEmployee = async () => {
-    const name = document.getElementById('newEmpName').value.trim();
-    const username = document.getElementById('newEmpUsername').value.trim().toLowerCase();
-    const join = document.getElementById('newEmpJoin').value;
+  window.saveNewStaff = async () => {
+    const name = document.getElementById('newStaffName').value.trim();
+    const username = document.getElementById('newStaffUsername').value.trim().toLowerCase();
+    const join = document.getElementById('newStaffJoin').value;
     
     if (!name || !username || !join) { alert('Lengkapi semua field!'); return; }
     
     const userCheck = await getDocs(query(collection(db, 'users'), where('username', '==', username)));
     if (!userCheck.empty) { alert('Username sudah digunakan!'); return; }
     
-    const empCheck = await getDocs(query(collection(db, 'employees'), where('name', '==', name)));
-    if (!empCheck.empty) { alert('Nama karyawan sudah terdaftar!'); return; }
-    
     const snap = await getDocs(query(collection(db, 'employees'), orderBy('id', 'desc')));
     const lastId = snap.docs.length > 0 ? snap.docs[0].data().id : 'E000';
     const num = parseInt(lastId.substring(1)) + 1;
-    const newId = 'E' + String(num).padStart(3, '0');
+    const newEmpId = 'E' + String(num).padStart(3, '0');
     
     const batch = writeBatch(db);
-    batch.set(doc(collection(db, 'users')), { username: username, password: '1234', name: name, role: 'staff' });
-    batch.set(doc(collection(db, 'employees')), { id: newId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
+    batch.set(doc(collection(db, 'users')), { username, password: '1234', name, role: 'staff', employeeId: newEmpId });
+    batch.set(doc(collection(db, 'employees')), { id: newEmpId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
     
     await batch.commit();
     window.closeModal();
+    alert('✅ Staff berhasil ditambahkan!\nUsername: ' + username + '\nPassword: 1234');
     showTab('employees');
-    alert('✅ Karyawan berhasil ditambahkan!\nUsername: ' + username + '\nPassword: 1234');
   };
 
-  window.deleteEmployee = async (empId, empName) => {
-    if (!confirm(`⚠️ Yakin ingin menghapus karyawan "${empName}"?\nTindakan ini akan menghapus data karyawan dan akun loginnya secara permanen.`)) return;
+  window.deleteEmployee = async (docId, empName, empId) => {
+    if (!confirm(`⚠️ Yakin ingin menghapus "${empName}"?\nData karyawan dan akun loginnya akan dihapus permanen.`)) return;
     
     try {
-      // Hapus data employee
-      const eq = query(collection(db, 'employees'), where('id', '==', empId));
-      const eSnap = await getDocs(eq);
-      if (!eSnap.empty) await deleteDoc(eSnap.docs[0].ref);
-
-      // Hapus akun user yang terkait (berdasarkan nama)
-      const uq = query(collection(db, 'users'), where('name', '==', empName));
+      await deleteDoc(doc(db, 'employees', docId));
+      const uq = query(collection(db, 'users'), where('employeeId', '==', empId));
       const uSnap = await getDocs(uq);
       uSnap.forEach(async (d) => await deleteDoc(d.ref));
-
-      alert('✅ Karyawan berhasil dihapus dari sistem.');
+      
+      alert('✅ Data berhasil dihapus.');
       showTab('employees');
     } catch (e) {
       console.error(e);
-      alert('Gagal menghapus karyawan.');
+      alert('Gagal menghapus data.');
     }
   };
 
@@ -605,7 +652,11 @@
   // TAB: APPLY LEAVE
   // ==========================================
   async function renderApplyLeave() {
-    const q = query(collection(db, 'employees'), where('name', '==', currentUser.name));
+    if (!currentUser.employeeId) {
+      return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terhubung. Hubungi HRD/Superuser.</p></div></div>`;
+    }
+    
+    const q = query(collection(db, 'employees'), where('id', '==', currentUser.employeeId));
     const snap = await getDocs(q);
     if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak ditemukan.</p></div></div>`;
     
@@ -675,7 +726,7 @@
     return `
       <div class="card">
         <h3>Request Adjust Cuti Karyawan</h3>
-        <div class="hint-box">💡 Pengajuan adjust cuti (misal: hutang cuti / tidak ikut tanggal merah) harus disetujui oleh Kepala HRD. Direktur & Komisaris akan melihat riwayat persetujuannya.</div>
+        <div class="hint-box">💡 Pengajuan adjust cuti harus disetujui oleh Kepala HRD. Direktur & Komisaris akan melihat riwayat persetujuannya.</div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead>
@@ -705,22 +756,18 @@
     if (isNaN(days)) { alert('Masukkan jumlah hari yang valid'); return; }
     
     await addDoc(collection(db, 'adjustmentRequests'), {
-      employeeId: empId,
-      employeeName: empName,
-      currentBalance: currentBalance,
-      adjustmentDays: days,
-      note: note,
-      status: 'pending_head',
-      requestedBy: currentUser.name,
+      employeeId: empId, employeeName: empName,
+      currentBalance: currentBalance, adjustmentDays: days, note: note,
+      status: 'pending_head', requestedBy: currentUser.name,
       requestedAt: new Date().toISOString()
     });
     window.closeModal();
-    alert('✅ Request adjust cuti berhasil dikirim ke Kepala HRD untuk persetujuan.');
+    alert('✅ Request adjust cuti berhasil dikirim ke Kepala HRD.');
     showTab('leave_mgmt');
   };
 
   // ==========================================
-  // TAB: LEAVE REQUESTS (Staff HRD Review Cuti)
+  // TAB: LEAVE REQUESTS (Staff HRD Review)
   // ==========================================
   async function renderLeaveRequests() {
     const qPending = query(collection(db, 'leaveRequests'), where('status', '==', 'pending_staff'), orderBy('createdAt', 'desc'));
@@ -772,9 +819,7 @@
 
   window.staffApprove = async (reqId) => {
     await updateDoc(doc(db, 'leaveRequests', reqId), { 
-      status: 'pending_head', 
-      staffHrdApprovedAt: new Date().toISOString(),
-      staffHrdName: currentUser.name
+      status: 'pending_head', staffHrdApprovedAt: new Date().toISOString(), staffHrdName: currentUser.name
     });
     showTab('leave_requests');
   };
@@ -837,9 +882,7 @@
 
   window.headApprove = async (reqId) => {
     await updateDoc(doc(db, 'leaveRequests', reqId), { 
-      status: 'approved', 
-      headApprovedAt: new Date().toISOString(),
-      approvedBy: currentUser.name
+      status: 'approved', headApprovedAt: new Date().toISOString(), approvedBy: currentUser.name
     });
     alert('✅ Cuti disetujui. Silakan minta Staff HRD melakukan pengurangan cuti di menu "Request Adjust".');
     showTab('leave_approval');
@@ -909,7 +952,6 @@
       if (!reqSnap.exists()) return;
       const reqData = reqSnap.data();
 
-      // Update saldo dan riwayat karyawan
       const eq = query(collection(db, 'employees'), where('id', '==', reqData.employeeId));
       const eSnap = await getDocs(eq);
       if (!eSnap.empty) {
@@ -926,14 +968,8 @@
         await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
       }
 
-      // Update status request
-      await updateDoc(reqRef, { 
-        status: 'approved', 
-        approvedBy: currentUser.name,
-        approvedAt: new Date().toISOString()
-      });
-      
-      alert('✅ Adjust cuti disetujui dan saldo karyawan telah diperbarui. Direktur & Komisaris dapat melihatnya di menu Mutasi Cuti.');
+      await updateDoc(reqRef, { status: 'approved', approvedBy: currentUser.name, approvedAt: new Date().toISOString() });
+      alert('✅ Adjust cuti disetujui dan saldo karyawan telah diperbarui.');
       showTab('adjust_approval');
     } catch (e) {
       console.error(e);
@@ -942,23 +978,19 @@
   };
 
   window.rejectAdjustment = async (reqId) => {
-    await updateDoc(doc(db, 'adjustmentRequests', reqId), { 
-      status: 'rejected', 
-      rejectedBy: currentUser.name,
-      rejectedAt: new Date().toISOString()
-    });
+    await updateDoc(doc(db, 'adjustmentRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name, rejectedAt: new Date().toISOString() });
     showTab('adjust_approval');
   };
 
   // ==========================================
-  // TAB: LEAVE VIEW (Direktur/Komisaris)
+  // TAB: LEAVE VIEW (Direktur/Komisaris/Superuser)
   // ==========================================
   async function renderLeaveView() {
     const snap = await getDocs(query(collection(db, 'employees'), orderBy('name')));
     const emps = snap.docs.map(d => d.data());
     
     const rows = emps.map(e => {
-      const history = (e.leaveHistory || []).slice().reverse().slice(0, 5); // Tampilkan 5 terakhir agar lebih jelas
+      const history = (e.leaveHistory || []).slice().reverse().slice(0, 5);
       const histStr = history.length ? history.map(h =>
         `<div style="font-size:11px;color:#64748b;margin-top:6px;padding:6px;background:#f8fafc;border-radius:6px">
            • ${fmtDate(h.date)}: <span class="${h.amount>0?'badge-plus':'badge-minus'}" style="padding:2px 6px;border-radius:4px;font-size:10px">${h.amount>0?'+':''}${h.amount} hari</span> (${h.type})<br>
@@ -978,11 +1010,10 @@
     return `
       <div class="card">
         <h3>Sisa Cuti & Mutasi Karyawan</h3>
-        <div class="hint-box">💡 Catatan: Riwayat mutasi menampilkan detail siapa yang mengajukan dan siapa yang menyetujui adjust cuti untuk transparansi.</div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Riwayat Mutasi (5 Terbaru)</th></tr></thead>
-            <tbody>${rows}</tbody>
+            <tbody>${rows || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:20px">Belum ada data karyawan</td></tr>'}</tbody>
           </table>
         </div>
       </div>
@@ -1028,7 +1059,7 @@
   };
 
   // ==========================================
-  // UTILS: MODAL & HISTORY RENDER
+  // UTILS
   // ==========================================
   window.openModal = (html) => {
     document.getElementById('modalContent').innerHTML = html;
