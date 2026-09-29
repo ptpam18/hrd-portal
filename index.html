@@ -4,49 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="theme-color" content="#4f46e5">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="HRD Portal - Sistem Manajemen Karyawan & Cuti">
 <title>HRD Portal</title>
-
-<!-- ✅ PRECONNECT untuk percepat koneksi -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://www.gstatic.com">
-<link rel="preconnect" href="https://firestore.googleapis.com">
-<link rel="dns-prefetch" href="https://fonts.googleapis.com">
-<link rel="dns-prefetch" href="https://www.gstatic.com">
-
-<!-- ✅ Font dengan display=swap (tidak blocking) -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-  
-  /* ✅ OPTIMASI: Gunakan GPU acceleration hanya untuk elemen yang perlu */
-  body { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    min-height: 100vh; 
-    color: #334155;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-  
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #334155; -webkit-font-smoothing: antialiased; }
   .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
   
   .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .login-card {
-    background: rgba(255,255,255,0.98); 
-    /* ✅ HAPUS backdrop-filter di mobile (berat untuk GPU) */
-    padding: 32px 28px;
-    border-radius: 20px; 
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
-    width: 100%; 
-    max-width: 380px; 
-    border: 1px solid rgba(255,255,255,0.3);
-  }
+  .login-card { background: rgba(255,255,255,0.98); padding: 32px 28px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 380px; }
   .login-card h1 { color: #4f46e5; text-align: center; margin-bottom: 8px; font-size: 24px; }
   .login-card p.subtitle { text-align: center; color: #64748b; margin-bottom: 28px; font-size: 13px; }
   
@@ -54,8 +22,7 @@
   .form-group label { display: block; margin-bottom: 6px; color: #475569; font-weight: 500; font-size: 13px; }
   .form-group input, .form-group select, .form-group textarea {
     width: 100%; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 14px; transition: border-color 0.2s; background: #f8fafc;
-    -webkit-appearance: none;
+    font-size: 14px; transition: border-color 0.2s; background: #f8fafc; -webkit-appearance: none;
   }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     outline: none; border-color: #4f46e5; background: #fff; box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
@@ -65,13 +32,13 @@
   
   .btn {
     padding: 11px 18px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; font-family: inherit; 
+    cursor: pointer; transition: transform 0.15s; font-family: inherit; 
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    touch-action: manipulation; /* ✅ Optimasi touch di mobile */
+    touch-action: manipulation;
   }
   .btn-primary { background: #4f46e5; color: white; width: 100%; }
   .btn-primary:hover { background: #4338ca; }
-  .btn-primary:active { transform: scale(0.98); } /* ✅ Feedback touch */
+  .btn-primary:active { transform: scale(0.98); }
   .btn-success { background: #10b981; color: white; }
   .btn-success:hover { background: #059669; }
   .btn-danger { background: #ef4444; color: white; }
@@ -82,31 +49,38 @@
   .btn-secondary:hover { background: #cbd5e1; }
   .btn-info { background: #0ea5e9; color: white; }
   .btn-info:hover { background: #0284c7; }
+  .btn-purple { background: #8b5cf6; color: white; }
+  .btn-purple:hover { background: #7c3aed; }
   .btn-sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .app-wrapper { display: none; }
   .app-wrapper.active { display: block; }
-  /* ✅ HAPUS animasi fadeIn (menyebabkan repaint) */
 
   .topbar {
-    background: rgba(255,255,255,0.98); 
-    padding: 14px 18px;
-    border-radius: 14px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    margin-bottom: 16px; 
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.98); padding: 14px 18px;
+    border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid rgba(255,255,255,0.6);
   }
   .topbar h2 { color: #4f46e5; font-size: 18px; display: flex; align-items: center; gap: 8px; }
   .user-info { display: flex; align-items: center; gap: 10px; }
+  
+  /* ✅ FOTO PROFIL */
+  .user-avatar-wrapper { position: relative; cursor: pointer; }
   .user-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
+    width: 42px; height: 42px; border-radius: 50%;
     background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+    color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+    overflow: hidden; border: 2px solid #e2e8f0;
   }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-edit-badge {
+    position: absolute; bottom: -2px; right: -2px;
+    background: #4f46e5; color: white; border-radius: 50%;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; border: 2px solid white;
+  }
+  
   .user-detail { text-align: right; }
   .user-detail .name { font-weight: 600; font-size: 13px; color: #1e293b; }
   .user-detail .role { font-size: 11px; color: #64748b; }
@@ -125,7 +99,7 @@
     background: rgba(255,255,255,0.98); border-radius: 14px; padding: 18px;
     margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.6);
   }
-  .card h3 { color: #334155; margin-bottom: 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .card h3 { color: #334155; margin-bottom: 14px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .stat-card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
@@ -137,7 +111,6 @@
   .stat-card.rose { border-left: 4px solid #f43f5e; }
   .stat-card.debt { border-left: 4px solid #dc2626; background: #fef2f2; }
   .stat-card.sky { border-left: 4px solid #0ea5e9; }
-  .stat-card.purple { border-left: 4px solid #8b5cf6; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
   th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
@@ -163,74 +136,43 @@
   .notification .notif-text strong { color: #451a03; }
   .notification.self-leave { background: #f5f3ff; border-left-color: #8b5cf6; }
   
-  .balance-info { 
-    background: rgba(255,255,255,0.7); padding: 8px 12px; border-radius: 8px; 
-    font-size: 12px; margin-top: 6px; border: 1px solid #e2e8f0;
-  }
+  .balance-info { background: rgba(255,255,255,0.7); padding: 8px 12px; border-radius: 8px; font-size: 12px; margin-top: 6px; border: 1px solid #e2e8f0; }
   .balance-safe { color: #059669; font-weight: 600; }
   .balance-debt { color: #dc2626; font-weight: 700; }
 
-  .debt-warning, .lock-warning, .flow-info {
-    border-radius: 12px; padding: 16px;
-    margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
-  }
+  .debt-warning, .lock-warning, .flow-info { border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
   .debt-warning { background: #fef2f2; border: 2px solid #dc2626; }
   .debt-warning .icon { font-size: 32px; }
   .debt-warning .text { flex: 1; }
   .debt-warning .text strong { color: #dc2626; font-size: 16px; }
   .debt-warning .text p { color: #991b1b; font-size: 13px; margin-top: 4px; }
-
   .lock-warning { background: #fff7ed; border: 2px solid #f97316; }
   .lock-warning .icon { font-size: 32px; }
   .lock-warning .text strong { color: #c2410c; font-size: 15px; }
-  .lock-warning .text p { color: #9a3412; font-size: 13px; margin-top: 4px; }
-
   .flow-info { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; }
   .flow-info .icon { font-size: 28px; }
   .flow-info .text strong { color: #0369a1; font-size: 14px; }
   .flow-info .text p { color: #075985; font-size: 12px; margin-top: 4px; }
 
-  .leave-calculator {
-    background: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; padding: 14px;
-    margin-top: 12px; display: none;
-  }
+  .leave-calculator { background: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; padding: 14px; margin-top: 12px; display: none; }
   .leave-calculator.debt { background: #fef2f2; border-color: #dc2626; }
-  .leave-calculator .calc-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #e2e8f0;
-  }
+  .leave-calculator .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #e2e8f0; }
   .leave-calculator .calc-row:last-child { border-bottom: none; font-weight: 700; font-size: 14px; }
   .leave-calculator .calc-label { color: #475569; }
   .leave-calculator .calc-value { color: #1e293b; font-weight: 600; }
   .leave-calculator.debt .calc-value { color: #dc2626; }
-  .leave-calculator .debt-alert {
-    background: #dc2626; color: white; padding: 10px 12px; border-radius: 8px;
-    margin-top: 10px; font-size: 13px; font-weight: 600; text-align: center;
-  }
+  .leave-calculator .debt-alert { background: #dc2626; color: white; padding: 10px 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; font-weight: 600; text-align: center; }
 
-  .reviewer-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 10px;
-    font-size: 10px; font-weight: 600; margin-top: 4px;
-  }
+  .reviewer-badge { display: inline-flex; align-items: center; gap: 4px; background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; margin-top: 4px; }
   .reviewer-badge.rejected { background: #fee2e2; color: #991b1b; }
   .reviewer-badge.director { background: #f3e8ff; color: #6b21a8; }
 
-  .filter-bar, .search-bar {
-    display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;
-    background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0;
-  }
+  .filter-bar, .search-bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
   .filter-bar label, .search-bar label { font-size: 13px; font-weight: 500; color: #475569; display: flex; align-items: center; gap: 6px; }
   .filter-bar select, .filter-bar input, .search-bar input { flex: 1; min-width: 180px; }
-  .search-bar input { 
-    padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px;
-    background: white; transition: border-color 0.2s;
-  }
+  .search-bar input { padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; }
   .search-bar input:focus { outline: none; border-color: #4f46e5; }
-  .search-bar .result-count { 
-    font-size: 12px; color: #64748b; background: #e2e8f0; 
-    padding: 4px 10px; border-radius: 12px; font-weight: 500;
-  }
+  .search-bar .result-count { font-size: 12px; color: #64748b; background: #e2e8f0; padding: 4px 10px; border-radius: 12px; font-weight: 500; }
 
   .chart-container { position: relative; height: 280px; margin: 16px 0; }
   .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
@@ -240,41 +182,13 @@
   .empty-state { text-align: center; padding: 30px 15px; color: #94a3b8; }
   .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
 
-  /* ✅ LOADING SPINNER yang lebih smooth */
-  .loading-wrapper {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 60px 20px; color: #64748b;
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 4px solid #e2e8f0;
-    border-top-color: #4f46e5;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 16px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; font-weight: 500; }
-  .loading-subtext { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-
-  .modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15,23,42,0.7);
-    z-index: 1000; align-items: center; justify-content: center; padding: 15px;
-  }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
   .modal-overlay.active { display: flex; }
-  .modal {
-    background: white; border-radius: 16px; padding: 24px; max-width: 480px; width: 100%;
-    max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-    -webkit-overflow-scrolling: touch;
-  }
+  .modal { background: white; border-radius: 16px; padding: 24px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); -webkit-overflow-scrolling: touch; }
   .modal h3 { color: #4f46e5; margin-bottom: 18px; font-size: 17px; }
   .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; flex-wrap: wrap; }
 
-  .hint-box {
-    background: #eff6ff; border-left: 4px solid #3b82f6;
-    padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #1e40af; margin-bottom: 14px;
-  }
+  .hint-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 12px; border-radius: 8px; font-size: 12px; color: #1e40af; margin-bottom: 14px; }
   .hint-box.warning { background: #fef3c7; border-left-color: #f59e0b; color: #92400e; }
   .hint-box.danger { background: #fee2e2; border-left-color: #ef4444; color: #991b1b; }
   .hint-box.success { background: #d1fae5; border-left-color: #10b981; color: #065f46; }
@@ -282,29 +196,69 @@
   .hint-box.purple { background: #f5f3ff; border-left-color: #8b5cf6; color: #6b21a8; }
   .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   
-  .required-field { border-color: #f59e0b !important; background: #fffbeb !important; }
-  .required-field:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
-  .required-label { color: #dc2626 !important; font-weight: 600 !important; }
-  .required-label::after { content: ' *'; color: #dc2626; }
-  
+  .loading-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: #64748b; }
+  .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; font-weight: 500; }
+  .loading-subtext { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+  .error-box { background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; text-align: center; color: #991b1b; }
+  .error-box .icon { font-size: 48px; margin-bottom: 12px; }
+
   .btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
   
-  /* ✅ ERROR STATE */
-  .error-box {
-    background: #fee2e2; border: 2px solid #ef4444; border-radius: 12px; padding: 20px;
-    text-align: center; color: #991b1b;
+  /* ✅ ACTION BAR untuk Export/Print */
+  .action-bar {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 12px; border-radius: 10px; border: 1px solid #bae6fd;
   }
-  .error-box .icon { font-size: 48px; margin-bottom: 12px; }
-  .error-box button { margin-top: 12px; }
+  .action-bar .action-label { font-size: 13px; font-weight: 600; color: #0369a1; margin-right: auto; }
+  
+  /* ✅ FOTO PROFIL DI TABEL */
+  .profile-photo-cell { display: flex; align-items: center; gap: 8px; }
+  .profile-photo {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; overflow: hidden; border: 2px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+  .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* ✅ MOBILE OPTIMIZATION */
+  /* ✅ UPLOAD FOTO MODAL */
+  .photo-upload-preview {
+    width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 16px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 48px; overflow: hidden; border: 3px solid #e2e8f0;
+  }
+  .photo-upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-upload-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  
+  /* ✅ CSS PRINT - Hanya tampilkan konten penting */
+  @media print {
+    body { background: white !important; }
+    .topbar, .nav-tabs, .btn, .action-bar, .modal-overlay, .search-bar, .filter-bar, .hint-box, .debt-warning, .lock-warning, .flow-info { display: none !important; }
+    .container { padding: 0; max-width: 100%; }
+    .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+    .app-wrapper { display: block !important; }
+    #mainContent { display: block !important; }
+    table { font-size: 11px; }
+    th, td { padding: 6px 4px; }
+    .print-header { display: block !important; text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #4f46e5; }
+    .print-header h1 { color: #4f46e5; font-size: 20px; margin-bottom: 4px; }
+    .print-header p { color: #64748b; font-size: 12px; }
+  }
+  .print-header { display: none; }
+
   @media (max-width: 640px) {
     .container { padding: 10px; }
     .login-card { padding: 24px 20px; }
     .topbar { flex-direction: column; gap: 12px; text-align: center; padding: 12px 14px; }
     .user-detail { text-align: center; }
     .user-info { flex-direction: row-reverse; }
-    .stats-grid { grid-template-columns: 1fr 1fr; } /* ✅ 2 kolom di mobile, lebih compact */
+    .stats-grid { grid-template-columns: 1fr 1fr; }
     .card { padding: 14px; }
     .nav-tabs { gap: 4px; }
     .nav-tab { padding: 8px 12px; font-size: 11px; }
@@ -313,13 +267,13 @@
     .notification { flex-direction: column; align-items: stretch; }
     .modal { padding: 20px; border-radius: 12px; }
     .chart-grid { grid-template-columns: 1fr; }
-    .filter-bar, .search-bar { flex-direction: column; align-items: stretch; }
+    .filter-bar, .search-bar, .action-bar { flex-direction: column; align-items: stretch; }
     .filter-bar select, .filter-bar input, .search-bar input { width: 100%; min-width: unset; }
     .stat-card .value { font-size: 20px; }
     .btn-sm { padding: 5px 8px; font-size: 11px; }
+    .action-bar .btn { width: 100%; }
   }
   
-  /* ✅ VERY SMALL MOBILE */
   @media (max-width: 360px) {
     .stats-grid { grid-template-columns: 1fr; }
     .btn-group { flex-direction: column; }
@@ -343,9 +297,7 @@
       <input type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="current-password" inputmode="text">
     </div>
     <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">Masuk</button>
-    <div class="hint-box" style="margin-top: 16px; text-align: center;">
-      💡 Huruf besar atau kecil tidak masalah
-    </div>
+    <div class="hint-box" style="margin-top: 16px; text-align: center;">💡 Huruf besar/kecil tidak masalah</div>
   </div>
 </div>
 
@@ -353,13 +305,17 @@
 <div class="app-wrapper" id="appScreen">
   <div class="container">
     <div class="topbar">
-      <h2>🌿 HRD Portal</h2>
+      <h2> HRD Portal</h2>
       <div class="user-info">
         <div class="user-detail">
           <div class="name" id="userName">-</div>
           <div class="role" id="userRole">-</div>
         </div>
-        <div class="user-avatar" id="userAvatar">-</div>
+        <!-- ✅ FOTO PROFIL KLIKABLE -->
+        <div class="user-avatar-wrapper" onclick="openPhotoUpload()" title="Klik untuk ganti foto">
+          <div class="user-avatar" id="userAvatar">-</div>
+          <div class="avatar-edit-badge">📷</div>
+        </div>
         <button class="btn btn-secondary btn-sm" onclick="doLogout()">Keluar</button>
       </div>
     </div>
@@ -369,7 +325,7 @@
       <div class="loading-wrapper">
         <div class="spinner"></div>
         <div class="loading-text">Memuat aplikasi...</div>
-        <div class="loading-subtext">Mohon tunggu sebentar</div>
+        <div class="loading-subtext">Mohon tunggu</div>
       </div>
     </div>
   </div>
@@ -380,12 +336,21 @@
   <div class="modal" id="modalContent"></div>
 </div>
 
-<!-- ✅ FIREBASE SDK (Hanya yang diperlukan) -->
+<!-- INPUT FILE TERSEMBUNYI untuk upload foto -->
+<input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+
+<!-- PRINT HEADER (hanya muncul saat print) -->
+<div class="print-header" id="printHeader">
+  <h1>🌿 HRD Portal - Laporan Cuti Karyawan</h1>
+  <p id="printSubtitle"></p>
+  <p id="printDate"></p>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
   import { 
     getFirestore, collection, getDocs, getDoc, addDoc, setDoc, updateDoc, deleteDoc, doc, 
-    query, where, writeBatch, enableNetwork, disableNetwork
+    query, where, writeBatch 
   } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -401,29 +366,18 @@
   const db = getFirestore(app);
   window.db = db;
 
-  // ✅ MEMORY CACHE untuk kurangi network calls
-  const dataCache = {
-    employees: null,
-    users: null,
-    leaveRequests: null,
-    adjustmentRequests: null,
-    lastFetch: 0,
-    CACHE_TTL: 30000 // 30 detik cache
-  };
-
+  const dataCache = { employees: null, users: null, leaveRequests: null, adjustmentRequests: null, lastFetch: 0, CACHE_TTL: 30000 };
   let currentUser = null;
   let currentUserDocId = null;
   let chartLoaded = false;
+  let sheetJSLoaded = false;
 
-  const ROLE_LABEL = {
-    superuser: 'Superuser', direktur: 'Direktur', komisaris: 'Komisaris',
-    kepala_hrd: 'Kepala HRD', staff_hrd: 'Staff HRD', staff: 'Staff Biasa'
-  };
+  const ROLE_LABEL = { superuser: 'Superuser', direktur: 'Direktur', komisaris: 'Komisaris', kepala_hrd: 'Kepala HRD', staff_hrd: 'Staff HRD', staff: 'Staff Biasa' };
 
   const LEAVE_REASONS = [
     { value: '', label: '-- Pilih Alasan Cuti --' },
     { value: 'Cuti Tahunan', label: '️ Cuti Tahunan' },
-    { value: 'Cuti Sakit', label: '🤒 Cuti Sakit' },
+    { value: 'Cuti Sakit', label: ' Cuti Sakit' },
     { value: 'Cuti Besar', label: '🏝️ Cuti Besar (6 tahun)' },
     { value: 'Cuti Melahirkan', label: '🤰 Cuti Melahirkan' },
     { value: 'Cuti Keguguran', label: '😢 Cuti Keguguran' },
@@ -433,71 +387,24 @@
     { value: 'Cuti Haji/Umroh', label: ' Cuti Haji/Umroh' },
     { value: 'Cuti Ibadah', label: '🙏 Cuti Ibadah' },
     { value: 'Cuti Kecelakaan Kerja', label: '🚑 Kecelakaan Kerja' },
-    { value: 'Cuti Sakit Keluarga', label: '👨‍👩‍👧 Sakit Keluarga' },
+    { value: 'Cuti Sakit Keluarga', label: '‍👩‍👧 Sakit Keluarga' },
     { value: 'Cuti Dokumen Negara', label: '📄 Dokumen Negara' },
-    { value: 'Cuti Pindah Rumah', label: ' Pindah Rumah' },
-    { value: 'Cuti Ujian', label: '📚 Menempuh Ujian' },
+    { value: 'Cuti Pindah Rumah', label: '🏠 Pindah Rumah' },
+    { value: 'Cuti Ujian', label: '📚 Ujian' },
     { value: 'Cuti Serikat Pekerja', label: '✊ Serikat Pekerja' },
     { value: 'Cuti Bencana Alam', label: '🌊 Bencana Alam' },
     { value: 'Cuti Tugas Negara', label: '🏛️ Tugas Negara' },
     { value: 'Cuti Wajib', label: '📋 Cuti Wajib' },
     { value: 'Cuti Mendesak', label: '⚡ Alasan Mendesak' },
-    { value: 'Lainnya', label: '📝 Lainnya (wajib isi)' }
+    { value: 'Lainnya', label: ' Lainnya (wajib isi)' }
   ];
 
-  const STAFF_HRD_ROLES = [
-    { value: 'staff', label: 'Staff Biasa' },
-    { value: 'staff_hrd', label: 'Staff HRD' }
-  ];
+  const STAFF_HRD_ROLES = [{ value: 'staff', label: 'Staff Biasa' }, { value: 'staff_hrd', label: 'Staff HRD' }];
 
-  const fmtDate = (d) => {
-    if (!d) return '-';
-    try { return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); }
-    catch { return '-'; }
-  };
-
-  const fmtDateTime = (d) => {
-    if (!d) return '-';
-    try { 
-      const dt = new Date(d);
-      return dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + 
-             dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); 
-    } catch { return '-'; }
-  };
-
-  const daysBetween = (a, b) => {
-    try { return Math.floor((new Date(b) - new Date(a)) / (1000 * 60 * 60 * 24)) + 1; }
-    catch { return 0; }
-  };
-
-  const getEligibleLeave = (joinDateStr) => {
-    try {
-      const diffYears = (Date.now() - new Date(joinDateStr)) / (1000 * 60 * 60 * 24 * 365.25);
-      return diffYears >= 1;
-    } catch { return false; }
-  };
-
-  // ✅ HELPER: Fetch dengan cache
-  async function fetchCollection(name) {
-    const now = Date.now();
-    if (dataCache[name] && (now - dataCache.lastFetch) < dataCache.CACHE_TTL) {
-      return dataCache[name];
-    }
-    try {
-      const snap = await getDocs(collection(db, name));
-      dataCache[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      dataCache.lastFetch = now;
-      return dataCache[name];
-    } catch (e) {
-      console.error(`Error fetching ${name}:`, e);
-      return dataCache[name] || []; // Fallback ke cache lama
-    }
-  }
-
-  // ✅ HELPER: Invalidate cache
-  function invalidateCache() {
-    dataCache.lastFetch = 0;
-  }
+  const fmtDate = (d) => { if (!d) return '-'; try { return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return '-'; } };
+  const fmtDateTime = (d) => { if (!d) return '-'; try { const dt = new Date(d); return dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); } catch { return '-'; } };
+  const daysBetween = (a, b) => { try { return Math.floor((new Date(b) - new Date(a)) / (1000 * 60 * 60 * 24)) + 1; } catch { return 0; } };
+  const getEligibleLeave = (joinDateStr) => { try { return (Date.now() - new Date(joinDateStr)) / (1000 * 60 * 60 * 24 * 365.25) >= 1; } catch { return false; } };
 
   function getLeaveLockStatus() {
     const now = new Date();
@@ -505,54 +412,23 @@
     const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
     const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    return {
-      locked: true, lockedMonth: lastMonth, lockedYear: lastMonthYear,
-      message: `🔒 Cuti bulan ${monthNames[lastMonth]} ${lastMonthYear} dikunci (lock tgl 10 ${monthNames[now.getMonth()]})`
-    };
+    return { locked: true, lockedMonth: lastMonth, lockedYear: lastMonthYear, message: `🔒 Cuti bulan ${monthNames[lastMonth]} ${lastMonthYear} dikunci (lock tgl 10 ${monthNames[now.getMonth()]})` };
   }
+  function isDateLocked(dateStr) { const lock = getLeaveLockStatus(); if (!lock.locked) return false; const d = new Date(dateStr); return d.getMonth() === lock.lockedMonth && d.getFullYear() === lock.lockedYear; }
+  function getStatusLabel(status) { return { 'pending_staff': 'Menunggu Staff HRD', 'pending_staff_hrd_peer': 'Menunggu Review Staff HRD', 'pending_head': 'Menunggu Kepala HRD', 'pending_director': 'Menunggu Direktur', 'approved': 'Disetujui', 'rejected': 'Ditolak' }[status] || status; }
+  function getLeaveDateForReport(l) { if (l.status === 'approved') return l.directorApprovedAt || l.headApprovedAt || l.createdAt; if (l.status === 'rejected') return l.directorRejectedAt || l.rejectedAt || l.createdAt; return l.createdAt; }
 
-  function isDateLocked(dateStr) {
-    const lock = getLeaveLockStatus();
-    if (!lock.locked) return false;
-    const d = new Date(dateStr);
-    return d.getMonth() === lock.lockedMonth && d.getFullYear() === lock.lockedYear;
-  }
-
-  function getStatusLabel(status) {
-    return {
-      'pending_staff': 'Menunggu Staff HRD',
-      'pending_staff_hrd_peer': 'Menunggu Review Staff HRD',
-      'pending_head': 'Menunggu Kepala HRD',
-      'pending_director': 'Menunggu Direktur',
-      'approved': 'Disetujui',
-      'rejected': 'Ditolak'
-    }[status] || status;
-  }
-
-  function getLeaveDateForReport(l) {
-    if (l.status === 'approved') return l.directorApprovedAt || l.headApprovedAt || l.createdAt;
-    if (l.status === 'rejected') return l.directorRejectedAt || l.rejectedAt || l.createdAt;
-    return l.createdAt;
-  }
-
-  // ✅ LAZY LOAD Chart.js (hanya saat dibutuhkan)
-  async function loadChartJS() {
-    if (chartLoaded) return window.Chart;
+  async function fetchCollection(name) {
+    const now = Date.now();
+    if (dataCache[name] && (now - dataCache.lastFetch) < dataCache.CACHE_TTL) return dataCache[name];
     try {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-      chartLoaded = true;
-      return window.Chart;
-    } catch (e) {
-      console.error('Gagal load Chart.js:', e);
-      return null;
-    }
+      const snap = await getDocs(collection(db, name));
+      dataCache[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      dataCache.lastFetch = now;
+      return dataCache[name];
+    } catch (e) { console.error(`Error fetching ${name}:`, e); return dataCache[name] || []; }
   }
+  function invalidateCache() { dataCache.lastFetch = 0; }
 
   async function ensureMonthlyReport() {
     const now = new Date();
@@ -563,59 +439,30 @@
     const existingSnap = await getDoc(existingRef);
     if (existingSnap.exists()) return existingSnap.data();
     
-    const [employees, allLeaves, allAdjusts] = await Promise.all([
-      fetchCollection('employees'),
-      fetchCollection('leaveRequests'),
-      fetchCollection('adjustmentRequests')
-    ]);
-    
-    const monthLeaves = allLeaves.filter(l => {
-      const d = new Date(getLeaveDateForReport(l) || 0);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    const monthAdjusts = allAdjusts.filter(a => {
-      const d = new Date(a.requestedAt || a.approvedAt || a.rejectedAt || 0);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    
+    const [employees, allLeaves, allAdjusts] = await Promise.all([fetchCollection('employees'), fetchCollection('leaveRequests'), fetchCollection('adjustmentRequests')]);
+    const monthLeaves = allLeaves.filter(l => { const d = new Date(getLeaveDateForReport(l) || 0); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+    const monthAdjusts = allAdjusts.filter(a => { const d = new Date(a.requestedAt || a.approvedAt || a.rejectedAt || 0); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
     const approved = monthLeaves.filter(l => l.status === 'approved');
     const rejected = monthLeaves.filter(l => l.status === 'rejected');
     const pending = monthLeaves.filter(l => l.status.startsWith('pending'));
     const totalLeaveDays = approved.reduce((sum, l) => sum + daysBetween(l.startDate, l.endDate), 0);
-    
     const leaveByEmployee = {};
-    approved.forEach(l => {
-      const days = daysBetween(l.startDate, l.endDate);
-      leaveByEmployee[l.employeeName] = (leaveByEmployee[l.employeeName] || 0) + days;
-    });
-    
+    approved.forEach(l => { const days = daysBetween(l.startDate, l.endDate); leaveByEmployee[l.employeeName] = (leaveByEmployee[l.employeeName] || 0) + days; });
     const reasonCount = {};
-    approved.forEach(l => {
-      const reason = (l.reasonType || l.reason || 'Lainnya').toUpperCase().trim();
-      reasonCount[reason] = (reasonCount[reason] || 0) + 1;
-    });
+    approved.forEach(l => { const reason = (l.reasonType || l.reason || 'Lainnya').toUpperCase().trim(); reasonCount[reason] = (reasonCount[reason] || 0) + 1; });
     
     const report = {
-      monthKey, generatedAt: now.toISOString(),
-      totalEmployees: employees.length,
-      totalLeaveRequests: monthLeaves.length,
-      approved: approved.length, rejected: rejected.length, pending: pending.length,
-      totalLeaveDaysUsed: totalLeaveDays,
+      monthKey, generatedAt: now.toISOString(), totalEmployees: employees.length, totalLeaveRequests: monthLeaves.length,
+      approved: approved.length, rejected: rejected.length, pending: pending.length, totalLeaveDaysUsed: totalLeaveDays,
       averageLeavePerEmployee: employees.length > 0 ? (totalLeaveDays / employees.length).toFixed(1) : 0,
       employeesWithDebt: employees.filter(e => e.leaveBalance < 0).map(e => ({ name: e.name, debt: Math.abs(e.leaveBalance), id: e.id })),
       topLeaveUsers: Object.entries(leaveByEmployee).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, days]) => ({ name, days })),
       leaveByReason: reasonCount,
-      balanceDistribution: {
-        positive: employees.filter(e => e.leaveBalance > 0).length,
-        zero: employees.filter(e => e.leaveBalance === 0).length,
-        negative: employees.filter(e => e.leaveBalance < 0).length
-      },
+      balanceDistribution: { positive: employees.filter(e => e.leaveBalance > 0).length, zero: employees.filter(e => e.leaveBalance === 0).length, negative: employees.filter(e => e.leaveBalance < 0).length },
       totalBalanceCompany: employees.reduce((sum, e) => sum + e.leaveBalance, 0),
       averageBalance: employees.length > 0 ? (employees.reduce((sum, e) => sum + e.leaveBalance, 0) / employees.length).toFixed(1) : 0,
-      totalAdjustments: monthAdjusts.length,
-      approvedAdjustments: monthAdjusts.filter(a => a.status === 'approved').length
+      totalAdjustments: monthAdjusts.length, approvedAdjustments: monthAdjusts.filter(a => a.status === 'approved').length
     };
-    
     await setDoc(existingRef, report);
     return report;
   }
@@ -623,35 +470,15 @@
   async function seedData() {
     try {
       const superCheck = await getDocs(query(collection(db, 'users'), where('username', '==', 'ptpam')));
-      if (superCheck.empty) {
-        await setDoc(doc(collection(db, 'users')), {
-          username: 'ptpam', password: '945766',
-          name: 'Superuser PTPAM', role: 'superuser', isSuperuser: true
-        });
-      }
+      if (superCheck.empty) await setDoc(doc(collection(db, 'users')), { username: 'ptpam', password: '945766', name: 'Superuser PTPAM', role: 'superuser', isSuperuser: true });
     } catch (e) { console.error("Seed error:", e); }
   }
 
-  // ✅ LOADING HELPER
   function showLoading(text = 'Memuat...', subtext = 'Mohon tunggu') {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="loading-wrapper">
-        <div class="spinner"></div>
-        <div class="loading-text">${text}</div>
-        <div class="loading-subtext">${subtext}</div>
-      </div>
-    `;
+    document.getElementById('mainContent').innerHTML = `<div class="loading-wrapper"><div class="spinner"></div><div class="loading-text">${text}</div><div class="loading-subtext">${subtext}</div></div>`;
   }
-
   function showError(msg, retryFn) {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="error-box">
-        <div class="icon">⚠️</div>
-        <div><strong>Terjadi Kesalahan</strong></div>
-        <div style="font-size:13px;margin-top:8px">${msg}</div>
-        ${retryFn ? `<button class="btn btn-primary" style="width:auto" onclick="${retryFn}">Coba Lagi</button>` : ''}
-      </div>
-    `;
+    document.getElementById('mainContent').innerHTML = `<div class="error-box"><div class="icon">⚠️</div><div><strong>Terjadi Kesalahan</strong></div><div style="font-size:13px;margin-top:8px">${msg}</div>${retryFn ? `<button class="btn btn-primary" style="width:auto;margin-top:12px" onclick="${retryFn}">Coba Lagi</button>` : ''}</div>`;
   }
 
   window.doLogin = async () => {
@@ -659,7 +486,6 @@
     const p = document.getElementById('loginPassword').value;
     const btn = document.getElementById('btnLogin');
     btn.textContent = 'Memuat...'; btn.disabled = true;
-
     try {
       const q = query(collection(db, 'users'), where('username', '==', u), where('password', '==', p));
       const snap = await getDocs(q);
@@ -675,18 +501,13 @@
         invalidateCache();
         renderApp();
       }
-    } catch (e) {
-      console.error(e);
-      alert('❌ Gagal terhubung. Periksa koneksi internet.');
-    }
+    } catch (e) { console.error(e); alert(' Gagal terhubung. Periksa koneksi.'); }
     btn.textContent = 'Masuk'; btn.disabled = false;
   };
 
   window.doLogout = () => {
-    currentUser = null;
-    currentUserDocId = null;
-    sessionStorage.removeItem('hrd_user');
-    sessionStorage.removeItem('hrd_user_doc_id');
+    currentUser = null; currentUserDocId = null;
+    sessionStorage.removeItem('hrd_user'); sessionStorage.removeItem('hrd_user_doc_id');
     document.getElementById('appScreen').classList.remove('active');
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('loginUsername').value = '';
@@ -696,11 +517,7 @@
   function checkSession() {
     const s = sessionStorage.getItem('hrd_user');
     const docId = sessionStorage.getItem('hrd_user_doc_id');
-    if (s && docId) {
-      currentUser = JSON.parse(s);
-      currentUserDocId = docId;
-      renderApp();
-    }
+    if (s && docId) { currentUser = JSON.parse(s); currentUserDocId = docId; renderApp(); }
   }
 
   function renderApp() {
@@ -708,14 +525,24 @@
     document.getElementById('appScreen').classList.add('active');
     document.getElementById('userName').textContent = currentUser.name;
     document.getElementById('userRole').textContent = ROLE_LABEL[currentUser.role];
-    document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    updateAvatarDisplay();
     buildNav();
+  }
+
+  // ✅ UPDATE AVATAR dengan foto profil
+  function updateAvatarDisplay() {
+    const avatarEl = document.getElementById('userAvatar');
+    if (currentUser.photoUrl) {
+      avatarEl.innerHTML = `<img src="${currentUser.photoUrl}" alt="${currentUser.name}">`;
+    } else {
+      avatarEl.innerHTML = currentUser.name.charAt(0).toUpperCase();
+      avatarEl.style.background = 'linear-gradient(135deg, #4f46e5, #7c3aed)';
+    }
   }
 
   function buildNav() {
     const tabs = [];
     const r = currentUser.role;
-    
     if (r === 'superuser') {
       tabs.push({ id: 'manage_accounts', label: '👑 Akun' });
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
@@ -726,20 +553,19 @@
       tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
       tabs.push({ id: 'apply_leave', label: '📝 Cuti' });
     }
-    
     if (r === 'staff_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
       tabs.push({ id: 'leave_mgmt', label: '⚙️ Adjust' });
-      tabs.push({ id: 'leave_requests', label: ' Review' });
+      tabs.push({ id: 'leave_requests', label: '📬 Review' });
     }
     if (r === 'kepala_hrd') tabs.push({ id: 'employees', label: '👥 Karyawan' });
     if (r === 'direktur' || r === 'komisaris') {
-      tabs.push({ id: 'employees', label: ' Karyawan' });
+      tabs.push({ id: 'employees', label: '👥 Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi' });
       tabs.push({ id: 'monthly_report', label: '📊 Laporan' });
       if (r === 'direktur') tabs.push({ id: 'director_approval', label: '✅ Approval' });
     }
-    tabs.push({ id: 'change_password', label: '🔒 Password' });
+    tabs.push({ id: 'change_password', label: '🔒 Password & Foto' });
 
     const nav = document.getElementById('navTabs');
     nav.innerHTML = '';
@@ -769,33 +595,183 @@
       else if (id === 'leave_mgmt') c.innerHTML = await renderLeaveMgmt();
       else if (id === 'leave_requests') c.innerHTML = await renderLeaveRequests();
       else if (id === 'leave_view') c.innerHTML = await renderLeaveView();
-      else if (id === 'monthly_report') {
-        c.innerHTML = await renderMonthlyReport();
-        // ✅ Lazy load chart setelah konten render
-        setTimeout(() => loadAndRenderCharts(), 100);
-      }
+      else if (id === 'monthly_report') { c.innerHTML = await renderMonthlyReport(); setTimeout(() => loadAndRenderCharts(), 100); }
       else if (id === 'director_approval') c.innerHTML = await renderDirectorApproval();
       else if (id === 'change_password') c.innerHTML = renderChangePassword();
+    } catch (e) { console.error(e); showError('Gagal memuat: ' + e.message, `showTab('${id}')`); }
+  }
+
+  function debounce(fn, delay) { let timer; return function(...args) { clearTimeout(timer); timer = setTimeout(() => fn.apply(this, args), delay); }; }
+
+  // ==========================================
+  // ✅ FITUR BARU: UPLOAD FOTO PROFIL
+  // ==========================================
+  window.openPhotoUpload = () => {
+    const currentPhoto = currentUser.photoUrl || '';
+    const initial = currentUser.name.charAt(0).toUpperCase();
+    
+    window.openModal(`
+      <h3>📷 Foto Profil</h3>
+      <div class="photo-upload-preview" id="photoPreview">
+        ${currentPhoto ? `<img src="${currentPhoto}" alt="Foto">` : initial}
+      </div>
+      <p style="text-align:center;color:#64748b;font-size:12px;margin-bottom:12px">
+        ${currentPhoto ? 'Klik tombol di bawah untuk mengganti foto' : 'Belum ada foto profil'}
+      </p>
+      <div class="photo-upload-actions">
+        <button class="btn btn-primary" style="width:auto" onclick="document.getElementById('photoFileInput').click()">
+          📁 Pilih dari Galeri
+        </button>
+        <button class="btn btn-info" style="width:auto" onclick="document.getElementById('photoFileInput').setAttribute('capture','environment'); document.getElementById('photoFileInput').click()">
+          📸 Ambil Foto
+        </button>
+        ${currentPhoto ? `<button class="btn btn-danger" style="width:auto" onclick="removePhoto()">🗑️ Hapus Foto</button>` : ''}
+      </div>
+      <div class="hint-box" style="margin-top:16px">
+        💡 <strong>Tips:</strong><br>
+        • Maksimal ukuran: 500KB<br>
+        • Format: JPG, PNG<br>
+        • Foto akan di-resize otomatis menjadi 200x200px<br>
+        • Foto tersinkron ke semua device
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="window.closeModal()">Tutup</button>
+      </div>
+    `);
+  };
+
+  window.handlePhotoUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validasi ukuran
+    if (file.size > 500 * 1024) {
+      alert('⚠️ Ukuran foto terlalu besar! Maksimal 500KB.\n\nUkuran file: ' + (file.size / 1024).toFixed(0) + 'KB');
+      event.target.value = '';
+      return;
+    }
+    
+    // Validasi tipe
+    if (!file.type.startsWith('image/')) {
+      alert('⚠️ File harus berupa gambar!');
+      event.target.value = '';
+      return;
+    }
+    
+    try {
+      // Resize foto menggunakan canvas
+      const resizedBase64 = await resizeImage(file, 200, 200);
+      
+      // Update preview
+      document.getElementById('photoPreview').innerHTML = `<img src="${resizedBase64}" alt="Preview">`;
+      
+      // Simpan ke Firestore
+      await updateDoc(doc(db, 'users', currentUserDocId), { photoUrl: resizedBase64 });
+      
+      // Update local state
+      currentUser.photoUrl = resizedBase64;
+      sessionStorage.setItem('hrd_user', JSON.stringify(currentUser));
+      updateAvatarDisplay();
+      
+      alert('✅ Foto profil berhasil diperbarui!');
+      window.closeModal();
+      
+      // Refresh halaman jika sedang di manage_accounts
+      const activeTab = document.querySelector('.nav-tab.active');
+      if (activeTab && activeTab.textContent.includes('Akun')) {
+        showTab('manage_accounts');
+      }
     } catch (e) {
       console.error(e);
-      showError('Gagal memuat data: ' + e.message, `showTab('${id}')`);
+      alert('❌ Gagal upload foto: ' + e.message);
     }
+    event.target.value = '';
+  };
+
+  // ✅ Helper: Resize image ke ukuran tertentu dan return base64
+  function resizeImage(file, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Hitung aspect ratio
+          if (width > height) {
+            if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+          } else {
+            if (height > maxHeight) { width = Math.round((width * maxHeight) / height); height = maxHeight; }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert ke base64 dengan kualitas 0.8
+          const base64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
-  // ✅ DEBOUNCE untuk search
-  function debounce(fn, delay) {
-    let timer;
-    return function(...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), delay);
-    };
+  window.removePhoto = async () => {
+    if (!confirm('Hapus foto profil?')) return;
+    try {
+      await updateDoc(doc(db, 'users', currentUserDocId), { photoUrl: '' });
+      currentUser.photoUrl = '';
+      sessionStorage.setItem('hrd_user', JSON.stringify(currentUser));
+      updateAvatarDisplay();
+      alert('✅ Foto profil dihapus.');
+      window.closeModal();
+      const activeTab = document.querySelector('.nav-tab.active');
+      if (activeTab && activeTab.textContent.includes('Akun')) showTab('manage_accounts');
+    } catch (e) { alert(' Gagal: ' + e.message); }
+  };
+
+  // ==========================================
+  // ✅ FITUR BARU: EXPORT EXCEL (Lazy Load SheetJS)
+  // ==========================================
+  async function loadSheetJS() {
+    if (sheetJSLoaded) return window.XLSX;
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      sheetJSLoaded = true;
+      return window.XLSX;
+    } catch (e) { console.error('Gagal load SheetJS:', e); return null; }
   }
 
+  // ✅ Helper: Generate avatar HTML untuk tabel
+  function getProfilePhotoHTML(user) {
+    if (user && user.photoUrl) {
+      return `<div class="profile-photo"><img src="${user.photoUrl}" alt="${user.name}"></div>`;
+    }
+    const initial = (user?.name || '?').charAt(0).toUpperCase();
+    return `<div class="profile-photo">${initial}</div>`;
+  }
+
+  // ==========================================
+  // MANAJEMEN AKUN (dengan foto profil)
+  // ==========================================
   async function renderManageAccounts() {
     const users = (await fetchCollection('users')).sort((a, b) => a.name.localeCompare(b.name, 'id'));
     const rows = users.map(u => `
       <tr>
-        <td><strong>${u.name}</strong></td>
+        <td><div class="profile-photo-cell">${getProfilePhotoHTML(u)} <strong>${u.name}</strong></div></td>
         <td>${u.username}</td>
         <td>${ROLE_LABEL[u.role] || u.role}</td>
         <td><span style="font-family:monospace;background:#f1f5f9;padding:4px 8px;border-radius:6px;font-size:12px">${u.password}</span></td>
@@ -812,6 +788,7 @@
           <h3 style="margin:0">👑 Manajemen Akun</h3>
           <button class="btn btn-primary" style="width:auto" onclick="openAddAccount()">+ Tambah</button>
         </div>
+        <div class="hint-box">💡 Klik foto profil di topbar untuk mengganti foto Anda.</div>
         <div class="search-bar">
           <label>🔍 Cari:</label>
           <input type="text" id="searchAccounts" placeholder="Nama atau username..." oninput="debouncedFilterAccounts()">
@@ -819,7 +796,7 @@
         </div>
         <div class="table-wrapper">
           <table>
-            <thead><tr><th>Nama</th><th>Username</th><th>Role</th><th>Password</th><th>Aksi</th></tr></thead>
+            <thead><tr><th>Nama & Foto</th><th>Username</th><th>Role</th><th>Password</th><th>Aksi</th></tr></thead>
             <tbody id="accountsBody">${rows || '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada akun</td></tr>'}</tbody>
           </table>
         </div>
@@ -850,10 +827,8 @@
       <div class="form-group"><label>Username</label><input type="text" id="newAccUsername"></div>
       <div class="form-group"><label>Role</label>
         <select id="newAccRole">
-          <option value="direktur">Direktur</option>
-          <option value="komisaris">Komisaris</option>
-          <option value="kepala_hrd">Kepala HRD</option>
-          <option value="staff_hrd">Staff HRD</option>
+          <option value="direktur">Direktur</option><option value="komisaris">Komisaris</option>
+          <option value="kepala_hrd">Kepala HRD</option><option value="staff_hrd">Staff HRD</option>
           <option value="staff">Staff Biasa</option>
         </select>
       </div>
@@ -872,28 +847,21 @@
     const role = document.getElementById('newAccRole').value;
     const join = document.getElementById('newAccJoin').value;
     const password = document.getElementById('newAccPassword').value.trim();
-    
     if (!name || !username || !join || !password) { alert('Lengkapi semua field!'); return; }
     if (password.length < 4) { alert('Password minimal 4 karakter!'); return; }
-    
     try {
-      if (!(await getDocs(query(collection(db, 'users'), where('username', '==', username)))).empty) { alert('️ Username sudah digunakan!'); return; }
-      if (!(await getDocs(query(collection(db, 'employees'), where('name', '==', name)))).empty) { alert('⚠️ Nama sudah terdaftar!'); return; }
-      
+      if (!(await getDocs(query(collection(db, 'users'), where('username', '==', username)))).empty) { alert('⚠️ Username sudah dipakai!'); return; }
+      if (!(await getDocs(query(collection(db, 'employees'), where('name', '==', name)))).empty) { alert('️ Nama sudah terdaftar!'); return; }
       const emps = await fetchCollection('employees');
       let num = 1;
       const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
-      if (validEmps.length > 0) {
-        validEmps.sort((a, b) => b.id.localeCompare(a.id));
-        num = parseInt(validEmps[0].id.substring(1)) + 1;
-      } else num = emps.length + 1;
+      if (validEmps.length > 0) { validEmps.sort((a, b) => b.id.localeCompare(a.id)); num = parseInt(validEmps[0].id.substring(1)) + 1; }
+      else num = emps.length + 1;
       const newEmpId = 'E' + String(num).padStart(3, '0');
-      
       const batch = writeBatch(db);
       batch.set(doc(collection(db, 'users')), { username, password, name, role, employeeId: newEmpId });
       batch.set(doc(collection(db, 'employees')), { id: newEmpId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
       await batch.commit();
-      
       invalidateCache();
       window.closeModal();
       alert(`✅ Akun ${ROLE_LABEL[role]} dibuat!\nUser: ${username}\nPass: ${password}`);
@@ -918,9 +886,7 @@
     if (!newPass || newPass.length < 4) { alert('Password minimal 4 karakter!'); return; }
     try {
       await updateDoc(doc(db, 'users', userId), { password: newPass });
-      window.closeModal();
-      alert('✅ Password diubah!');
-      showTab('manage_accounts');
+      window.closeModal(); alert('✅ Password diubah!'); showTab('manage_accounts');
     } catch (e) { alert('Gagal: ' + e.message); }
   };
 
@@ -928,46 +894,24 @@
     if (!confirm(`Hapus akun "${name}"?`)) return;
     try {
       await deleteDoc(doc(db, 'users', userId));
-      if (employeeId) {
-        const eSnap = await getDocs(query(collection(db, 'employees'), where('id', '==', employeeId)));
-        eSnap.forEach(async (d) => await deleteDoc(d.ref));
-      }
-      invalidateCache();
-      alert('✅ Akun dihapus.');
-      showTab('manage_accounts');
+      if (employeeId) { const eSnap = await getDocs(query(collection(db, 'employees'), where('id', '==', employeeId))); eSnap.forEach(async (d) => await deleteDoc(d.ref)); }
+      invalidateCache(); alert('✅ Akun dihapus.'); showTab('manage_accounts');
     } catch (e) { alert('Gagal: ' + e.message); }
   };
 
   function renderResetDatabase() {
-    return `
-      <div class="card">
-        <h3>🔄 Reset Database</h3>
-        <div class="hint-box danger">⚠️ <strong>PERINGATAN!</strong><br><br>Semua data dihapus. Hanya akun <strong>ptpam/945766</strong> yang tersisa.</div>
-        <button class="btn btn-danger" style="width:auto" onclick="doResetDatabase()">🗑️ Reset</button>
-      </div>
-    `;
+    return `<div class="card"><h3>🔄 Reset Database</h3><div class="hint-box danger">⚠️ <strong>PERINGATAN!</strong><br><br>Semua data dihapus. Hanya akun <strong>ptpam/945766</strong> yang tersisa.</div><button class="btn btn-danger" style="width:auto" onclick="doResetDatabase()">🗑️ Reset</button></div>`;
   }
 
   window.doResetDatabase = async () => {
     if (!confirm("⚠️ PERINGATAN!\n\nSemua data DIHAPUS PERMANEN.\nLanjutkan?")) return;
     if (!confirm("KONFIRMASI AKHIR:\n\nYakin 100%?")) return;
-    
-    showLoading('Mereset database...', 'Jangan tutup halaman ini');
+    showLoading('Mereset database...', 'Jangan tutup halaman');
     try {
       const collections = ['users', 'employees', 'leaveRequests', 'adjustmentRequests', 'monthlyReports'];
-      for (const colName of collections) {
-        const snap = await getDocs(collection(db, colName));
-        const batch = writeBatch(db);
-        snap.forEach(d => batch.delete(d.ref));
-        await batch.commit();
-      }
-      await setDoc(doc(collection(db, 'users')), {
-        username: 'ptpam', password: '945766',
-        name: 'Superuser PTPAM', role: 'superuser', isSuperuser: true
-      });
-      invalidateCache();
-      alert("✅ Database direset!");
-      doLogout();
+      for (const colName of collections) { const snap = await getDocs(collection(db, colName)); const batch = writeBatch(db); snap.forEach(d => batch.delete(d.ref)); await batch.commit(); }
+      await setDoc(doc(collection(db, 'users')), { username: 'ptpam', password: '945766', name: 'Superuser PTPAM', role: 'superuser', isSuperuser: true });
+      invalidateCache(); alert("✅ Database direset!"); doLogout();
     } catch (e) { alert("❌ Gagal: " + e.message); showTab('reset_db'); }
   };
 
@@ -980,9 +924,7 @@
   }
 
   function renderMyNotifications(notifications) {
-    if (notifications.length === 0) {
-      return `<div class="empty-state" style="padding:20px"><div class="icon">🔔</div><p>Belum ada notifikasi.</p></div>`;
-    }
+    if (notifications.length === 0) return `<div class="empty-state" style="padding:20px"><div class="icon">🔔</div><p>Belum ada notifikasi.</p></div>`;
     return notifications.map(n => {
       const isLeave = n.startDate !== undefined;
       const type = isLeave ? 'Pengajuan Cuti' : 'Request Adjust';
@@ -991,732 +933,38 @@
       const date = isLeave ? `${fmtDate(n.startDate)} - ${fmtDate(n.endDate)}` : `${days} hari`;
       const decisionBy = n.approvedBy || n.rejectedBy || n.directorApprovedBy || n.directorRejectedBy || 'Sistem';
       const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || n.directorApprovedAt || n.directorRejectedAt || 0;
-
-      return `
-        <div class="notification" style="border-left-color:${isApproved?'#10b981':'#ef4444'};background:${isApproved?'#f0fdf4':'#fef2f2'};margin-bottom:8px">
-          <div class="notif-text" style="color:${isApproved?'#065f46':'#991b1b'}">
-            <strong>${type}</strong> Anda <span class="badge ${isApproved?'badge-approved':'badge-rejected'}">${isApproved?'Disetujui':'Ditolak'}</span><br>
-            <strong>${date}</strong><br>
-            <em>${n.reason || n.note}</em><br>
-            <small style="opacity:0.8">Oleh: ${decisionBy} • ${fmtDate(decisionDate)}</small>
-          </div>
-        </div>
-      `;
+      return `<div class="notification" style="border-left-color:${isApproved?'#10b981':'#ef4444'};background:${isApproved?'#f0fdf4':'#fef2f2'};margin-bottom:8px"><div class="notif-text" style="color:${isApproved?'#065f46':'#991b1b'}"><strong>${type}</strong> Anda <span class="badge ${isApproved?'badge-approved':'badge-rejected'}">${isApproved?'Disetujui':'Ditolak'}</span><br><strong>${date}</strong><br><em>${n.reason || n.note}</em><br><small style="opacity:0.8">Oleh: ${decisionBy} • ${fmtDate(decisionDate)}</small></div></div>`;
     }).join('');
   }
 
   async function renderStaffDashboard() {
     if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data tidak terhubung.</p></div></div>`;
-    
     const emps = await fetchCollection('employees');
     const emp = emps.find(e => e.id === currentUser.employeeId);
     if (!emp) return `<div class="card"><div class="empty-state"><div class="icon"></div><p>Data tidak ditemukan.</p></div></div>`;
-    
     const eligible = getEligibleLeave(emp.joinDate);
     const isDebt = emp.leaveBalance < 0;
-    
-    const leaveReqs = (await fetchCollection('leaveRequests'))
-      .filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
-      .slice(0, 5);
-
-    const adjustReqs = (await fetchCollection('adjustmentRequests'))
-      .filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-      .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
-      .slice(0, 5);
-
-    const allNotifications = [...leaveReqs, ...adjustReqs]
-      .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
-      .slice(0, 5);
-    
-    return `
-      ${isDebt ? `<div class="debt-warning"><div class="icon">⚠️</div><div class="text"><strong>HUTANG CUTI: ${Math.abs(emp.leaveBalance)} hari</strong><p>Cuti akan dipotong dari jatah tahun depan.</p></div></div>` : ''}
-      <div class="stats-grid">
-        <div class="stat-card ${isDebt?'debt':'indigo'}"><div class="label">Sisa Cuti</div><div class="value">${emp.leaveBalance} <span style="font-size:14px;color:#64748b">hari</span></div></div>
-        <div class="stat-card emerald"><div class="label">Kelayakan</div><div class="value" style="font-size:16px">${eligible?'✅ Layak':'⏳ <1 Thn'}</div></div>
-        <div class="stat-card amber"><div class="label">Join Date</div><div class="value" style="font-size:16px">${fmtDate(emp.joinDate)}</div></div>
-      </div>
-      <div class="card"><h3>🔔 Notifikasi</h3>${renderMyNotifications(allNotifications)}</div>
-      <div class="card"><h3>📜 Mutasi Cuti</h3>${renderLeaveHistory(emp.leaveHistory || [])}</div>
-    `;
+    const leaveReqs = (await fetchCollection('leaveRequests')).filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime()).slice(0, 5);
+    const adjustReqs = (await fetchCollection('adjustmentRequests')).filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime()).slice(0, 5);
+    const allNotifications = [...leaveReqs, ...adjustReqs].sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime()).slice(0, 5);
+    return `${isDebt?`<div class="debt-warning"><div class="icon">⚠️</div><div class="text"><strong>HUTANG CUTI: ${Math.abs(emp.leaveBalance)} hari</strong><p>Cuti akan dipotong dari jatah tahun depan.</p></div></div>`:''}<div class="stats-grid"><div class="stat-card ${isDebt?'debt':'indigo'}"><div class="label">Sisa Cuti</div><div class="value">${emp.leaveBalance} <span style="font-size:14px;color:#64748b">hari</span></div></div><div class="stat-card emerald"><div class="label">Kelayakan</div><div class="value" style="font-size:16px">${eligible?'✅ Layak':'⏳ <1 Thn'}</div></div><div class="stat-card amber"><div class="label">Join Date</div><div class="value" style="font-size:16px">${fmtDate(emp.joinDate)}</div></div></div><div class="card"><h3>🔔 Notifikasi</h3>${renderMyNotifications(allNotifications)}</div><div class="card"><h3>📜 Mutasi Cuti</h3>${renderLeaveHistory(emp.leaveHistory || [])}</div>`;
   }
 
+  // ✅ DASHBOARD STAFF HRD dengan Export & Print
   async function renderHRDStaffDashboard() {
     try {
       let myNotifHTML = '';
       if (currentUser.employeeId) {
-        const leaveReqs = (await fetchCollection('leaveRequests'))
-          .filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
-          .slice(0, 3);
-        const adjustReqs = (await fetchCollection('adjustmentRequests'))
-          .filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
-          .slice(0, 3);
-        const allNotifications = [...leaveReqs, ...adjustReqs]
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
-          .slice(0, 5);
+        const leaveReqs = (await fetchCollection('leaveRequests')).filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime()).slice(0, 3);
+        const adjustReqs = (await fetchCollection('adjustmentRequests')).filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime()).slice(0, 3);
+        const allNotifications = [...leaveReqs, ...adjustReqs].sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime()).slice(0, 5);
         myNotifHTML = renderMyNotifications(allNotifications);
       }
 
       const emps = await fetchCollection('employees');
-      const empMap = {};
-      emps.forEach(e => { empMap[e.id] = e; });
-
-      const pending = (await fetchCollection('leaveRequests'))
-        .filter(r => (r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer') && r.employeeId !== currentUser.employeeId)
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      
-      let pendingHTML = '';
-      if (pending.length === 0) {
-        pendingHTML = `<div class="empty-state"><div class="icon">✨</div><p>Tidak ada pengajuan menunggu review.</p></div>`;
-      } else {
-        pending.forEach(req => {
-          const days = daysBetween(req.startDate, req.endDate);
-          const emp = empMap[req.employeeId];
-          const currentBalance = emp ? emp.leaveBalance : 0;
-          const projectedBalance = currentBalance - days;
-          const isDebt = projectedBalance < 0;
-          const balanceText = isDebt 
-            ? `⚠️ <strong class="balance-debt">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
-            : `✅ <strong class="balance-safe">Sisa ${projectedBalance} hari</strong>`;
-
-          pendingHTML += `
-            <div class="notification ${req.status==='pending_staff_hrd_peer'?'self-leave':''}">
-              <div style="flex:1">
-                <div class="notif-text">
-                  <strong>${req.employeeName}</strong> <span class="badge ${req.status==='pending_staff_hrd_peer'?'badge-self':'badge-pending'}">${ROLE_LABEL[emp?.role]||'Staff'}</span> cuti <strong>${days} hari</strong><br>
-                  ${fmtDate(req.startDate)} - ${fmtDate(req.endDate)}<br>
-                  <em>${req.reason}</em>
-                </div>
-                <div class="balance-info">
-                  Saldo: <strong>${currentBalance} hr</strong> | Cuti: <strong>${days} hr</strong><br>
-                  ${balanceText}
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
-                <button class="btn btn-success btn-sm" onclick="staffApprove('${req.id}')">Terima</button>
-                <button class="btn btn-danger btn-sm" onclick="staffReject('${req.id}')">Tolak</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-      
-      return `
-        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Saya</h3>${myNotifHTML}</div>` : ''}
-        <div class="stats-grid"><div class="stat-card amber"><div class="label">Menunggu Review</div><div class="value">${pending.length}</div></div></div>
-        <div class="card">
-          <h3>📬 Perlu Review</h3>
-          <div class="hint-box orange">👥 Yang pertama klik akan tercatat sebagai reviewer. Tidak bisa review sendiri.</div>
-          ${pendingHTML}
-        </div>
-      `;
-    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
-  }
-
-  async function renderKepalaHRDDashboard() {
-    try {
-      let myNotifHTML = '';
-      if (currentUser.employeeId) {
-        const leaveReqs = (await fetchCollection('leaveRequests'))
-          .filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime())
-          .slice(0, 3);
-        const adjustReqs = (await fetchCollection('adjustmentRequests'))
-          .filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected'))
-          .sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime())
-          .slice(0, 3);
-        const allNotifications = [...leaveReqs, ...adjustReqs]
-          .sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime())
-          .slice(0, 5);
-        myNotifHTML = renderMyNotifications(allNotifications);
-      }
-
-      const emps = await fetchCollection('employees');
-      const empMap = {};
-      emps.forEach(e => { empMap[e.id] = e; });
-
-      const [leaveReqs, adjustReqs] = await Promise.all([
-        fetchCollection('leaveRequests'),
-        fetchCollection('adjustmentRequests')
-      ]);
-      
-      const pendingLeave = leaveReqs.filter(r => r.status === 'pending_head')
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      const pendingAdjust = adjustReqs.filter(r => r.status === 'pending_head')
-        .sort((a, b) => new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime());
-      
-      let leaveHTML = '';
-      if (pendingLeave.length === 0) {
-        leaveHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada pengajuan menunggu.</p></div>`;
-      } else {
-        pendingLeave.forEach(req => {
-          const days = daysBetween(req.startDate, req.endDate);
-          const emp = empMap[req.employeeId];
-          const currentBalance = emp ? emp.leaveBalance : 0;
-          const projectedBalance = currentBalance - days;
-          const isDebt = projectedBalance < 0;
-          
-          leaveHTML += `
-            <div class="notification" style="${isDebt?'background:#fef2f2;border-left-color:#dc2626':''}">
-              <div style="flex:1">
-                <div class="notif-text">
-                  <strong>${req.employeeName}</strong> cuti <strong>${days} hari</strong><br>
-                  ${fmtDate(req.startDate)} - ${fmtDate(req.endDate)}<br>
-                  <em>${req.reason}</em><br>
-                  <small style="color:#059669">✅ Review: <strong>${req.staffHrdName||'-'}</strong> ${req.staffHrdApprovedAt?`• ${fmtDate(req.staffHrdApprovedAt)}`:''}</small>
-                </div>
-                <div class="balance-info">
-                  Saldo: <strong>${currentBalance} hr</strong> | Cuti: <strong>${days} hr</strong><br>
-                  ${isDebt 
-                    ? `<span class="balance-debt">⚠️ HUTANG ${Math.abs(projectedBalance)} hari</span>` 
-                    : `<span class="balance-safe">✅ Sisa: ${projectedBalance} hari</span>`
-                  }
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
-                <button class="btn btn-success btn-sm" onclick="headApprove('${req.id}')">Setujui</button>
-                <button class="btn btn-danger btn-sm" onclick="headReject('${req.id}')">Tolak</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-      
-      let adjustHTML = '';
-      if (pendingAdjust.length === 0) {
-        adjustHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada adjust menunggu.</p></div>`;
-      } else {
-        pendingAdjust.forEach(req => {
-          const actionText = req.adjustmentDays > 0 ? `+${req.adjustmentDays} hr` : `${req.adjustmentDays} hr`;
-          adjustHTML += `
-            <div class="notification" style="background:#eff6ff;border-left-color:#3b82f6">
-              <div class="notif-text" style="color:#1e40af">
-                <strong>${req.employeeName}</strong> adjust <strong>${actionText}</strong><br>
-                ${req.currentBalance} hr → <strong>${req.currentBalance + req.adjustmentDays} hr</strong><br>
-                <em>${req.note}</em><br>
-                <small style="color:#64748b">Oleh: ${req.requestedBy}</small>
-              </div>
-              <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
-                <button class="btn btn-success btn-sm" onclick="approveAdjustment('${req.id}')">Setujui</button>
-                <button class="btn btn-danger btn-sm" onclick="rejectAdjustment('${req.id}')">Tolak</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-      
-      return `
-        ${currentUser.employeeId ? `<div class="card"><h3> Notifikasi Saya</h3>${myNotifHTML}</div>` : ''}
-        <div class="stats-grid">
-          <div class="stat-card amber"><div class="label">Cuti Pending</div><div class="value">${pendingLeave.length}</div></div>
-          <div class="stat-card rose"><div class="label">Adjust Pending</div><div class="value">${pendingAdjust.length}</div></div>
-        </div>
-        <div class="card"><h3>📬 Approval Cuti (${pendingLeave.length})</h3>${leaveHTML}</div>
-        <div class="card"><h3>⚙️ Approval Adjust (${pendingAdjust.length})</h3>${adjustHTML}</div>
-      `;
-    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
-  }
-
-  async function renderDirectorApproval() {
-    try {
-      const emps = await fetchCollection('employees');
-      const empMap = {};
-      emps.forEach(e => { empMap[e.id] = e; });
-
-      const leaveReqs = await fetchCollection('leaveRequests');
-      const pendingDirector = leaveReqs.filter(r => r.status === 'pending_director')
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      
-      const processed = leaveReqs.filter(r => (r.status === 'approved' || r.status === 'rejected') && (r.directorApprovedBy || r.directorRejectedBy))
-        .sort((a, b) => new Date(b.directorApprovedAt || b.directorRejectedAt || b.createdAt || 0).getTime() - new Date(a.directorApprovedAt || a.directorRejectedAt || a.createdAt || 0).getTime());
-      
-      let pendingHTML = '';
-      if (pendingDirector.length === 0) {
-        pendingHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada pengajuan Kepala HRD menunggu.</p></div>`;
-      } else {
-        pendingDirector.forEach(req => {
-          const days = daysBetween(req.startDate, req.endDate);
-          const emp = empMap[req.employeeId];
-          const currentBalance = emp ? emp.leaveBalance : 0;
-          const projectedBalance = currentBalance - days;
-          const isDebt = projectedBalance < 0;
-          
-          pendingHTML += `
-            <div class="notification" style="${isDebt?'background:#fef2f2;border-left-color:#dc2626':'background:#f5f3ff;border-left-color:#8b5cf6'}">
-              <div style="flex:1">
-                <div class="notif-text" style="${isDebt?'color:#991b1b':'color:#5b21b6'}">
-                  <strong>${req.employeeName}</strong> <span class="badge badge-self">Kepala HRD</span> cuti <strong>${days} hari</strong><br>
-                  ${fmtDate(req.startDate)} - ${fmtDate(req.endDate)}<br>
-                  <em>${req.reason}</em>
-                </div>
-                <div class="balance-info">
-                  Saldo: <strong>${currentBalance} hr</strong> | Cuti: <strong>${days} hr</strong><br>
-                  ${isDebt ? `<span class="balance-debt">⚠️ Hutang ${Math.abs(projectedBalance)} hari</span>` : `<span class="balance-safe">✅ Sisa: ${projectedBalance} hari</span>`}
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
-                <button class="btn btn-success btn-sm" onclick="directorApprove('${req.id}')">Setujui</button>
-                <button class="btn btn-danger btn-sm" onclick="directorReject('${req.id}')">Tolak</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      const historyHTML = processed.length > 0 ? processed.map(r => {
-        const days = daysBetween(r.startDate, r.endDate);
-        const isApproved = r.status === 'approved';
-        return `
-          <tr>
-            <td><strong>${r.employeeName}</strong></td>
-            <td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td>
-            <td>${days} hr</td>
-            <td>${r.reason}</td>
-            <td><span class="badge ${isApproved?'badge-approved':'badge-rejected'}">${isApproved?'Disetujui':'Ditolak'}</span></td>
-            <td><small>${r.directorApprovedBy || r.directorRejectedBy} • ${fmtDate(r.directorApprovedAt || r.directorRejectedAt)}</small></td>
-          </tr>
-        `;
-      }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Belum ada riwayat</td></tr>';
-      
-      return `
-        <div class="card">
-          <h3>✅ Approval Cuti Kepala HRD (${pendingDirector.length})</h3>
-          <div class="flow-info">
-            <div class="icon">📋</div>
-            <div class="text"><strong>Alur: Kepala HRD → Direktur (1 langkah)</strong></div>
-          </div>
-          ${pendingHTML}
-        </div>
-        <div class="card">
-          <h3> Riwayat Approval</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Nama</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th><th>Keputusan</th></tr></thead>
-              <tbody>${historyHTML}</tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
-  }
-
-  async function renderEmployees() {
-    const canManage = currentUser.role === 'staff_hrd' || currentUser.role === 'superuser';
-    const isSuperuser = currentUser.role === 'superuser';
-    
-    const [emps, users] = await Promise.all([
-      fetchCollection('employees'),
-      fetchCollection('users')
-    ]);
-    
-    const userMap = {};
-    users.forEach(u => { if (u.employeeId) userMap[u.employeeId] = u; });
-    
-    emps.sort((a, b) => a.name.localeCompare(b.name, 'id'));
-    
-    const rows = emps.map(e => {
-      const eligible = getEligibleLeave(e.joinDate);
-      const isDebt = e.leaveBalance < 0;
-      const user = userMap[e.id];
-      const roleLabel = user ? ROLE_LABEL[user.role] || user.role : 'Unknown';
-      const canEditRole = canManage && user && user.role !== 'superuser' && user.employeeId !== currentUser.employeeId;
-      
-      return `
-        <tr class="${isDebt?'debt-row':''}" data-empname="${e.name.toLowerCase()}">
-          <td>${e.id}</td>
-          <td><strong>${e.name}</strong></td>
-          <td>${fmtDate(e.joinDate)}</td>
-          <td>
-            <span class="badge badge-role">${roleLabel}</span><br>
-            ${eligible?'✅':'⏳'} <strong style="color:${isDebt?'#dc2626':'#1e293b'}">${e.leaveBalance}</strong> hr ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}
-          </td>
-          <td>
-            <div class="btn-group">
-              <button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>
-              ${canEditRole?`<button class="btn btn-info btn-sm" onclick="openEditRole('${e.id}','${e.name}','${user.role}')">Role</button>`:''}
-              ${canManage&&!e.isSuperuser?`<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.docId||e.id}','${e.name}','${e.id}')">Hapus</button>`:''}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    return `
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-          <h3 style="margin:0">👥 Data Karyawan</h3>
-          ${canManage&&!isSuperuser?`<button class="btn btn-primary" style="width:auto" onclick="openAddStaff()">+ Tambah</button>`:''}
-        </div>
-        <div class="hint-box">💡 ${isSuperuser?'Superuser: kelola semua karyawan.':'Staff HRD: kelola karyawan (kecuali diri sendiri).'}</div>
-        <div class="search-bar">
-          <label>🔍 Cari:</label>
-          <input type="text" id="searchEmployees" placeholder="Nama karyawan..." oninput="debouncedFilterEmployees()">
-          <span class="result-count" id="employeeCount">${emps.length} karyawan</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>ID</th><th>Nama</th><th>Join</th><th>Role & Cuti</th><th>Aksi</th></tr></thead>
-            <tbody id="employeesBody">${rows||'<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada data</td></tr>'}</tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
-  window.debouncedFilterEmployees = debounce(function() {
-    const keyword = document.getElementById('searchEmployees').value.toLowerCase().trim();
-    const rows = document.querySelectorAll('#employeesBody tr');
-    let count = 0;
-    rows.forEach(row => {
-      if (row.dataset.empname) {
-        const match = keyword === '' || row.dataset.empname.includes(keyword);
-        row.style.display = match ? '' : 'none';
-        if (match) count++;
-      }
-    });
-    document.getElementById('employeeCount').textContent = `${count} karyawan`;
-  }, 200);
-
-  window.openAddStaff = () => {
-    const roleOptions = STAFF_HRD_ROLES.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
-    window.openModal(`
-      <h3>Tambah Karyawan</h3>
-      <div class="hint-box orange">💡 Staff HRD hanya bisa buat <strong>Staff Biasa</strong> atau <strong>Staff HRD</strong>. Role lain via Superuser.</div>
-      <div class="form-group"><label>Nama</label><input type="text" id="newStaffName"></div>
-      <div class="form-group"><label>Username</label><input type="text" id="newStaffUsername"></div>
-      <div class="form-group"><label>Role</label><select id="newStaffRole">${roleOptions}</select></div>
-      <div class="form-group"><label>Tanggal Join</label><input type="date" id="newStaffJoin"></div>
-      <div class="hint-box">💡 Password default: <strong>1234</strong></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
-        <button class="btn btn-primary" style="width:auto" onclick="saveNewStaff()">Simpan</button>
-      </div>
-    `);
-  };
-
-  window.saveNewStaff = async () => {
-    const name = document.getElementById('newStaffName').value.trim();
-    const username = document.getElementById('newStaffUsername').value.trim().toLowerCase();
-    const role = document.getElementById('newStaffRole').value;
-    const join = document.getElementById('newStaffJoin').value;
-    
-    if (!name || !username || !join) { alert('Lengkapi semua field!'); return; }
-    if (!(await getDocs(query(collection(db, 'users'), where('username', '==', username)))).empty) { alert('⚠️ Username sudah dipakai!'); return; }
-    
-    const emps = await fetchCollection('employees');
-    let num = 1;
-    const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
-    if (validEmps.length > 0) {
-      validEmps.sort((a, b) => b.id.localeCompare(a.id));
-      num = parseInt(validEmps[0].id.substring(1)) + 1;
-    } else num = emps.length + 1;
-    const newEmpId = 'E' + String(num).padStart(3, '0');
-    
-    const batch = writeBatch(db);
-    batch.set(doc(collection(db, 'users')), { username, password: '1234', name, role, employeeId: newEmpId });
-    batch.set(doc(collection(db, 'employees')), { id: newEmpId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
-    await batch.commit();
-    
-    invalidateCache();
-    window.closeModal();
-    alert(`✅ Karyawan ditambah!\nUser: ${username}\nPass: 1234\nRole: ${ROLE_LABEL[role]}`);
-    showTab('employees');
-  };
-
-  window.openEditRole = (empId, empName, currentRole) => {
-    const roleOptions = Object.keys(ROLE_LABEL)
-      .filter(r => r !== 'superuser')
-      .map(r => `<option value="${r}" ${r===currentRole?'selected':''}>${ROLE_LABEL[r]}</option>`)
-      .join('');
-    
-    window.openModal(`
-      <h3>Edit Role: ${empName}</h3>
-      <p style="margin-bottom:16px;color:#475569;font-size:13px">Role saat ini: <strong>${ROLE_LABEL[currentRole]}</strong></p>
-      <div class="hint-box warning">⚠️ Perubahan role langsung berlaku.<br>• Staff: cuti sendiri<br>• Staff HRD: review + adjust<br>• Kepala HRD: approve<br>• Direktur/Komisaris: lihat data</div>
-      <div class="form-group"><label>Role Baru</label><select id="editRoleSelect">${roleOptions}</select></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
-        <button class="btn btn-primary" style="width:auto" onclick="saveEditRole('${empId}','${empName}','${currentRole}')">Simpan</button>
-      </div>
-    `);
-  };
-
-  window.saveEditRole = async (empId, empName, oldRole) => {
-    const newRole = document.getElementById('editRoleSelect').value;
-    if (newRole === oldRole) { alert('Role tidak berubah!'); return; }
-    if (!confirm(`Ubah role "${empName}"?\n\nDari: ${ROLE_LABEL[oldRole]}\nKe: ${ROLE_LABEL[newRole]}`)) return;
-    
-    try {
-      const userSnap = await getDocs(query(collection(db, 'users'), where('employeeId', '==', empId)));
-      if (userSnap.empty) { alert('User tidak ditemukan!'); return; }
-      const batch = writeBatch(db);
-      userSnap.forEach(d => batch.update(d.ref, { role: newRole }));
-      await batch.commit();
-      invalidateCache();
-      window.closeModal();
-      alert(`✅ Role "${empName}" diubah ke ${ROLE_LABEL[newRole]}!`);
-      showTab('employees');
-    } catch (e) { alert('❌ Gagal: ' + e.message); }
-  };
-
-  window.deleteEmployee = async (docId, empName, empId) => {
-    if (!confirm(`Hapus "${empName}"?\nData & akun akan dihapus permanen.`)) return;
-    try {
-      await deleteDoc(doc(db, 'employees', docId));
-      const uSnap = await getDocs(query(collection(db, 'users'), where('employeeId', '==', empId)));
-      uSnap.forEach(async (d) => await deleteDoc(d.ref));
-      invalidateCache();
-      alert('✅ Data dihapus.');
-      showTab('employees');
-    } catch (e) { alert('Gagal: ' + e.message); }
-  };
-
-  window.viewEmpDetail = async (empId) => {
-    const emps = await fetchCollection('employees');
-    const e = emps.find(x => x.id === empId);
-    if (!e) return;
-    const eligible = getEligibleLeave(e.joinDate);
-    const isDebt = e.leaveBalance < 0;
-    const users = await fetchCollection('users');
-    const user = users.find(u => u.employeeId === empId);
-    const roleLabel = user ? ROLE_LABEL[user.role] || user.role : 'Unknown';
-    
-    window.openModal(`
-      <h3>Detail Karyawan</h3>
-      <p><strong>ID:</strong> ${e.id}</p>
-      <p><strong>Nama:</strong> ${e.name}</p>
-      <p><strong>Role:</strong> <span class="badge badge-role">${roleLabel}</span></p>
-      <p><strong>Join:</strong> ${fmtDate(e.joinDate)}</p>
-      <p><strong>Sisa Cuti:</strong> <span style="color:${isDebt?'#dc2626':'#1e293b'};font-weight:700">${e.leaveBalance} hr</span> ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</p>
-      <p><strong>Layak Cuti:</strong> ${eligible?'✅ Ya (12 hr)':'⏳ Belum'}</p>
-      <hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0">
-      <h3 style="font-size:15px">Mutasi Cuti</h3>
-      ${renderLeaveHistory(e.leaveHistory || [])}
-      <div class="modal-actions"><button class="btn btn-secondary" onclick="window.closeModal()">Tutup</button></div>
-    `);
-  };
-
-  async function renderApplyLeave() {
-    if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data tidak terhubung.</p></div></div>`;
-    
-    const emps = await fetchCollection('employees');
-    const emp = emps.find(e => e.id === currentUser.employeeId);
-    if (!emp) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data tidak ditemukan.</p></div></div>`;
-    
-    const isDebt = emp.leaveBalance < 0;
-    const lockStatus = getLeaveLockStatus();
-    
-    const myReqs = (await fetchCollection('leaveRequests'))
-      .filter(r => r.employeeId === emp.id)
-      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    
-    const rows = myReqs.map(r => {
-      const days = daysBetween(r.startDate, r.endDate);
-      const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
-      return `<tr><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td>${days} hr</td><td>${r.reason}</td><td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td></tr>`;
-    }).join('');
-
-    const reasonOptions = LEAVE_REASONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
-
-    let flowInfoHTML = '';
-    if (currentUser.role === 'staff_hrd') {
-      flowInfoHTML = `<div class="flow-info"><div class="icon">📋</div><div class="text"><strong>Alur Staff HRD</strong><p>Anda → Review Staff HRD lain → Approval Kepala HRD</p></div></div>`;
-    } else if (currentUser.role === 'kepala_hrd') {
-      flowInfoHTML = `<div class="flow-info" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-color:#8b5cf6"><div class="icon">📋</div><div class="text"><strong>Alur Kepala HRD</strong><p>Anda → Approval Direktur (1 langkah)</p></div></div>`;
-    }
-
-    return `
-      ${isDebt?`<div class="debt-warning"><div class="icon">⚠️</div><div class="text"><strong>HUTANG: ${Math.abs(emp.leaveBalance)} hr</strong><p>Cuti tambahan akan menambah hutang.</p></div></div>`:''}
-      ${lockStatus.locked?`<div class="lock-warning"><div class="icon">🔒</div><div class="text"><strong>${lockStatus.message}</strong></div></div>`:''}
-      ${flowInfoHTML}
-      <div class="card">
-        <h3>📝 Form Cuti</h3>
-        <div class="hint-box ${isDebt?'danger':''}">💡 Sisa cuti: <strong style="color:${isDebt?'#dc2626':'#4f46e5'}">${emp.leaveBalance} hr</strong> ${isDebt?'(HUTANG)':''}</div>
-        <div class="form-group"><label>📅 Mulai</label><input type="date" id="leaveStart" onchange="calculateLeaveProjection()"></div>
-        <div class="form-group"><label>📅 Selesai</label><input type="date" id="leaveEnd" onchange="calculateLeaveProjection()"></div>
-        <div class="form-group"><label> Alasan</label><select id="leaveReasonType" onchange="onLeaveReasonChange()">${reasonOptions}</select></div>
-        <div class="form-group" id="otherReasonGroup" style="display:none">
-          <label class="required-label">📝 Keterangan</label>
-          <textarea id="otherReasonText" rows="3" placeholder="Jelaskan detail..." oninput="onOtherReasonInput()"></textarea>
-          <small style="color:#dc2626;font-size:11px;display:none" id="otherReasonHint">⚠️ Wajib diisi</small>
-        </div>
-        <div id="leaveCalculator" class="leave-calculator" data-balance="${emp.leaveBalance}"></div>
-        <button class="btn btn-primary" style="width:auto;margin-top:12px" onclick="submitLeave('${emp.id}','${emp.name}',${emp.leaveBalance})">Kirim</button>
-      </div>
-      <div class="card">
-        <h3>📜 Riwayat</h3>
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead>
-            <tbody>${rows||'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
-  window.onLeaveReasonChange = function() {
-    const reasonType = document.getElementById('leaveReasonType').value;
-    const otherGroup = document.getElementById('otherReasonGroup');
-    const otherText = document.getElementById('otherReasonText');
-    const otherHint = document.getElementById('otherReasonHint');
-    if (reasonType === 'Lainnya') {
-      otherGroup.style.display = 'block';
-      otherText.focus();
-    } else {
-      otherGroup.style.display = 'none';
-      otherText.value = '';
-      otherText.classList.remove('required-field');
-      otherHint.style.display = 'none';
-    }
-  };
-
-  window.onOtherReasonInput = function() {
-    const otherText = document.getElementById('otherReasonText');
-    const otherHint = document.getElementById('otherReasonHint');
-    if (otherText.value.trim().length === 0) {
-      otherText.classList.add('required-field');
-      otherHint.style.display = 'block';
-    } else {
-      otherText.classList.remove('required-field');
-      otherHint.style.display = 'none';
-    }
-  };
-
-  window.calculateLeaveProjection = function() {
-    const start = document.getElementById('leaveStart').value;
-    const end = document.getElementById('leaveEnd').value;
-    const calcDiv = document.getElementById('leaveCalculator');
-    if (!start || !end || new Date(end) < new Date(start)) { calcDiv.style.display = 'none'; return; }
-    
-    const days = daysBetween(start, end);
-    const currentBalance = parseInt(calcDiv.dataset.balance || 0);
-    const projectedBalance = currentBalance - days;
-    const isDebt = projectedBalance < 0;
-    
-    calcDiv.className = 'leave-calculator' + (isDebt ? ' debt' : '');
-    calcDiv.style.display = 'block';
-    calcDiv.innerHTML = `
-      <div class="calc-row"><span class="calc-label">📅 Periode</span><span class="calc-value">${fmtDate(start)} - ${fmtDate(end)}</span></div>
-      <div class="calc-row"><span class="calc-label">️ Durasi</span><span class="calc-value">${days} hari</span></div>
-      <div class="calc-row"><span class="calc-label">💰 Saldo</span><span class="calc-value">${currentBalance} hr</span></div>
-      <div class="calc-row"><span class="calc-label">📊 Proyeksi</span><span class="calc-value">${projectedBalance} hr</span></div>
-      ${isDebt ? `<div class="debt-alert">⚠️ HUTANG CUTI ${Math.abs(projectedBalance)} hari</div>` : `<div style="background:#10b981;color:white;padding:10px 12px;border-radius:8px;margin-top:10px;font-size:13px;font-weight:600;text-align:center">✅ Saldo mencukupi</div>`}
-    `;
-  };
-
-  window.submitLeave = async (empId, empName, currentBalance) => {
-    const s = document.getElementById('leaveStart').value;
-    const e = document.getElementById('leaveEnd').value;
-    const reasonType = document.getElementById('leaveReasonType').value;
-    const otherReasonText = document.getElementById('otherReasonText').value.trim();
-    
-    if (!s || !e) { alert('️ Pilih tanggal!'); return; }
-    if (new Date(e) < new Date(s)) { alert('⚠️ Tanggal tidak valid!'); return; }
-    if (!reasonType) { alert('⚠️ Pilih alasan!'); return; }
-    
-    let finalReason = reasonType;
-    if (reasonType === 'Lainnya') {
-      if (!otherReasonText || otherReasonText.length < 5) {
-        alert('⚠️ Isi keterangan minimal 5 karakter!');
-        document.getElementById('otherReasonText').classList.add('required-field');
-        document.getElementById('otherReasonText').focus();
-        return;
-      }
-      finalReason = `Lainnya: ${otherReasonText}`;
-    }
-    
-    if (isDateLocked(s) || isDateLocked(e)) {
-      alert(`🔒 ${getLeaveLockStatus().message}`);
-      return;
-    }
-    
-    const days = daysBetween(s, e);
-    const projectedBalance = currentBalance - days;
-    if (projectedBalance < 0 && !confirm(`️ HUTANG CUTI!\n\nSaldo: ${currentBalance} hr\nCuti: ${days} hr\nProyeksi: ${projectedBalance} hr (HUTANG ${Math.abs(projectedBalance)} hr)\n\nLanjutkan?`)) return;
-    
-    let initialStatus = 'pending_staff';
-    if (currentUser.role === 'staff_hrd') initialStatus = 'pending_staff_hrd_peer';
-    else if (currentUser.role === 'kepala_hrd') initialStatus = 'pending_director';
-    
-    await addDoc(collection(db, 'leaveRequests'), {
-      employeeId: empId, employeeName: empName, employeeRole: currentUser.role,
-      startDate: s, endDate: e, reason: finalReason,
-      reasonType: reasonType, reasonDetail: reasonType === 'Lainnya' ? otherReasonText : '',
-      status: initialStatus, createdAt: new Date().toISOString()
-    });
-    
-    invalidateCache();
-    alert('✅ Pengajuan dikirim!');
-    showTab('apply_leave');
-  };
-
-  async function renderLeaveMgmt() {
-    const emps = (await fetchCollection('employees')).sort((a, b) => a.name.localeCompare(b.name, 'id'));
-    const rows = emps.map(e => {
-      const isDebt = e.leaveBalance < 0;
-      return `<tr class="${isDebt?'debt-row':''}">
-        <td>${e.id}</td><td><strong>${e.name}</strong></td>
-        <td><strong style="color:${isDebt?'#dc2626':'#1e293b'}">${e.leaveBalance}</strong> hr ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</td>
-        <td><button class="btn btn-warning btn-sm" onclick="openRequestAdjust('${e.id}','${e.name}',${e.leaveBalance})">Adjust</button></td>
-      </tr>`;
-    }).join('');
-    
-    return `
-      <div class="card">
-        <h3>⚙️ Request Adjust</h3>
-        <div class="hint-box">💡 Adjust cuti harus disetujui Kepala HRD.</div>
-        <div class="table-wrapper">
-          <table><thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead>
-          <tbody>${rows}</tbody></table>
-        </div>
-      </div>
-    `;
-  }
-
-  window.openRequestAdjust = (empId, name, currentBalance) => {
-    window.openModal(`
-      <h3>Adjust Cuti - ${name}</h3>
-      <p>Saldo: <strong>${currentBalance} hr</strong></p>
-      <div class="form-group"><label>Jumlah Hari (minus = pengurangan)</label><input type="number" id="adjDays" placeholder="-2 atau 12"></div>
-      <div class="form-group"><label>Catatan</label><textarea id="adjNote" rows="2"></textarea></div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="window.closeModal()">Batal</button>
-        <button class="btn btn-primary" style="width:auto" onclick="submitRequestAdjust('${empId}','${name}',${currentBalance})">Kirim</button>
-      </div>
-    `);
-  };
-
-  window.submitRequestAdjust = async (empId, empName, currentBalance) => {
-    const days = parseInt(document.getElementById('adjDays').value);
-    const note = document.getElementById('adjNote').value.trim() || 'Adjustment';
-    if (isNaN(days)) { alert('Jumlah hari tidak valid!'); return; }
-    
-    await addDoc(collection(db, 'adjustmentRequests'), {
-      employeeId: empId, employeeName: empName,
-      currentBalance, adjustmentDays: days, note,
-      status: 'pending_head', requestedBy: currentUser.name,
-      requesterEmployeeId: currentUser.employeeId, requestedAt: new Date().toISOString()
-    });
-    invalidateCache();
-    window.closeModal();
-    alert('✅ Request adjust dikirim!');
-    showTab('leave_mgmt');
-  };
-
-  async function renderLeaveRequests() {
-    try {
-      const emps = await fetchCollection('employees');
-      const empMap = {};
-      emps.forEach(e => { empMap[e.id] = e; });
-
-      const all = await fetchCollection('leaveRequests');
-      const pending = all.filter(r => (r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer') && r.employeeId !== currentUser.employeeId)
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-      const processed = all.filter(r => r.status !== 'pending_staff' && r.status !== 'pending_staff_hrd_peer')
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const empMap = {}; emps.forEach(e => { empMap[e.id] = e; });
+      const pending = (await fetchCollection('leaveRequests')).filter(r => (r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer') && r.employeeId !== currentUser.employeeId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const processed = (await fetchCollection('leaveRequests')).filter(r => r.status !== 'pending_staff' && r.status !== 'pending_staff_hrd_peer').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       
       const renderRows = (list, showAction) => list.map(r => {
         const days = daysBetween(r.startDate, r.endDate);
@@ -1735,35 +983,452 @@
         const isPeerLeave = r.employeeRole === 'staff_hrd';
         const requesterBadge = isPeerLeave ? '<span class="badge badge-self">Staff HRD</span>' : '';
 
-        return `
-          <tr>
-            <td><strong>${r.employeeName}</strong> ${requesterBadge}</td>
-            <td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td>
-            <td><strong>${days} hr</strong><br><span style="font-size:11px;color:#64748b">Saldo: ${currentBalance}</span><br><span class="${isDebt?'balance-debt':'balance-safe'}" style="font-size:11px;font-weight:600">→ ${isDebt?`Hutang ${Math.abs(projectedBalance)}`:`Sisa ${projectedBalance}`}</span></td>
-            <td>${r.reason}${reviewerInfo}</td>
-            <td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td>
-            ${showAction?`<td><button class="btn btn-success btn-sm" onclick="staffApprove('${r.id}')">Terima</button><button class="btn btn-danger btn-sm" onclick="staffReject('${r.id}')">Tolak</button></td>`:''}
-          </tr>
-        `;
+        return `<tr><td><strong>${r.employeeName}</strong> ${requesterBadge}</td><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td><strong>${days} hr</strong><br><span style="font-size:11px;color:#64748b">Saldo: ${currentBalance}</span><br><span class="${isDebt?'balance-debt':'balance-safe'}" style="font-size:11px;font-weight:600">→ ${isDebt?`Hutang ${Math.abs(projectedBalance)}`:`Sisa ${projectedBalance}`}</span></td><td>${r.reason}${reviewerInfo}</td><td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td>${showAction?`<td><button class="btn btn-success btn-sm" onclick="staffApprove('${r.id}')">Terima</button><button class="btn btn-danger btn-sm" onclick="staffReject('${r.id}')">Tolak</button></td>`:''}</tr>`;
       }).join('');
 
+      // ✅ TOMBOL EXPORT & PRINT (hanya untuk riwayat/processed)
+      const exportButtons = processed.length > 0 ? `
+        <div class="action-bar">
+          <span class="action-label">📤 Export Riwayat untuk Atasan:</span>
+          <button class="btn btn-success btn-sm" onclick="exportLeaveHistoryExcel()">📊 Export Excel</button>
+          <button class="btn btn-purple btn-sm" onclick="printLeaveHistoryPDF()">🖨️ Print PDF</button>
+        </div>
+      ` : '';
+
       return `
+        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Saya</h3>${myNotifHTML}</div>` : ''}
+        <div class="stats-grid"><div class="stat-card amber"><div class="label">Menunggu Review</div><div class="value">${pending.length}</div></div></div>
         <div class="card">
-          <h3>📬 Menunggu Review (${pending.length})</h3>
+          <h3>📬 Perlu Review</h3>
           <div class="hint-box orange">👥 Yang pertama klik akan tercatat. Tidak bisa review sendiri.</div>
-          <div class="table-wrapper">
-            <table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi & Saldo</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
-            <tbody>${renderRows(pending, pending.length>0)||'<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Tidak ada</td></tr>'}</tbody></table>
-          </div>
+          ${pending.length === 0 ? `<div class="empty-state"><div class="icon">✨</div><p>Tidak ada pengajuan menunggu.</p></div>` : `
+            <div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi & Saldo</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
+            <tbody>${renderRows(pending, true) || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Tidak ada</td></tr>'}</tbody></table></div>
+          `}
         </div>
         <div class="card">
-          <h3>📜 Riwayat</h3>
+          <h3> Riwayat Pengajuan</h3>
+          ${exportButtons}
           <div class="table-wrapper">
             <table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi</th><th>Alasan & Reviewer</th><th>Status</th></tr></thead>
-            <tbody>${renderRows(processed, false)||'<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody></table>
+            <tbody>${renderRows(processed, false) || '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody></table>
           </div>
         </div>
       `;
+    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
+  }
+
+  // ✅ DASHBOARD KEPALA HRD dengan Export & Print
+  async function renderKepalaHRDDashboard() {
+    try {
+      let myNotifHTML = '';
+      if (currentUser.employeeId) {
+        const leaveReqs = (await fetchCollection('leaveRequests')).filter(r => r.employeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime()).slice(0, 3);
+        const adjustReqs = (await fetchCollection('adjustmentRequests')).filter(r => r.requesterEmployeeId === currentUser.employeeId && (r.status === 'approved' || r.status === 'rejected')).sort((a, b) => new Date(b.approvedAt || b.rejectedAt || b.requestedAt || 0).getTime() - new Date(a.approvedAt || a.rejectedAt || a.requestedAt || 0).getTime()).slice(0, 3);
+        const allNotifications = [...leaveReqs, ...adjustReqs].sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.approvedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.approvedAt || a.createdAt || 0).getTime()).slice(0, 5);
+        myNotifHTML = renderMyNotifications(allNotifications);
+      }
+
+      const emps = await fetchCollection('employees');
+      const empMap = {}; emps.forEach(e => { empMap[e.id] = e; });
+      const [leaveReqs, adjustReqs] = await Promise.all([fetchCollection('leaveRequests'), fetchCollection('adjustmentRequests')]);
+      const pendingLeave = leaveReqs.filter(r => r.status === 'pending_head').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const pendingAdjust = adjustReqs.filter(r => r.status === 'pending_head').sort((a, b) => new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime());
+      const processedLeave = leaveReqs.filter(r => r.status === 'approved' || r.status === 'rejected').sort((a, b) => new Date(b.headApprovedAt || b.rejectedAt || b.createdAt || 0).getTime() - new Date(a.headApprovedAt || a.rejectedAt || a.createdAt || 0).getTime());
+      
+      let leaveHTML = '';
+      if (pendingLeave.length === 0) {
+        leaveHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada pengajuan menunggu.</p></div>`;
+      } else {
+        pendingLeave.forEach(req => {
+          const days = daysBetween(req.startDate, req.endDate);
+          const emp = empMap[req.employeeId];
+          const currentBalance = emp ? emp.leaveBalance : 0;
+          const projectedBalance = currentBalance - days;
+          const isDebt = projectedBalance < 0;
+          leaveHTML += `<div class="notification" style="${isDebt?'background:#fef2f2;border-left-color:#dc2626':''}"><div style="flex:1"><div class="notif-text"><strong>${req.employeeName}</strong> cuti <strong>${days} hari</strong><br>${fmtDate(req.startDate)} - ${fmtDate(req.endDate)}<br><em>${req.reason}</em><br><small style="color:#059669">✅ Review: <strong>${req.staffHrdName||'-'}</strong></small></div><div class="balance-info">Saldo: <strong>${currentBalance} hr</strong> | Cuti: <strong>${days} hr</strong><br>${isDebt?`<span class="balance-debt">⚠️ HUTANG ${Math.abs(projectedBalance)} hari</span>`:`<span class="balance-safe">✅ Sisa: ${projectedBalance} hari</span>`}</div></div><div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap"><button class="btn btn-success btn-sm" onclick="headApprove('${req.id}')">Setujui</button><button class="btn btn-danger btn-sm" onclick="headReject('${req.id}')">Tolak</button></div></div>`;
+        });
+      }
+      
+      let adjustHTML = '';
+      if (pendingAdjust.length === 0) {
+        adjustHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada adjust menunggu.</p></div>`;
+      } else {
+        pendingAdjust.forEach(req => {
+          const actionText = req.adjustmentDays > 0 ? `+${req.adjustmentDays} hr` : `${req.adjustmentDays} hr`;
+          adjustHTML += `<div class="notification" style="background:#eff6ff;border-left-color:#3b82f6"><div class="notif-text" style="color:#1e40af"><strong>${req.employeeName}</strong> adjust <strong>${actionText}</strong><br>${req.currentBalance} hr → <strong>${req.currentBalance + req.adjustmentDays} hr</strong><br><em>${req.note}</em><br><small style="color:#64748b">Oleh: ${req.requestedBy}</small></div><div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap"><button class="btn btn-success btn-sm" onclick="approveAdjustment('${req.id}')">Setujui</button><button class="btn btn-danger btn-sm" onclick="rejectAdjustment('${req.id}')">Tolak</button></div></div>`;
+        });
+      }
+
+      // ✅ TOMBOL EXPORT & PRINT untuk riwayat approval
+      const exportButtons = processedLeave.length > 0 ? `
+        <div class="action-bar">
+          <span class="action-label"> Export Riwayat Approval:</span>
+          <button class="btn btn-success btn-sm" onclick="exportLeaveHistoryExcel()">📊 Export Excel</button>
+          <button class="btn btn-purple btn-sm" onclick="printLeaveHistoryPDF()">🖨️ Print PDF</button>
+        </div>
+      ` : '';
+
+      return `
+        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Saya</h3>${myNotifHTML}</div>` : ''}
+        <div class="stats-grid">
+          <div class="stat-card amber"><div class="label">Cuti Pending</div><div class="value">${pendingLeave.length}</div></div>
+          <div class="stat-card rose"><div class="label">Adjust Pending</div><div class="value">${pendingAdjust.length}</div></div>
+        </div>
+        <div class="card"><h3>📬 Approval Cuti (${pendingLeave.length})</h3>${leaveHTML}</div>
+        <div class="card"><h3>⚙️ Approval Adjust (${pendingAdjust.length})</h3>${adjustHTML}</div>
+        <div class="card">
+          <h3>📜 Riwayat Approval</h3>
+          ${exportButtons}
+          <div class="table-wrapper">
+            <table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th><th>Reviewer</th></tr></thead>
+            <tbody>${processedLeave.map(r => {
+              const days = daysBetween(r.startDate, r.endDate);
+              const badge = r.status === 'approved' ? 'badge-approved' : 'badge-rejected';
+              const reviewer = r.approvedBy || r.rejectedBy || r.directorApprovedBy || r.directorRejectedBy || '-';
+              return `<tr><td><strong>${r.employeeName}</strong></td><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td>${days} hr</td><td>${r.reason}</td><td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td><td><small>${reviewer}</small></td></tr>`;
+            }).join('') || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody></table>
+          </div>
+        </div>
+      `;
+    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
+  }
+
+  // ✅ EXPORT EXCEL - Lazy load SheetJS
+  window.exportLeaveHistoryExcel = async () => {
+    try {
+      showLoading('Mempersiapkan Excel...', 'Memuat library');
+      
+      const XLSX = await loadSheetJS();
+      if (!XLSX) { alert('❌ Gagal memuat library Excel. Periksa koneksi internet.'); showTab('dashboard'); return; }
+      
+      // Ambil data
+      const allReqs = await fetchCollection('leaveRequests');
+      const emps = await fetchCollection('employees');
+      const empMap = {}; emps.forEach(e => { empMap[e.id] = e; });
+      
+      // Filter data yang sudah diproses (approved/rejected)
+      const processed = allReqs.filter(r => r.status === 'approved' || r.status === 'rejected')
+        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      
+      if (processed.length === 0) {
+        alert('⚠️ Tidak ada data riwayat untuk diexport!');
+        showTab('dashboard');
+        return;
+      }
+      
+      // Siapkan data untuk Excel
+      const excelData = processed.map(r => {
+        const emp = empMap[r.employeeId];
+        const days = daysBetween(r.startDate, r.endDate);
+        const currentBalance = emp ? emp.leaveBalance : 0;
+        const projectedBalance = currentBalance - days;
+        
+        return {
+          'Nama Karyawan': r.employeeName,
+          'Role': ROLE_LABEL[r.employeeRole] || r.employeeRole || 'Staff',
+          'Tanggal Mulai': fmtDate(r.startDate),
+          'Tanggal Selesai': fmtDate(r.endDate),
+          'Durasi (Hari)': days,
+          'Alasan': r.reason,
+          'Saldo Sebelum': currentBalance,
+          'Proyeksi Saldo': projectedBalance,
+          'Status': getStatusLabel(r.status),
+          'Reviewer Staff HRD': r.staffHrdName || '-',
+          'Tanggal Review': r.staffHrdApprovedAt ? fmtDateTime(r.staffHrdApprovedAt) : '-',
+          'Approver Kepala HRD': r.approvedBy || r.directorApprovedBy || '-',
+          'Tanggal Approval': (r.headApprovedAt || r.directorApprovedAt) ? fmtDateTime(r.headApprovedAt || r.directorApprovedAt) : '-',
+          'Penolak': r.rejectedBy || r.directorRejectedBy || '-',
+          'Tanggal Ditolak': (r.rejectedAt || r.directorRejectedAt) ? fmtDateTime(r.rejectedAt || r.directorRejectedAt) : '-',
+          'Tanggal Pengajuan': fmtDateTime(r.createdAt)
+        };
+      });
+      
+      // Buat workbook
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Cuti');
+      
+      // Auto-width columns
+      const colWidths = Object.keys(excelData[0]).map(key => ({
+        wch: Math.max(key.length, 15)
+      }));
+      ws['!cols'] = colWidths;
+      
+      // Download
+      const fileName = `Riwayat_Cuti_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      alert(`✅ Export berhasil!\n\nFile: ${fileName}\nTotal: ${processed.length} data`);
+      showTab('dashboard');
+    } catch (e) {
+      console.error(e);
+      alert(' Gagal export: ' + e.message);
+      showTab('dashboard');
+    }
+  };
+
+  // ✅ PRINT PDF - Menggunakan window.print() dengan CSS print
+  window.printLeaveHistoryPDF = () => {
+    // Set print header info
+    document.getElementById('printSubtitle').textContent = `Dicetak oleh: ${currentUser.name} (${ROLE_LABEL[currentUser.role]})`;
+    document.getElementById('printDate').textContent = `Tanggal cetak: ${fmtDateTime(new Date().toISOString())}`;
+    
+    // Tambahkan class untuk styling print
+    document.body.classList.add('printing');
+    
+    // Trigger print
+    setTimeout(() => {
+      window.print();
+      document.body.classList.remove('printing');
+    }, 100);
+  };
+
+  async function renderDirectorApproval() {
+    try {
+      const emps = await fetchCollection('employees');
+      const empMap = {}; emps.forEach(e => { empMap[e.id] = e; });
+      const leaveReqs = await fetchCollection('leaveRequests');
+      const pendingDirector = leaveReqs.filter(r => r.status === 'pending_director').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const processed = leaveReqs.filter(r => (r.status === 'approved' || r.status === 'rejected') && (r.directorApprovedBy || r.directorRejectedBy)).sort((a, b) => new Date(b.directorApprovedAt || b.directorRejectedAt || b.createdAt || 0).getTime() - new Date(a.directorApprovedAt || a.directorRejectedAt || a.createdAt || 0).getTime());
+      
+      let pendingHTML = '';
+      if (pendingDirector.length === 0) {
+        pendingHTML = `<div class="empty-state" style="padding:20px"><div class="icon">✨</div><p>Tidak ada pengajuan Kepala HRD menunggu.</p></div>`;
+      } else {
+        pendingDirector.forEach(req => {
+          const days = daysBetween(req.startDate, req.endDate);
+          const emp = empMap[req.employeeId];
+          const currentBalance = emp ? emp.leaveBalance : 0;
+          const projectedBalance = currentBalance - days;
+          const isDebt = projectedBalance < 0;
+          pendingHTML += `<div class="notification" style="${isDebt?'background:#fef2f2;border-left-color:#dc2626':'background:#f5f3ff;border-left-color:#8b5cf6'}"><div style="flex:1"><div class="notif-text" style="${isDebt?'color:#991b1b':'color:#5b21b6'}"><strong>${req.employeeName}</strong> <span class="badge badge-self">Kepala HRD</span> cuti <strong>${days} hari</strong><br>${fmtDate(req.startDate)} - ${fmtDate(req.endDate)}<br><em>${req.reason}</em></div><div class="balance-info">Saldo: <strong>${currentBalance} hr</strong> | Cuti: <strong>${days} hr</strong><br>${isDebt?`<span class="balance-debt">⚠️ Hutang ${Math.abs(projectedBalance)} hari</span>`:`<span class="balance-safe">✅ Sisa: ${projectedBalance} hari</span>`}</div></div><div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap"><button class="btn btn-success btn-sm" onclick="directorApprove('${req.id}')">Setujui</button><button class="btn btn-danger btn-sm" onclick="directorReject('${req.id}')">Tolak</button></div></div>`;
+        });
+      }
+
+      const historyHTML = processed.length > 0 ? processed.map(r => {
+        const days = daysBetween(r.startDate, r.endDate);
+        const isApproved = r.status === 'approved';
+        return `<tr><td><strong>${r.employeeName}</strong></td><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td>${days} hr</td><td>${r.reason}</td><td><span class="badge ${isApproved?'badge-approved':'badge-rejected'}">${isApproved?'Disetujui':'Ditolak'}</span></td><td><small>${r.directorApprovedBy || r.directorRejectedBy} • ${fmtDate(r.directorApprovedAt || r.directorRejectedAt)}</small></td></tr>`;
+      }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Belum ada riwayat</td></tr>';
+      
+      return `<div class="card"><h3>✅ Approval Cuti Kepala HRD (${pendingDirector.length})</h3><div class="flow-info"><div class="icon">📋</div><div class="text"><strong>Alur: Kepala HRD → Direktur (1 langkah)</strong></div></div>${pendingHTML}</div><div class="card"><h3>📜 Riwayat Approval</h3><div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th><th>Keputusan</th></tr></thead><tbody>${historyHTML}</tbody></table></div></div>`;
+    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
+  }
+
+  async function renderEmployees() {
+    const canManage = currentUser.role === 'staff_hrd' || currentUser.role === 'superuser';
+    const isSuperuser = currentUser.role === 'superuser';
+    const [emps, users] = await Promise.all([fetchCollection('employees'), fetchCollection('users')]);
+    const userMap = {}; users.forEach(u => { if (u.employeeId) userMap[u.employeeId] = u; });
+    emps.sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    const rows = emps.map(e => {
+      const eligible = getEligibleLeave(e.joinDate);
+      const isDebt = e.leaveBalance < 0;
+      const user = userMap[e.id];
+      const roleLabel = user ? ROLE_LABEL[user.role] || user.role : 'Unknown';
+      const canEditRole = canManage && user && user.role !== 'superuser' && user.employeeId !== currentUser.employeeId;
+      return `<tr class="${isDebt?'debt-row':''}" data-empname="${e.name.toLowerCase()}"><td>${e.id}</td><td><strong>${e.name}</strong></td><td>${fmtDate(e.joinDate)}</td><td><span class="badge badge-role">${roleLabel}</span><br>${eligible?'✅':'⏳'} <strong style="color:${isDebt?'#dc2626':'#1e293b'}">${e.leaveBalance}</strong> hr ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</td><td><div class="btn-group"><button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>${canEditRole?`<button class="btn btn-info btn-sm" onclick="openEditRole('${e.id}','${e.name}','${user.role}')">Role</button>`:''}${canManage&&!e.isSuperuser?`<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.docId||e.id}','${e.name}','${e.id}')">Hapus</button>`:''}</div></td></tr>`;
+    }).join('');
+    return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px"><h3 style="margin:0">👥 Data Karyawan</h3>${canManage&&!isSuperuser?`<button class="btn btn-primary" style="width:auto" onclick="openAddStaff()">+ Tambah</button>`:''}</div><div class="hint-box">💡 ${isSuperuser?'Superuser: kelola semua karyawan.':'Staff HRD: kelola karyawan (kecuali diri sendiri).'}</div><div class="search-bar"><label>🔍 Cari:</label><input type="text" id="searchEmployees" placeholder="Nama karyawan..." oninput="debouncedFilterEmployees()"><span class="result-count" id="employeeCount">${emps.length} karyawan</span></div><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Nama</th><th>Join</th><th>Role & Cuti</th><th>Aksi</th></tr></thead><tbody id="employeesBody">${rows||'<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada data</td></tr>'}</tbody></table></div></div>`;
+  }
+
+  window.debouncedFilterEmployees = debounce(function() {
+    const keyword = document.getElementById('searchEmployees').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#employeesBody tr');
+    let count = 0;
+    rows.forEach(row => {
+      if (row.dataset.empname) {
+        const match = keyword === '' || row.dataset.empname.includes(keyword);
+        row.style.display = match ? '' : 'none';
+        if (match) count++;
+      }
+    });
+    document.getElementById('employeeCount').textContent = `${count} karyawan`;
+  }, 200);
+
+  window.openAddStaff = () => {
+    const roleOptions = STAFF_HRD_ROLES.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
+    window.openModal(`<h3>Tambah Karyawan</h3><div class="hint-box orange">💡 Staff HRD hanya bisa buat <strong>Staff Biasa</strong> atau <strong>Staff HRD</strong>. Role lain via Superuser.</div><div class="form-group"><label>Nama</label><input type="text" id="newStaffName"></div><div class="form-group"><label>Username</label><input type="text" id="newStaffUsername"></div><div class="form-group"><label>Role</label><select id="newStaffRole">${roleOptions}</select></div><div class="form-group"><label>Tanggal Join</label><input type="date" id="newStaffJoin"></div><div class="hint-box">💡 Password default: <strong>1234</strong></div><div class="modal-actions"><button class="btn btn-secondary" onclick="window.closeModal()">Batal</button><button class="btn btn-primary" style="width:auto" onclick="saveNewStaff()">Simpan</button></div>`);
+  };
+
+  window.saveNewStaff = async () => {
+    const name = document.getElementById('newStaffName').value.trim();
+    const username = document.getElementById('newStaffUsername').value.trim().toLowerCase();
+    const role = document.getElementById('newStaffRole').value;
+    const join = document.getElementById('newStaffJoin').value;
+    if (!name || !username || !join) { alert('Lengkapi semua field!'); return; }
+    if (!(await getDocs(query(collection(db, 'users'), where('username', '==', username)))).empty) { alert('⚠️ Username sudah dipakai!'); return; }
+    const emps = await fetchCollection('employees');
+    let num = 1;
+    const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
+    if (validEmps.length > 0) { validEmps.sort((a, b) => b.id.localeCompare(a.id)); num = parseInt(validEmps[0].id.substring(1)) + 1; }
+    else num = emps.length + 1;
+    const newEmpId = 'E' + String(num).padStart(3, '0');
+    const batch = writeBatch(db);
+    batch.set(doc(collection(db, 'users')), { username, password: '1234', name, role, employeeId: newEmpId });
+    batch.set(doc(collection(db, 'employees')), { id: newEmpId, name, joinDate: join, leaveBalance: 0, leaveHistory: [] });
+    await batch.commit();
+    invalidateCache(); window.closeModal();
+    alert(`✅ Karyawan ditambah!\nUser: ${username}\nPass: 1234\nRole: ${ROLE_LABEL[role]}`);
+    showTab('employees');
+  };
+
+  window.openEditRole = (empId, empName, currentRole) => {
+    const roleOptions = Object.keys(ROLE_LABEL).filter(r => r !== 'superuser').map(r => `<option value="${r}" ${r===currentRole?'selected':''}>${ROLE_LABEL[r]}</option>`).join('');
+    window.openModal(`<h3>Edit Role: ${empName}</h3><p style="margin-bottom:16px;color:#475569;font-size:13px">Role saat ini: <strong>${ROLE_LABEL[currentRole]}</strong></p><div class="hint-box warning">️ Perubahan role langsung berlaku.<br>• Staff: cuti sendiri<br>• Staff HRD: review + adjust<br>• Kepala HRD: approve<br>• Direktur/Komisaris: lihat data</div><div class="form-group"><label>Role Baru</label><select id="editRoleSelect">${roleOptions}</select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="window.closeModal()">Batal</button><button class="btn btn-primary" style="width:auto" onclick="saveEditRole('${empId}','${empName}','${currentRole}')">Simpan</button></div>`);
+  };
+
+  window.saveEditRole = async (empId, empName, oldRole) => {
+    const newRole = document.getElementById('editRoleSelect').value;
+    if (newRole === oldRole) { alert('Role tidak berubah!'); return; }
+    if (!confirm(`Ubah role "${empName}"?\n\nDari: ${ROLE_LABEL[oldRole]}\nKe: ${ROLE_LABEL[newRole]}`)) return;
+    try {
+      const userSnap = await getDocs(query(collection(db, 'users'), where('employeeId', '==', empId)));
+      if (userSnap.empty) { alert('User tidak ditemukan!'); return; }
+      const batch = writeBatch(db);
+      userSnap.forEach(d => batch.update(d.ref, { role: newRole }));
+      await batch.commit();
+      invalidateCache(); window.closeModal();
+      alert(`✅ Role "${empName}" diubah ke ${ROLE_LABEL[newRole]}!`);
+      showTab('employees');
+    } catch (e) { alert('❌ Gagal: ' + e.message); }
+  };
+
+  window.deleteEmployee = async (docId, empName, empId) => {
+    if (!confirm(`Hapus "${empName}"?\nData & akun akan dihapus permanen.`)) return;
+    try {
+      await deleteDoc(doc(db, 'employees', docId));
+      const uSnap = await getDocs(query(collection(db, 'users'), where('employeeId', '==', empId)));
+      uSnap.forEach(async (d) => await deleteDoc(d.ref));
+      invalidateCache(); alert('✅ Data dihapus.'); showTab('employees');
+    } catch (e) { alert('Gagal: ' + e.message); }
+  };
+
+  window.viewEmpDetail = async (empId) => {
+    const emps = await fetchCollection('employees');
+    const e = emps.find(x => x.id === empId);
+    if (!e) return;
+    const eligible = getEligibleLeave(e.joinDate);
+    const isDebt = e.leaveBalance < 0;
+    const users = await fetchCollection('users');
+    const user = users.find(u => u.employeeId === empId);
+    const roleLabel = user ? ROLE_LABEL[user.role] || user.role : 'Unknown';
+    window.openModal(`<h3>Detail Karyawan</h3><p><strong>ID:</strong> ${e.id}</p><p><strong>Nama:</strong> ${e.name}</p><p><strong>Role:</strong> <span class="badge badge-role">${roleLabel}</span></p><p><strong>Join:</strong> ${fmtDate(e.joinDate)}</p><p><strong>Sisa Cuti:</strong> <span style="color:${isDebt?'#dc2626':'#1e293b'};font-weight:700">${e.leaveBalance} hr</span> ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</p><p><strong>Layak Cuti:</strong> ${eligible?'✅ Ya (12 hr)':'⏳ Belum'}</p><hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0"><h3 style="font-size:15px">Mutasi Cuti</h3>${renderLeaveHistory(e.leaveHistory || [])}<div class="modal-actions"><button class="btn btn-secondary" onclick="window.closeModal()">Tutup</button></div>`);
+  };
+
+  async function renderApplyLeave() {
+    if (!currentUser.employeeId) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data tidak terhubung.</p></div></div>`;
+    const emps = await fetchCollection('employees');
+    const emp = emps.find(e => e.id === currentUser.employeeId);
+    if (!emp) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data tidak ditemukan.</p></div></div>`;
+    const isDebt = emp.leaveBalance < 0;
+    const lockStatus = getLeaveLockStatus();
+    const myReqs = (await fetchCollection('leaveRequests')).filter(r => r.employeeId === emp.id).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const rows = myReqs.map(r => { const days = daysBetween(r.startDate, r.endDate); const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending'; return `<tr><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td>${days} hr</td><td>${r.reason}</td><td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td></tr>`; }).join('');
+    const reasonOptions = LEAVE_REASONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
+    let flowInfoHTML = '';
+    if (currentUser.role === 'staff_hrd') flowInfoHTML = `<div class="flow-info"><div class="icon">📋</div><div class="text"><strong>Alur Staff HRD</strong><p>Anda → Review Staff HRD lain → Approval Kepala HRD</p></div></div>`;
+    else if (currentUser.role === 'kepala_hrd') flowInfoHTML = `<div class="flow-info" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-color:#8b5cf6"><div class="icon">📋</div><div class="text"><strong>Alur Kepala HRD</strong><p>Anda → Approval Direktur (1 langkah)</p></div></div>`;
+    return `${isDebt?`<div class="debt-warning"><div class="icon">⚠️</div><div class="text"><strong>HUTANG: ${Math.abs(emp.leaveBalance)} hr</strong><p>Cuti tambahan akan menambah hutang.</p></div></div>`:''}${lockStatus.locked?`<div class="lock-warning"><div class="icon">🔒</div><div class="text"><strong>${lockStatus.message}</strong></div></div>`:''}${flowInfoHTML}<div class="card"><h3>📝 Form Cuti</h3><div class="hint-box ${isDebt?'danger':''}"> Sisa cuti: <strong style="color:${isDebt?'#dc2626':'#4f46e5'}">${emp.leaveBalance} hr</strong> ${isDebt?'(HUTANG)':''}</div><div class="form-group"><label>📅 Mulai</label><input type="date" id="leaveStart" onchange="calculateLeaveProjection()"></div><div class="form-group"><label>📅 Selesai</label><input type="date" id="leaveEnd" onchange="calculateLeaveProjection()"></div><div class="form-group"><label>📋 Alasan</label><select id="leaveReasonType" onchange="onLeaveReasonChange()">${reasonOptions}</select></div><div class="form-group" id="otherReasonGroup" style="display:none"><label class="required-label">📝 Keterangan</label><textarea id="otherReasonText" rows="3" placeholder="Jelaskan detail..." oninput="onOtherReasonInput()"></textarea><small style="color:#dc2626;font-size:11px;display:none" id="otherReasonHint">️ Wajib diisi</small></div><div id="leaveCalculator" class="leave-calculator" data-balance="${emp.leaveBalance}"></div><button class="btn btn-primary" style="width:auto;margin-top:12px" onclick="submitLeave('${emp.id}','${emp.name}',${emp.leaveBalance})">Kirim</button></div><div class="card"><h3>📜 Riwayat</h3><div class="table-wrapper"><table><thead><tr><th>Periode</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr></thead><tbody>${rows||'<tr><td colspan="4" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody></table></div></div>`;
+  }
+
+  window.onLeaveReasonChange = function() {
+    const reasonType = document.getElementById('leaveReasonType').value;
+    const otherGroup = document.getElementById('otherReasonGroup');
+    const otherText = document.getElementById('otherReasonText');
+    const otherHint = document.getElementById('otherReasonHint');
+    if (reasonType === 'Lainnya') { otherGroup.style.display = 'block'; otherText.focus(); }
+    else { otherGroup.style.display = 'none'; otherText.value = ''; otherText.classList.remove('required-field'); otherHint.style.display = 'none'; }
+  };
+
+  window.onOtherReasonInput = function() {
+    const otherText = document.getElementById('otherReasonText');
+    const otherHint = document.getElementById('otherReasonHint');
+    if (otherText.value.trim().length === 0) { otherText.classList.add('required-field'); otherHint.style.display = 'block'; }
+    else { otherText.classList.remove('required-field'); otherHint.style.display = 'none'; }
+  };
+
+  window.calculateLeaveProjection = function() {
+    const start = document.getElementById('leaveStart').value;
+    const end = document.getElementById('leaveEnd').value;
+    const calcDiv = document.getElementById('leaveCalculator');
+    if (!start || !end || new Date(end) < new Date(start)) { calcDiv.style.display = 'none'; return; }
+    const days = daysBetween(start, end);
+    const currentBalance = parseInt(calcDiv.dataset.balance || 0);
+    const projectedBalance = currentBalance - days;
+    const isDebt = projectedBalance < 0;
+    calcDiv.className = 'leave-calculator' + (isDebt ? ' debt' : '');
+    calcDiv.style.display = 'block';
+    calcDiv.innerHTML = `<div class="calc-row"><span class="calc-label">📅 Periode</span><span class="calc-value">${fmtDate(start)} - ${fmtDate(end)}</span></div><div class="calc-row"><span class="calc-label">⏱️ Durasi</span><span class="calc-value">${days} hari</span></div><div class="calc-row"><span class="calc-label">💰 Saldo</span><span class="calc-value">${currentBalance} hr</span></div><div class="calc-row"><span class="calc-label">📊 Proyeksi</span><span class="calc-value">${projectedBalance} hr</span></div>${isDebt ? `<div class="debt-alert">⚠️ HUTANG CUTI ${Math.abs(projectedBalance)} hari</div>` : `<div style="background:#10b981;color:white;padding:10px 12px;border-radius:8px;margin-top:10px;font-size:13px;font-weight:600;text-align:center">✅ Saldo mencukupi</div>`}`;
+  };
+
+  window.submitLeave = async (empId, empName, currentBalance) => {
+    const s = document.getElementById('leaveStart').value;
+    const e = document.getElementById('leaveEnd').value;
+    const reasonType = document.getElementById('leaveReasonType').value;
+    const otherReasonText = document.getElementById('otherReasonText').value.trim();
+    if (!s || !e) { alert('️ Pilih tanggal!'); return; }
+    if (new Date(e) < new Date(s)) { alert('⚠️ Tanggal tidak valid!'); return; }
+    if (!reasonType) { alert('⚠️ Pilih alasan!'); return; }
+    let finalReason = reasonType;
+    if (reasonType === 'Lainnya') {
+      if (!otherReasonText || otherReasonText.length < 5) { alert('⚠️ Isi keterangan minimal 5 karakter!'); document.getElementById('otherReasonText').classList.add('required-field'); document.getElementById('otherReasonText').focus(); return; }
+      finalReason = `Lainnya: ${otherReasonText}`;
+    }
+    if (isDateLocked(s) || isDateLocked(e)) { alert(`🔒 ${getLeaveLockStatus().message}`); return; }
+    const days = daysBetween(s, e);
+    const projectedBalance = currentBalance - days;
+    if (projectedBalance < 0 && !confirm(`️ HUTANG CUTI!\n\nSaldo: ${currentBalance} hr\nCuti: ${days} hr\nProyeksi: ${projectedBalance} hr (HUTANG ${Math.abs(projectedBalance)} hr)\n\nLanjutkan?`)) return;
+    let initialStatus = 'pending_staff';
+    if (currentUser.role === 'staff_hrd') initialStatus = 'pending_staff_hrd_peer';
+    else if (currentUser.role === 'kepala_hrd') initialStatus = 'pending_director';
+    await addDoc(collection(db, 'leaveRequests'), { employeeId: empId, employeeName: empName, employeeRole: currentUser.role, startDate: s, endDate: e, reason: finalReason, reasonType: reasonType, reasonDetail: reasonType === 'Lainnya' ? otherReasonText : '', status: initialStatus, createdAt: new Date().toISOString() });
+    invalidateCache(); alert('✅ Pengajuan dikirim!'); showTab('apply_leave');
+  };
+
+  async function renderLeaveMgmt() {
+    const emps = (await fetchCollection('employees')).sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    const rows = emps.map(e => { const isDebt = e.leaveBalance < 0; return `<tr class="${isDebt?'debt-row':''}"><td>${e.id}</td><td><strong>${e.name}</strong></td><td><strong style="color:${isDebt?'#dc2626':'#1e293b'}">${e.leaveBalance}</strong> hr ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</td><td><button class="btn btn-warning btn-sm" onclick="openRequestAdjust('${e.id}','${e.name}',${e.leaveBalance})">Adjust</button></td></tr>`; }).join('');
+    return `<div class="card"><h3>⚙️ Request Adjust</h3><div class="hint-box">💡 Adjust cuti harus disetujui Kepala HRD.</div><div class="table-wrapper"><table><thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
+
+  window.openRequestAdjust = (empId, name, currentBalance) => {
+    window.openModal(`<h3>Adjust Cuti - ${name}</h3><p>Saldo: <strong>${currentBalance} hr</strong></p><div class="form-group"><label>Jumlah Hari (minus = pengurangan)</label><input type="number" id="adjDays" placeholder="-2 atau 12"></div><div class="form-group"><label>Catatan</label><textarea id="adjNote" rows="2"></textarea></div><div class="modal-actions"><button class="btn btn-secondary" onclick="window.closeModal()">Batal</button><button class="btn btn-primary" style="width:auto" onclick="submitRequestAdjust('${empId}','${name}',${currentBalance})">Kirim</button></div>`);
+  };
+
+  window.submitRequestAdjust = async (empId, empName, currentBalance) => {
+    const days = parseInt(document.getElementById('adjDays').value);
+    const note = document.getElementById('adjNote').value.trim() || 'Adjustment';
+    if (isNaN(days)) { alert('Jumlah hari tidak valid!'); return; }
+    await addDoc(collection(db, 'adjustmentRequests'), { employeeId: empId, employeeName: empName, currentBalance, adjustmentDays: days, note, status: 'pending_head', requestedBy: currentUser.name, requesterEmployeeId: currentUser.employeeId, requestedAt: new Date().toISOString() });
+    invalidateCache(); window.closeModal(); alert('✅ Request adjust dikirim!'); showTab('leave_mgmt');
+  };
+
+  async function renderLeaveRequests() {
+    try {
+      const emps = await fetchCollection('employees');
+      const empMap = {}; emps.forEach(e => { empMap[e.id] = e; });
+      const all = await fetchCollection('leaveRequests');
+      const pending = all.filter(r => (r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer') && r.employeeId !== currentUser.employeeId).sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const processed = all.filter(r => r.status !== 'pending_staff' && r.status !== 'pending_staff_hrd_peer').sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      const renderRows = (list, showAction) => list.map(r => {
+        const days = daysBetween(r.startDate, r.endDate);
+        const badge = r.status === 'approved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+        const emp = empMap[r.employeeId];
+        const currentBalance = emp ? emp.leaveBalance : 0;
+        const projectedBalance = currentBalance - days;
+        const isDebt = projectedBalance < 0;
+        let reviewerInfo = '';
+        if (r.status === 'pending_head' && r.staffHrdName) reviewerInfo = `<br><span class="reviewer-badge">✅ ${r.staffHrdName}</span>`;
+        else if (r.status === 'rejected' && r.rejectedBy) reviewerInfo = `<br><span class="reviewer-badge rejected">❌ ${r.rejectedBy}</span>`;
+        else if (r.status === 'approved' && r.approvedBy) reviewerInfo = `<br><span class="reviewer-badge">✅ ${r.approvedBy}</span>`;
+        else if (r.status === 'approved' && r.directorApprovedBy) reviewerInfo = `<br><span class="reviewer-badge director">✅ ${r.directorApprovedBy} (Direktur)</span>`;
+        const isPeerLeave = r.employeeRole === 'staff_hrd';
+        const requesterBadge = isPeerLeave ? '<span class="badge badge-self">Staff HRD</span>' : '';
+        return `<tr><td><strong>${r.employeeName}</strong> ${requesterBadge}</td><td>${fmtDate(r.startDate)} - ${fmtDate(r.endDate)}</td><td><strong>${days} hr</strong><br><span style="font-size:11px;color:#64748b">Saldo: ${currentBalance}</span><br><span class="${isDebt?'balance-debt':'balance-safe'}" style="font-size:11px;font-weight:600">→ ${isDebt?`Hutang ${Math.abs(projectedBalance)}`:`Sisa ${projectedBalance}`}</span></td><td>${r.reason}${reviewerInfo}</td><td><span class="badge ${badge}">${getStatusLabel(r.status)}</span></td>${showAction?`<td><button class="btn btn-success btn-sm" onclick="staffApprove('${r.id}')">Terima</button><button class="btn btn-danger btn-sm" onclick="staffReject('${r.id}')">Tolak</button></td>`:''}</tr>`;
+      }).join('');
+      return `<div class="card"><h3>📬 Menunggu Review (${pending.length})</h3><div class="hint-box orange">👥 Yang pertama klik akan tercatat. Tidak bisa review sendiri.</div><div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi & Saldo</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead><tbody>${renderRows(pending, pending.length>0)||'<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8">Tidak ada</td></tr>'}</tbody></table></div></div><div class="card"><h3>📜 Riwayat</h3><div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Periode</th><th>Durasi</th><th>Alasan & Reviewer</th><th>Status</th></tr></thead><tbody>${renderRows(processed, false)||'<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">Belum ada</td></tr>'}</tbody></table></div></div>`;
     } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
   }
 
@@ -1774,14 +1439,9 @@
       if (!reqSnap.exists()) { alert('Data tidak ditemukan!'); return; }
       const reqData = reqSnap.data();
       if (reqData.employeeId === currentUser.employeeId) { alert('⚠️ Tidak bisa review sendiri!'); return; }
-      if (reqData.status !== 'pending_staff' && reqData.status !== 'pending_staff_hrd_peer') {
-        alert(`Sudah diproses!\nStatus: ${getStatusLabel(reqData.status)}\nOleh: ${reqData.staffHrdName || reqData.rejectedBy || '-'}`);
-        return;
-      }
+      if (reqData.status !== 'pending_staff' && reqData.status !== 'pending_staff_hrd_peer') { alert(`Sudah diproses!\nStatus: ${getStatusLabel(reqData.status)}\nOleh: ${reqData.staffHrdName || reqData.rejectedBy || '-'}`); return; }
       await updateDoc(reqRef, { status: 'pending_head', staffHrdApprovedAt: new Date().toISOString(), staffHrdName: currentUser.name, staffHrdUsername: currentUser.username });
-      invalidateCache();
-      alert(`✅ Diteruskan ke Kepala HRD.\nReviewer: ${currentUser.name}`);
-      showTab('leave_requests');
+      invalidateCache(); alert(`✅ Diteruskan ke Kepala HRD.\nReviewer: ${currentUser.name}`); showTab('leave_requests');
     } catch (e) { alert('❌ Gagal: ' + e.message); }
   };
 
@@ -1792,14 +1452,9 @@
       if (!reqSnap.exists()) { alert('Data tidak ditemukan!'); return; }
       const reqData = reqSnap.data();
       if (reqData.employeeId === currentUser.employeeId) { alert('⚠️ Tidak bisa tolak sendiri!'); return; }
-      if (reqData.status !== 'pending_staff' && reqData.status !== 'pending_staff_hrd_peer') {
-        alert(`Sudah diproses!\nStatus: ${getStatusLabel(reqData.status)}`);
-        return;
-      }
+      if (reqData.status !== 'pending_staff' && reqData.status !== 'pending_staff_hrd_peer') { alert(`Sudah diproses!\nStatus: ${getStatusLabel(reqData.status)}`); return; }
       await updateDoc(reqRef, { status: 'rejected', rejectedBy: currentUser.name, rejectedByUsername: currentUser.username, rejectedAt: new Date().toISOString() });
-      invalidateCache();
-      alert(`✅ Ditolak.\nPenolak: ${currentUser.name}`);
-      showTab('leave_requests');
+      invalidateCache(); alert(`✅ Ditolak.\nPenolak: ${currentUser.name}`); showTab('leave_requests');
     } catch (e) { alert('❌ Gagal: ' + e.message); }
   };
 
@@ -1817,29 +1472,15 @@
         const days = daysBetween(reqData.startDate, reqData.endDate);
         const newBalance = empData.leaveBalance - days;
         const isDebt = newBalance < 0;
-        const newHistory = [...(empData.leaveHistory || []), {
-          date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(),
-          type: 'Cuti (Disetujui)', days, amount: -days,
-          note: `${reqData.reason} | Oleh: ${currentUser.name}${isDebt?' | HUTANG':''}`
-        }];
+        const newHistory = [...(empData.leaveHistory || []), { date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(), type: 'Cuti (Disetujui)', days, amount: -days, note: `${reqData.reason} | Oleh: ${currentUser.name}${isDebt?' | HUTANG':''}` }];
         await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
       }
       await updateDoc(reqRef, { status: 'approved', headApprovedAt: new Date().toISOString(), approvedBy: currentUser.name });
-      invalidateCache();
-      alert('✅ Cuti disetujui!');
-      showTab('dashboard');
+      invalidateCache(); alert('✅ Cuti disetujui!'); showTab('dashboard');
     } catch (e) { alert('❌ Gagal: ' + e.message); }
   };
 
-  window.headReject = async (reqId) => {
-    if (!confirm('Tolak pengajuan ini?')) return;
-    try {
-      await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name });
-      invalidateCache();
-      alert('✅ Ditolak.');
-      showTab('dashboard');
-    } catch (e) { alert('❌ Gagal: ' + e.message); }
-  };
+  window.headReject = async (reqId) => { if (!confirm('Tolak pengajuan ini?')) return; try { await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name }); invalidateCache(); alert('✅ Ditolak.'); showTab('dashboard'); } catch (e) { alert('❌ Gagal: ' + e.message); } };
 
   window.directorApprove = async (reqId) => {
     if (!confirm('Setujui cuti Kepala HRD ini?')) return;
@@ -1855,235 +1496,74 @@
         const days = daysBetween(reqData.startDate, reqData.endDate);
         const newBalance = empData.leaveBalance - days;
         const isDebt = newBalance < 0;
-        const newHistory = [...(empData.leaveHistory || []), {
-          date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(),
-          type: 'Cuti (Disetujui Direktur)', days, amount: -days,
-          note: `${reqData.reason} | Oleh Direktur: ${currentUser.name}${isDebt?' | HUTANG':''}`
-        }];
+        const newHistory = [...(empData.leaveHistory || []), { date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(), type: 'Cuti (Disetujui Direktur)', days, amount: -days, note: `${reqData.reason} | Oleh Direktur: ${currentUser.name}${isDebt?' | HUTANG':''}` }];
         await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
       }
       await updateDoc(reqRef, { status: 'approved', directorApprovedAt: new Date().toISOString(), directorApprovedBy: currentUser.name });
-      invalidateCache();
-      alert('✅ Cuti disetujui!');
-      showTab('director_approval');
+      invalidateCache(); alert('✅ Cuti disetujui!'); showTab('director_approval');
     } catch (e) { alert('❌ Gagal: ' + e.message); }
   };
 
-  window.directorReject = async (reqId) => {
-    if (!confirm('Tolak pengajuan ini?')) return;
-    try {
-      await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', directorRejectedBy: currentUser.name, directorRejectedAt: new Date().toISOString() });
-      invalidateCache();
-      alert('✅ Ditolak.');
-      showTab('director_approval');
-    } catch (e) { alert('❌ Gagal: ' + e.message); }
-  };
+  window.directorReject = async (reqId) => { if (!confirm('Tolak pengajuan ini?')) return; try { await updateDoc(doc(db, 'leaveRequests', reqId), { status: 'rejected', directorRejectedBy: currentUser.name, directorRejectedAt: new Date().toISOString() }); invalidateCache(); alert('✅ Ditolak.'); showTab('director_approval'); } catch (e) { alert('❌ Gagal: ' + e.message); } };
 
-  window.approveAdjustment = async (reqId) => {
-    if (!confirm('Setujui adjust ini?')) return;
-    try {
-      const reqRef = doc(db, 'adjustmentRequests', reqId);
-      const reqSnap = await getDoc(reqRef);
-      if (!reqSnap.exists()) return;
-      const reqData = reqSnap.data();
-      const eSnap = await getDocs(query(collection(db, 'employees'), where('id', '==', reqData.employeeId)));
-      if (!eSnap.empty) {
-        const empRef = eSnap.docs[0].ref;
-        const empData = eSnap.docs[0].data();
-        const newBalance = empData.leaveBalance + reqData.adjustmentDays;
-        const isDebt = newBalance < 0;
-        const newHistory = [...(empData.leaveHistory || []), {
-          date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(),
-          type: 'Adjustment (Disetujui)', days: Math.abs(reqData.adjustmentDays), amount: reqData.adjustmentDays,
-          note: `${reqData.note} | Oleh: ${reqData.requestedBy} → ${currentUser.name}${isDebt?' | HUTANG':''}`
-        }];
-        await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
-      }
-      await updateDoc(reqRef, { status: 'approved', approvedBy: currentUser.name, approvedAt: new Date().toISOString() });
-      invalidateCache();
-      alert('✅ Adjust disetujui!');
-      showTab('dashboard');
-    } catch (e) { alert('❌ Gagal: ' + e.message); }
-  };
+  window.approveAdjustment = async (reqId) => { if (!confirm('Setujui adjust ini?')) return; try { const reqRef = doc(db, 'adjustmentRequests', reqId); const reqSnap = await getDoc(reqRef); if (!reqSnap.exists()) return; const reqData = reqSnap.data(); const eSnap = await getDocs(query(collection(db, 'employees'), where('id', '==', reqData.employeeId))); if (!eSnap.empty) { const empRef = eSnap.docs[0].ref; const empData = eSnap.docs[0].data(); const newBalance = empData.leaveBalance + reqData.adjustmentDays; const isDebt = newBalance < 0; const newHistory = [...(empData.leaveHistory || []), { date: new Date().toISOString().split('T')[0], timestamp: new Date().toISOString(), type: 'Adjustment (Disetujui)', days: Math.abs(reqData.adjustmentDays), amount: reqData.adjustmentDays, note: `${reqData.note} | Oleh: ${reqData.requestedBy} → ${currentUser.name}${isDebt?' | HUTANG':''}` }]; await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory }); } await updateDoc(reqRef, { status: 'approved', approvedBy: currentUser.name, approvedAt: new Date().toISOString() }); invalidateCache(); alert('✅ Adjust disetujui!'); showTab('dashboard'); } catch (e) { alert('❌ Gagal: ' + e.message); } };
 
-  window.rejectAdjustment = async (reqId) => {
-    if (!confirm('Tolak adjust ini?')) return;
-    try {
-      await updateDoc(doc(db, 'adjustmentRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name, rejectedAt: new Date().toISOString() });
-      invalidateCache();
-      alert('✅ Ditolak.');
-      showTab('dashboard');
-    } catch (e) { alert('❌ Gagal: ' + e.message); }
-  };
+  window.rejectAdjustment = async (reqId) => { if (!confirm('Tolak adjust ini?')) return; try { await updateDoc(doc(db, 'adjustmentRequests', reqId), { status: 'rejected', rejectedBy: currentUser.name, rejectedAt: new Date().toISOString() }); invalidateCache(); alert('✅ Ditolak.'); showTab('dashboard'); } catch (e) { alert('❌ Gagal: ' + e.message); } };
 
   async function renderLeaveView() {
     const emps = await fetchCollection('employees');
     const empHistoryMap = {};
-    emps.forEach(e => {
-      empHistoryMap[e.id] = {
-        emp: e,
-        history: (e.leaveHistory || []).map(h => ({ ...h, empId: e.id, empName: e.name, isDebt: e.leaveBalance < 0 }))
-      };
-    });
-    
-    Object.keys(empHistoryMap).forEach(empId => {
-      const { emp, history } = empHistoryMap[empId];
-      const sorted = [...history].sort((a, b) => new Date(a.timestamp || a.date || 0).getTime() - new Date(b.timestamp || b.date || 0).getTime());
-      const totalAmount = sorted.reduce((sum, h) => sum + (h.amount || 0), 0);
-      const initialBalance = emp.leaveBalance - totalAmount;
-      let runningBalance = initialBalance;
-      sorted.forEach(h => { runningBalance += (h.amount || 0); h.runningBalance = runningBalance; });
-      empHistoryMap[empId].sortedHistory = sorted;
-    });
-    
-    const allHistory = [];
-    Object.values(empHistoryMap).forEach(({ sortedHistory }) => { if (sortedHistory) allHistory.push(...sortedHistory); });
+    emps.forEach(e => { empHistoryMap[e.id] = { emp: e, history: (e.leaveHistory || []).map(h => ({ ...h, empId: e.id, empName: e.name, isDebt: e.leaveBalance < 0 })) }; });
+    Object.keys(empHistoryMap).forEach(empId => { const { emp, history } = empHistoryMap[empId]; const sorted = [...history].sort((a, b) => new Date(a.timestamp || a.date || 0).getTime() - new Date(b.timestamp || b.date || 0).getTime()); const totalAmount = sorted.reduce((sum, h) => sum + (h.amount || 0), 0); const initialBalance = emp.leaveBalance - totalAmount; let runningBalance = initialBalance; sorted.forEach(h => { runningBalance += (h.amount || 0); h.runningBalance = runningBalance; }); empHistoryMap[empId].sortedHistory = sorted; });
+    const allHistory = []; Object.values(empHistoryMap).forEach(({ sortedHistory }) => { if (sortedHistory) allHistory.push(...sortedHistory); });
     allHistory.sort((a, b) => new Date(b.timestamp || b.date || 0).getTime() - new Date(a.timestamp || a.date || 0).getTime());
-    
     const empNames = emps.map(e => e.name).sort();
-    
-    return `
-      <div class="card">
-        <h3>📅 Mutasi Cuti</h3>
-        <div class="hint-box"> Diurutkan terbaru. Saldo berjalan (running balance).</div>
-        <div class="filter-bar">
-          <label>🔍 Filter:</label>
-          <select id="filterEmployee" onchange="applyLeaveViewFilter()">
-            <option value="">-- Semua --</option>
-            ${empNames.map(n => `<option value="${n}">${n}</option>`).join('')}
-          </select>
-          <button class="btn btn-secondary btn-sm" onclick="resetLeaveViewFilter()">Reset</button>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Tanggal</th><th>Nama</th><th>Tipe</th><th>Durasi</th><th>Perubahan</th><th>Sisa</th><th>Catatan</th></tr></thead>
-            <tbody id="leaveViewBody">${renderLeaveViewRows(allHistory)}</tbody>
-          </table>
-        </div>
-      </div>
-    `;
+    return `<div class="card"><h3>📅 Mutasi Cuti</h3><div class="hint-box">💡 Diurutkan terbaru. Saldo berjalan (running balance).</div><div class="filter-bar"><label>🔍 Filter:</label><select id="filterEmployee" onchange="applyLeaveViewFilter()"><option value="">-- Semua --</option>${empNames.map(n => `<option value="${n}">${n}</option>`).join('')}</select><button class="btn btn-secondary btn-sm" onclick="resetLeaveViewFilter()">Reset</button></div><div class="table-wrapper"><table><thead><tr><th>Tanggal</th><th>Nama</th><th>Tipe</th><th>Durasi</th><th>Perubahan</th><th>Sisa</th><th>Catatan</th></tr></thead><tbody id="leaveViewBody">${renderLeaveViewRows(allHistory)}</tbody></table></div></div>`;
   }
 
   function renderLeaveViewRows(historyList) {
     if (historyList.length === 0) return '<tr><td colspan="7" style="text-align:center;padding:20px;color:#94a3b8">Tidak ada data</td></tr>';
-    return historyList.map(h => {
-      const displayDate = h.timestamp ? fmtDateTime(h.timestamp) : fmtDate(h.date);
-      const isDebt = h.runningBalance < 0;
-      return `<tr class="${isDebt?'debt-row':''}" data-empname="${h.empName}">
-        <td><strong>${displayDate}</strong></td>
-        <td><strong>${h.empName}</strong> ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</td>
-        <td>${h.type}</td><td>${h.days} hr</td>
-        <td><span class="badge ${h.amount>0?'badge-plus':'badge-minus'}">${h.amount>0?'+':''}${h.amount} hr</span></td>
-        <td><strong style="color:${isDebt?'#dc2626':'#4f46e5'}">${h.runningBalance}</strong> hr</td>
-        <td style="color:#64748b;font-size:11px">${h.note||'-'}</td>
-      </tr>`;
-    }).join('');
+    return historyList.map(h => { const displayDate = h.timestamp ? fmtDateTime(h.timestamp) : fmtDate(h.date); const isDebt = h.runningBalance < 0; return `<tr class="${isDebt?'debt-row':''}" data-empname="${h.empName}"><td><strong>${displayDate}</strong></td><td><strong>${h.empName}</strong> ${isDebt?'<span class="badge badge-debt">HUTANG</span>':''}</td><td>${h.type}</td><td>${h.days} hr</td><td><span class="badge ${h.amount>0?'badge-plus':'badge-minus'}">${h.amount>0?'+':''}${h.amount} hr</span></td><td><strong style="color:${isDebt?'#dc2626':'#4f46e5'}">${h.runningBalance}</strong> hr</td><td style="color:#64748b;font-size:11px">${h.note||'-'}</td></tr>`; }).join('');
   }
 
-  window.applyLeaveViewFilter = function() {
-    const filterName = document.getElementById('filterEmployee').value;
-    document.querySelectorAll('#leaveViewBody tr').forEach(row => {
-      if (row.dataset.empname) row.style.display = (filterName === '' || row.dataset.empname === filterName) ? '' : 'none';
-    });
-  };
-
-  window.resetLeaveViewFilter = function() {
-    document.getElementById('filterEmployee').value = '';
-    applyLeaveViewFilter();
-  };
+  window.applyLeaveViewFilter = function() { const filterName = document.getElementById('filterEmployee').value; document.querySelectorAll('#leaveViewBody tr').forEach(row => { if (row.dataset.empname) row.style.display = (filterName === '' || row.dataset.empname === filterName) ? '' : 'none'; }); };
+  window.resetLeaveViewFilter = function() { document.getElementById('filterEmployee').value = ''; applyLeaveViewFilter(); };
 
   async function renderMonthlyReport() {
     try {
       const report = await ensureMonthlyReport();
-      if (!report) {
-        return `<div class="card"><h3>📊 Laporan Bulanan</h3><div class="hint-box warning"> Laporan auto-generate tanggal 11. Saat ini tgl ${new Date().getDate()}.</div><div class="empty-state"><div class="icon">📊</div><p>Belum tersedia.</p></div></div>`;
-      }
+      if (!report) return `<div class="card"><h3>📊 Laporan Bulanan</h3><div class="hint-box warning">⏳ Laporan auto-generate tanggal 11. Saat ini tgl ${new Date().getDate()}.</div><div class="empty-state"><div class="icon"></div><p>Belum tersedia.</p></div></div>`;
       const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
       const [year, month] = report.monthKey.split('-');
       const monthLabel = `${monthNames[parseInt(month)-1]} ${year}`;
-      
-      return `
-        <div class="card">
-          <h3>📊 Laporan - ${monthLabel}</h3>
-          <div class="hint-box success">✅ Generated: ${fmtDateTime(report.generatedAt)}</div>
-          <div class="stats-grid">
-            <div class="stat-card indigo"><div class="label">Karyawan</div><div class="value">${report.totalEmployees}</div></div>
-            <div class="stat-card sky"><div class="label">Pengajuan</div><div class="value">${report.totalLeaveRequests}</div></div>
-            <div class="stat-card emerald"><div class="label">Disetujui</div><div class="value">${report.approved}</div></div>
-            <div class="stat-card rose"><div class="label">Ditolak</div><div class="value">${report.rejected}</div></div>
-            <div class="stat-card amber"><div class="label">Pending</div><div class="value">${report.pending}</div></div>
-            <div class="stat-card indigo"><div class="label">Total Hari</div><div class="value">${report.totalLeaveDaysUsed}</div></div>
-            <div class="stat-card sky"><div class="label">Rata-rata</div><div class="value" style="font-size:18px">${report.averageLeavePerEmployee} hr</div></div>
-            <div class="stat-card emerald"><div class="label">Total Saldo</div><div class="value" style="font-size:18px">${report.totalBalanceCompany} hr</div></div>
-          </div>
-        </div>
-        <div class="chart-grid">
-          <div class="chart-card"><h4>📊 Status Pengajuan</h4><div class="chart-container"><canvas id="chartStatus"></canvas></div></div>
-          <div class="chart-card"><h4>🏆 Top 5 Pemakai</h4><div class="chart-container"><canvas id="chartTopUsers"></canvas></div></div>
-          <div class="chart-card"><h4>📋 Alasan Cuti</h4><div class="chart-container"><canvas id="chartReason"></canvas></div></div>
-          <div class="chart-card"><h4>💰 Distribusi Saldo</h4><div class="chart-container"><canvas id="chartBalance"></canvas></div></div>
-        </div>
-        ${report.employeesWithDebt.length>0?`<div class="card"><h3>⚠️ Hutang Cuti (${report.employeesWithDebt.length})</h3><div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Hutang</th><th>ID</th></tr></thead><tbody>${report.employeesWithDebt.map(e=>`<tr class="debt-row"><td><strong>${e.name}</strong></td><td><span class="badge badge-debt">${e.debt} hr</span></td><td>${e.id}</td></tr>`).join('')}</tbody></table></div></div>`:''}
-        <div class="card">
-          <h3>📋 Analisis</h3>
-          <div style="line-height:1.8;color:#475569">
-            <p>📌 <strong>Tingkat Persetujuan:</strong> ${report.totalLeaveRequests>0?Math.round((report.approved/report.totalLeaveRequests)*100):0}%</p>
-            <p>📌 <strong>Rata-rata cuti:</strong> ${report.averageLeavePerEmployee} hr/karyawan</p>
-            <p>📌 <strong>Rata-rata saldo:</strong> ${report.averageBalance} hr/karyawan</p>
-            <p> <strong>Karyawan hutang:</strong> ${report.employeesWithDebt.length} dari ${report.totalEmployees} (${report.totalEmployees>0?Math.round((report.employeesWithDebt.length/report.totalEmployees)*100):0}%)</p>
-            <p>📌 <strong>Adjust bulan ini:</strong> ${report.totalAdjustments} (${report.approvedAdjustments} disetujui)</p>
-          </div>
-        </div>
-      `;
+      return `<div class="card"><h3>📊 Laporan - ${monthLabel}</h3><div class="hint-box success">✅ Generated: ${fmtDateTime(report.generatedAt)}</div><div class="stats-grid"><div class="stat-card indigo"><div class="label">Karyawan</div><div class="value">${report.totalEmployees}</div></div><div class="stat-card sky"><div class="label">Pengajuan</div><div class="value">${report.totalLeaveRequests}</div></div><div class="stat-card emerald"><div class="label">Disetujui</div><div class="value">${report.approved}</div></div><div class="stat-card rose"><div class="label">Ditolak</div><div class="value">${report.rejected}</div></div><div class="stat-card amber"><div class="label">Pending</div><div class="value">${report.pending}</div></div><div class="stat-card indigo"><div class="label">Total Hari</div><div class="value">${report.totalLeaveDaysUsed}</div></div><div class="stat-card sky"><div class="label">Rata-rata</div><div class="value" style="font-size:18px">${report.averageLeavePerEmployee} hr</div></div><div class="stat-card emerald"><div class="label">Total Saldo</div><div class="value" style="font-size:18px">${report.totalBalanceCompany} hr</div></div></div></div><div class="chart-grid"><div class="chart-card"><h4>📊 Status Pengajuan</h4><div class="chart-container"><canvas id="chartStatus"></canvas></div></div><div class="chart-card"><h4>🏆 Top 5 Pemakai</h4><div class="chart-container"><canvas id="chartTopUsers"></canvas></div></div><div class="chart-card"><h4>📋 Alasan Cuti</h4><div class="chart-container"><canvas id="chartReason"></canvas></div></div><div class="chart-card"><h4>💰 Distribusi Saldo</h4><div class="chart-container"><canvas id="chartBalance"></canvas></div></div></div>${report.employeesWithDebt.length>0?`<div class="card"><h3>⚠️ Hutang Cuti (${report.employeesWithDebt.length})</h3><div class="table-wrapper"><table><thead><tr><th>Nama</th><th>Hutang</th><th>ID</th></tr></thead><tbody>${report.employeesWithDebt.map(e=>`<tr class="debt-row"><td><strong>${e.name}</strong></td><td><span class="badge badge-debt">${e.debt} hr</span></td><td>${e.id}</td></tr>`).join('')}</tbody></table></div></div>`:''}<div class="card"><h3>📋 Analisis</h3><div style="line-height:1.8;color:#475569"><p>📌 <strong>Tingkat Persetujuan:</strong> ${report.totalLeaveRequests>0?Math.round((report.approved/report.totalLeaveRequests)*100):0}%</p><p>📌 <strong>Rata-rata cuti:</strong> ${report.averageLeavePerEmployee} hr/karyawan</p><p>📌 <strong>Rata-rata saldo:</strong> ${report.averageBalance} hr/karyawan</p><p> <strong>Karyawan hutang:</strong> ${report.employeesWithDebt.length} dari ${report.totalEmployees} (${report.totalEmployees>0?Math.round((report.employeesWithDebt.length/report.totalEmployees)*100):0}%)</p><p>📌 <strong>Adjust bulan ini:</strong> ${report.totalAdjustments} (${report.approvedAdjustments} disetujui)</p></div></div>`;
     } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
   }
 
-  // ✅ LAZY LOAD & RENDER CHARTS
+  async function loadChartJS() {
+    if (chartLoaded) return window.Chart;
+    try { await new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'; script.onload = resolve; script.onerror = reject; document.head.appendChild(script); }); chartLoaded = true; return window.Chart; } catch (e) { console.error('Gagal load Chart.js:', e); return null; }
+  }
+
   async function loadAndRenderCharts() {
     const Chart = await loadChartJS();
-    if (!Chart) {
-      console.error('Chart.js gagal dimuat');
-      return;
-    }
-    
+    if (!Chart) return;
     const reportId = `report_${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
     const snap = await getDoc(doc(db, 'monthlyReports', reportId));
     if (!snap.exists()) return;
     const report = snap.data();
-    
-    ['chartStatus','chartTopUsers','chartReason','chartBalance'].forEach(id => {
-      const canvas = document.getElementById(id);
-      if (canvas) { const existing = Chart.getChart(canvas); if (existing) existing.destroy(); }
-    });
-    
-    new Chart(document.getElementById('chartStatus'), {
-      type: 'doughnut',
-      data: { labels: ['Disetujui','Ditolak','Menunggu'], datasets: [{ data: [report.approved, report.rejected, report.pending], backgroundColor: ['#10b981','#ef4444','#f59e0b'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-    });
-    
-    new Chart(document.getElementById('chartTopUsers'), {
-      type: 'bar',
-      data: { labels: (report.topLeaveUsers||[]).map(u=>u.name), datasets: [{ label: 'Hari', data: (report.topLeaveUsers||[]).map(u=>u.days), backgroundColor: '#4f46e5', borderRadius: 6 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-    });
-    
+    ['chartStatus','chartTopUsers','chartReason','chartBalance'].forEach(id => { const canvas = document.getElementById(id); if (canvas) { const existing = Chart.getChart(canvas); if (existing) existing.destroy(); } });
+    new Chart(document.getElementById('chartStatus'), { type: 'doughnut', data: { labels: ['Disetujui','Ditolak','Menunggu'], datasets: [{ data: [report.approved, report.rejected, report.pending], backgroundColor: ['#10b981','#ef4444','#f59e0b'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+    new Chart(document.getElementById('chartTopUsers'), { type: 'bar', data: { labels: (report.topLeaveUsers||[]).map(u=>u.name), datasets: [{ label: 'Hari', data: (report.topLeaveUsers||[]).map(u=>u.days), backgroundColor: '#4f46e5', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
     const reasonEntries = Object.entries(report.leaveByReason || {});
     const colors = ['#4f46e5','#10b981','#f59e0b','#ef4444','#0ea5e9','#8b5cf6','#ec4899','#14b8a6','#f97316'];
-    new Chart(document.getElementById('chartReason'), {
-      type: 'pie',
-      data: { labels: reasonEntries.map(e=>e[0]), datasets: [{ data: reasonEntries.map(e=>e[1]), backgroundColor: colors.slice(0, reasonEntries.length) }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
-    });
-    
-    new Chart(document.getElementById('chartBalance'), {
-      type: 'doughnut',
-      data: { labels: ['Positif','Nol','Hutang'], datasets: [{ data: [report.balanceDistribution.positive, report.balanceDistribution.zero, report.balanceDistribution.negative], backgroundColor: ['#10b981','#94a3b8','#ef4444'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-    });
+    new Chart(document.getElementById('chartReason'), { type: 'pie', data: { labels: reasonEntries.map(e=>e[0]), datasets: [{ data: reasonEntries.map(e=>e[1]), backgroundColor: colors.slice(0, reasonEntries.length) }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } } });
+    new Chart(document.getElementById('chartBalance'), { type: 'doughnut', data: { labels: ['Positif','Nol','Hutang'], datasets: [{ data: [report.balanceDistribution.positive, report.balanceDistribution.zero, report.balanceDistribution.negative], backgroundColor: ['#10b981','#94a3b8','#ef4444'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
   }
 
   function renderChangePassword() {
+    const currentPhoto = currentUser.photoUrl || '';
+    const initial = currentUser.name.charAt(0).toUpperCase();
     return `
       <div class="card">
         <h3>🔒 Ganti Password</h3>
@@ -2091,7 +1571,21 @@
         <div class="form-group"><label>Password Lama</label><input type="password" id="oldPassword"></div>
         <div class="form-group"><label>Password Baru</label><input type="password" id="newPassword"></div>
         <div class="form-group"><label>Konfirmasi</label><input type="password" id="confirmPassword"></div>
-        <button class="btn btn-primary" style="width:auto" onclick="handleChangePassword()">Update</button>
+        <button class="btn btn-primary" style="width:auto" onclick="handleChangePassword()">Update Password</button>
+      </div>
+      <div class="card">
+        <h3> Foto Profil</h3>
+        <div class="hint-box purple">💡 Klik foto di topbar (pojok kanan atas) untuk mengganti foto profil.<br>Foto akan tersinkron ke semua device dan ditampilkan di Manajemen Akun.</div>
+        <div style="text-align:center;padding:20px">
+          <div class="photo-upload-preview" style="margin:0 auto 16px">
+            ${currentPhoto ? `<img src="${currentPhoto}" alt="Foto">` : initial}
+          </div>
+          <p style="color:#64748b;font-size:13px">${currentPhoto ? 'Foto profil aktif' : 'Belum ada foto profil'}</p>
+          <div class="photo-upload-actions">
+            <button class="btn btn-primary" style="width:auto" onclick="openPhotoUpload()">📷 Ganti Foto</button>
+            ${currentPhoto ? `<button class="btn btn-danger" style="width:auto" onclick="removePhoto()">🗑️ Hapus</button>` : ''}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -2113,14 +1607,9 @@
     } catch (e) { alert('Gagal: ' + e.message); }
   };
 
-  window.openModal = (html) => {
-    document.getElementById('modalContent').innerHTML = html;
-    document.getElementById('modalOverlay').classList.add('active');
-  };
+  window.openModal = (html) => { document.getElementById('modalContent').innerHTML = html; document.getElementById('modalOverlay').classList.add('active'); };
   window.closeModal = () => { document.getElementById('modalOverlay').classList.remove('active'); };
-  document.getElementById('modalOverlay').addEventListener('click', e => {
-    if (e.target.id === 'modalOverlay') window.closeModal();
-  });
+  document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target.id === 'modalOverlay') window.closeModal(); });
 
   function renderLeaveHistory(history) {
     if (!history || history.length === 0) return `<div class="empty-state" style="padding:20px"><div class="icon">📋</div><p>Belum ada mutasi</p></div>`;
@@ -2130,40 +1619,22 @@
     const initialBalance = currentBalance - totalAmount;
     let runningBalance = initialBalance;
     sorted.forEach(h => { runningBalance += (h.amount || 0); h.runningBalance = runningBalance; });
-    const rows = sorted.slice().reverse().map(h => {
-      const displayDate = h.timestamp ? fmtDateTime(h.timestamp) : fmtDate(h.date);
-      return `<tr>
-        <td>${displayDate}</td><td>${h.type}</td><td>${h.days} hr</td>
-        <td><span class="badge ${h.amount>0?'badge-plus':'badge-minus'}">${h.amount>0?'+':''}${h.amount} hr</span></td>
-        <td><strong style="color:${h.runningBalance<0?'#dc2626':'#4f46e5'}">${h.runningBalance}</strong> hr</td>
-        <td style="color:#64748b;font-size:11px">${h.note||'-'}</td>
-      </tr>`;
-    }).join('');
+    const rows = sorted.slice().reverse().map(h => { const displayDate = h.timestamp ? fmtDateTime(h.timestamp) : fmtDate(h.date); return `<tr><td>${displayDate}</td><td>${h.type}</td><td>${h.days} hr</td><td><span class="badge ${h.amount>0?'badge-plus':'badge-minus'}">${h.amount>0?'+':''}${h.amount} hr</span></td><td><strong style="color:${h.runningBalance<0?'#dc2626':'#4f46e5'}">${h.runningBalance}</strong> hr</td><td style="color:#64748b;font-size:11px">${h.note||'-'}</td></tr>`; }).join('');
     return `<div class="table-wrapper"><table><thead><tr><th>Tanggal</th><th>Tipe</th><th>Durasi</th><th>Perubahan</th><th>Sisa</th><th>Catatan</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
-  // ✅ INIT dengan timeout protection
+  const _origShowTab = showTab;
+  showTab = async (id) => {
+    await _origShowTab(id);
+    if (id === 'monthly_report') setTimeout(() => loadAndRenderCharts(), 100);
+    if (id === 'apply_leave') setTimeout(() => { const calcDiv = document.getElementById('leaveCalculator'); if (calcDiv && currentUser.employeeId) { getDocs(query(collection(db, 'employees'), where('id', '==', currentUser.employeeId))).then(snap => { if (!snap.empty) calcDiv.dataset.balance = snap.docs[0].data().leaveBalance; }); } }, 100);
+  };
+
   seedData().then(() => {
-    // ✅ Tambah timeout jika Firebase lambat
-    const timeout = setTimeout(() => {
-      if (!currentUser) {
-        console.warn('Login timeout - cek koneksi');
-      }
-    }, 15000);
-    
+    const timeout = setTimeout(() => { if (!currentUser) console.warn('Login timeout - cek koneksi'); }, 15000);
     checkSession();
     clearTimeout(timeout);
-  }).catch(e => {
-    console.error('Init error:', e);
-    document.getElementById('mainContent').innerHTML = `
-      <div class="error-box">
-        <div class="icon">⚠️</div>
-        <div><strong>Gagal Memuat Aplikasi</strong></div>
-        <div style="font-size:13px;margin-top:8px">${e.message}</div>
-        <button class="btn btn-primary" style="width:auto;margin-top:12px" onclick="location.reload()">Reload</button>
-      </div>
-    `;
-  });
+  }).catch(e => { console.error('Init error:', e); document.getElementById('mainContent').innerHTML = `<div class="error-box"><div class="icon">⚠️</div><div><strong>Gagal Memuat Aplikasi</strong></div><div style="font-size:13px;margin-top:8px">${e.message}</div><button class="btn btn-primary" style="width:auto;margin-top:12px" onclick="location.reload()">Reload</button></div>`; });
 </script>
 </body>
 </html>
