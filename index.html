@@ -328,23 +328,23 @@
     { value: 'Cuti Tahunan', label: '🏖️ Cuti Tahunan' },
     { value: 'Cuti Sakit', label: '🤒 Cuti Sakit' },
     { value: 'Cuti Besar', label: '🏝️ Cuti Besar (setelah 6 tahun kerja)' },
-    { value: 'Cuti Melahirkan', label: '🤰 Cuti Melahirkan' },
-    { value: 'Cuti Keguguran', label: '😢 Cuti Keguguran' },
+    { value: 'Cuti Melahirkan', label: ' Cuti Melahirkan' },
+    { value: 'Cuti Keguguran', label: ' Cuti Keguguran' },
     { value: 'Cuti Ayah (Paternity Leave)', label: '👨‍🍼 Cuti Ayah (Paternity Leave)' },
-    { value: 'Cuti Pernikahan', label: ' Cuti Pernikahan' },
-    { value: 'Cuti Kematian Keluarga', label: '️ Cuti Kematian Keluarga' },
+    { value: 'Cuti Pernikahan', label: '💍 Cuti Pernikahan' },
+    { value: 'Cuti Kematian Keluarga', label: '🕯️ Cuti Kematian Keluarga' },
     { value: 'Cuti Ibadah Haji/Umroh', label: '🕋 Cuti Ibadah Haji/Umroh' },
-    { value: 'Cuti Menjalankan Ibadah Agama', label: ' Cuti Menjalankan Ibadah Agama' },
+    { value: 'Cuti Menjalankan Ibadah Agama', label: '🙏 Cuti Menjalankan Ibadah Agama' },
     { value: 'Cuti Kecelakaan Kerja', label: '🚑 Cuti Kecelakaan Kerja' },
-    { value: 'Cuti Sakit Anak/Istri/Suami', label: '👨👩‍👧 Cuti Sakit Anak/Istri/Suami' },
+    { value: 'Cuti Sakit Anak/Istri/Suami', label: '👨‍‍👧 Cuti Sakit Anak/Istri/Suami' },
     { value: 'Cuti Mengurus Dokumen Negara', label: '📄 Cuti Mengurus Dokumen Negara (KTP/SIM/Paspor)' },
-    { value: 'Cuti Pindah Rumah', label: ' Cuti Pindah Rumah' },
-    { value: 'Cuti Menempuh Ujian', label: '📚 Cuti Menempuh Ujian' },
+    { value: 'Cuti Pindah Rumah', label: '🏠 Cuti Pindah Rumah' },
+    { value: 'Cuti Menempuh Ujian', label: ' Cuti Menempuh Ujian' },
     { value: 'Cuti Kegiatan Serikat Pekerja', label: '✊ Cuti Kegiatan Serikat Pekerja' },
     { value: 'Cuti Bencana Alam', label: '🌊 Cuti Bencana Alam' },
     { value: 'Cuti Tugas Negara', label: '🏛️ Cuti Tugas Negara' },
     { value: 'Cuti Wajib (Aturan Perusahaan)', label: '📋 Cuti Wajib (Aturan Perusahaan)' },
-    { value: 'Cuti Penting (Alasan Mendesak)', label: ' Cuti Penting (Alasan Mendesak)' },
+    { value: 'Cuti Penting (Alasan Mendesak)', label: '⚡ Cuti Penting (Alasan Mendesak)' },
     { value: 'Lainnya', label: '📝 Lainnya (wajib isi keterangan)' }
   ];
 
@@ -389,7 +389,7 @@
       locked: true,
       lockedMonth: lastMonth,
       lockedYear: lastMonthYear,
-      message: ` Pengajuan cuti bulan ${monthNames[lastMonth]} ${lastMonthYear} sudah dikunci (lock otomatis tanggal 10 ${monthNames[currentMonth]} ${currentYear}).`
+      message: `🔒 Pengajuan cuti bulan ${monthNames[lastMonth]} ${lastMonthYear} sudah dikunci (lock otomatis tanggal 10 ${monthNames[currentMonth]} ${currentYear}).`
     };
   }
 
@@ -400,7 +400,6 @@
     return d.getMonth() === lock.lockedMonth && d.getFullYear() === lock.lockedYear;
   }
 
-  // ✅ STATUS LABEL UNTUK DISPLAY
   function getStatusLabel(status) {
     const labels = {
       'pending_staff': 'Menunggu Staff HRD',
@@ -413,6 +412,21 @@
     return labels[status] || status;
   }
 
+  // ✅ PERBAIKAN BESAR: Fungsi getLeaveDate untuk filter bulan yang akurat
+  function getLeaveDateForReport(l) {
+    // Untuk approved: gunakan waktu approval (paling akhir)
+    if (l.status === 'approved') {
+      return l.directorApprovedAt || l.headApprovedAt || l.createdAt;
+    }
+    // Untuk rejected: gunakan waktu reject
+    if (l.status === 'rejected') {
+      return l.directorRejectedAt || l.rejectedAt || l.createdAt;
+    }
+    // Untuk pending: gunakan createdAt
+    return l.createdAt;
+  }
+
+  // ✅ PERBAIKAN BESAR: Fungsi ensureMonthlyReport yang akurat
   async function ensureMonthlyReport() {
     const now = new Date();
     if (now.getDate() < 11) return null;
@@ -420,9 +434,9 @@
     const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const reportId = `report_${monthKey}`;
     
+    // ✅ Hapus report lama jika ada (untuk regenerasi dengan data terbaru)
     const existingRef = doc(db, 'monthlyReports', reportId);
     const existingSnap = await getDoc(existingRef);
-    if (existingSnap.exists()) return existingSnap.data();
     
     const [empSnap, leaveSnap, adjustSnap] = await Promise.all([
       getDocs(collection(db, 'employees')),
@@ -434,8 +448,11 @@
     const allLeaves = leaveSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     const allAdjusts = adjustSnap.docs.map(d => d.data());
     
+    // ✅ FILTER: Gunakan getLeaveDateForReport untuk akurasi
     const monthLeaves = allLeaves.filter(l => {
-      const d = new Date(l.createdAt || l.headApprovedAt || l.rejectedAt || 0);
+      const dateStr = getLeaveDateForReport(l);
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     });
     
@@ -448,12 +465,14 @@
     const rejected = monthLeaves.filter(l => l.status === 'rejected');
     const pending = monthLeaves.filter(l => l.status.startsWith('pending'));
     
+    // ✅ Hitung total hari cuti dari semua approved leaves
     const totalLeaveDays = approved.reduce((sum, l) => sum + daysBetween(l.startDate, l.endDate), 0);
     const avgLeave = employees.length > 0 ? (totalLeaveDays / employees.length).toFixed(1) : 0;
     
     const employeesWithDebt = employees.filter(e => e.leaveBalance < 0)
       .map(e => ({ name: e.name, debt: Math.abs(e.leaveBalance), id: e.id }));
     
+    // ✅ PERBAIKAN: Top 5 - hitung dari SEMUA approved leaves bulan ini
     const leaveByEmployee = {};
     approved.forEach(l => {
       const days = daysBetween(l.startDate, l.endDate);
@@ -464,9 +483,12 @@
       .slice(0, 5)
       .map(([name, days]) => ({ name, days }));
     
+    // ✅ PERBAIKAN: Distribusi alasan - gunakan reasonType jika ada, fallback ke reason
     const reasonCount = {};
     approved.forEach(l => {
-      const reason = (l.reason || 'Lainnya').toUpperCase().trim();
+      // Gunakan reasonType untuk grouping yang lebih akurat
+      let reason = l.reasonType || l.reason || 'Lainnya';
+      reason = reason.toUpperCase().trim();
       reasonCount[reason] = (reasonCount[reason] || 0) + 1;
     });
     
@@ -491,9 +513,16 @@
       balanceDistribution: balanceDist,
       totalBalanceCompany: totalBalance, averageBalance: avgBalance,
       totalAdjustments: monthAdjusts.length,
-      approvedAdjustments: monthAdjusts.filter(a => a.status === 'approved').length
+      approvedAdjustments: monthAdjusts.filter(a => a.status === 'approved').length,
+      // ✅ Tambahan: simpan detail untuk debug
+      _debug: {
+        totalLeavesInDB: allLeaves.length,
+        totalLeavesThisMonth: monthLeaves.length,
+        approvedCount: approved.length
+      }
     };
     
+    // ✅ Selalu update report dengan data terbaru (overwrite)
     await setDoc(existingRef, report);
     return report;
   }
@@ -568,7 +597,6 @@
     buildNav();
   }
 
-  // ✅ PERBAIKAN: Tambah tab approval untuk Direktur
   function buildNav() {
     const tabs = [];
     const r = currentUser.role;
@@ -577,26 +605,25 @@
       tabs.push({ id: 'manage_accounts', label: '👑 Manajemen Akun' });
       tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
-      tabs.push({ id: 'monthly_report', label: ' Laporan Bulanan' });
+      tabs.push({ id: 'monthly_report', label: '📊 Laporan Bulanan' });
       tabs.push({ id: 'reset_db', label: '🔄 Reset Database' });
     } else if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
       tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
-      tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
+      tabs.push({ id: 'apply_leave', label: ' Ajukan Cuti' });
     }
     
     if (r === 'staff_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
-      tabs.push({ id: 'leave_mgmt', label: '⚙️ Request Adjust' });
+      tabs.push({ id: 'leave_mgmt', label: '️ Request Adjust' });
       tabs.push({ id: 'leave_requests', label: '📬 Review Cuti' });
     }
     if (r === 'kepala_hrd') {
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
     }
     if (r === 'direktur' || r === 'komisaris') {
-      tabs.push({ id: 'employees', label: ' Data Karyawan' });
+      tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
       tabs.push({ id: 'monthly_report', label: '📊 Laporan Bulanan' });
-      // ✅ Direktur punya tab approval untuk cuti Kepala HRD
       if (r === 'direktur') {
         tabs.push({ id: 'director_approval', label: '✅ Approval Cuti' });
       }
@@ -796,7 +823,7 @@
       });
       alert("✅ Database berhasil direset!");
       doLogout();
-    } catch (e) { alert("❌ Gagal: " + e.message); showTab('reset_db'); }
+    } catch (e) { alert(" Gagal: " + e.message); showTab('reset_db'); }
   };
 
   async function renderDashboard() {
@@ -874,7 +901,6 @@
     `;
   }
 
-  // ✅ PERBAIKAN: Dashboard Staff HRD - tampilkan pengajuan dari staff biasa DAN Staff HRD lain (bukan diri sendiri)
   async function renderHRDStaffDashboard() {
     try {
       let myNotifHTML = '';
@@ -903,7 +929,6 @@
       const allPending = allReqs.docs
         .map(d => ({ id: d.id, ...d.data() }))
         .filter(r => r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer')
-        // ✅ FILTER: Jangan tampilkan pengajuan dari diri sendiri
         .filter(r => r.employeeId !== currentUser.employeeId)
         .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
       
@@ -919,10 +944,9 @@
           const isDebt = projectedBalance < 0;
           const balanceClass = isDebt ? 'balance-debt' : 'balance-safe';
           const balanceText = isDebt 
-            ? `⚠️ Proyeksi: <strong class="${balanceClass}">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
+            ? `️ Proyeksi: <strong class="${balanceClass}">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
             : `✅ Proyeksi Sisa: <strong class="${balanceClass}">${projectedBalance} hari</strong>`;
 
-          // ✅ Badge untuk identifikasi tipe pengajuan
           const isPeerLeave = req.status === 'pending_staff_hrd_peer';
           const requesterRole = emp ? ROLE_LABEL[emp.role] || 'Staff' : 'Staff';
           
@@ -949,11 +973,11 @@
       }
       
       return `
-        ${currentUser.employeeId ? `<div class="card"><h3> Notifikasi Pengajuan Saya</h3>${myNotifHTML}</div>` : ''}
+        ${currentUser.employeeId ? `<div class="card"><h3>🔔 Notifikasi Pengajuan Saya</h3>${myNotifHTML}</div>` : ''}
         <div class="stats-grid"><div class="stat-card amber"><div class="label">Menunggu Review Anda</div><div class="value">${allPending.length}</div></div></div>
         <div class="card">
-          <h3>📬 Pengajuan Cuti Perlu Review</h3>
-          <div class="hint-box orange">👥 Multi-Staff HRD: Yang pertama klik Terima/Tolak akan tercatat sebagai reviewer. Anda tidak bisa mereview pengajuan sendiri.</div>
+          <h3> Pengajuan Cuti Perlu Review</h3>
+          <div class="hint-box orange"> Multi-Staff HRD: Yang pertama klik Terima/Tolak akan tercatat sebagai reviewer. Anda tidak bisa mereview pengajuan sendiri.</div>
           ${pendingHTML}
         </div>
       `;
@@ -1010,12 +1034,12 @@
           const isDebt = projectedBalance < 0;
           const balanceClass = isDebt ? 'balance-debt' : 'balance-safe';
           const balanceText = isDebt 
-            ? `️ Proyeksi: <strong class="${balanceClass}">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
+            ? `⚠️ Proyeksi: <strong class="${balanceClass}">Hutang ${Math.abs(projectedBalance)} hari</strong>` 
             : `✅ Proyeksi Sisa: <strong class="${balanceClass}">${projectedBalance} hari</strong>`;
           
           const reviewerInfo = req.staffHrdName 
             ? `<small style="color:#059669">✅ Direview oleh: <strong>${req.staffHrdName}</strong> ${req.staffHrdApprovedAt ? `pada ${fmtDate(req.staffHrdApprovedAt)}` : ''}</small>`
-            : `<small style="color:#64748b">️ Belum direview Staff HRD</small>`;
+            : `<small style="color:#64748b">⚠️ Belum direview Staff HRD</small>`;
           
           leaveNotifHTML += `
             <div class="notification" style="${isDebt ? 'background: #fef2f2; border-left-color: #dc2626;' : ''}">
@@ -1029,7 +1053,7 @@
                 <div class="balance-info">
                   Sisa cuti saat ini: <strong>${currentBalance} hari</strong> &nbsp;|&nbsp; Pengajuan: <strong>${days} hari</strong><br>
                   ${balanceText}
-                  ${isDebt ? `<br><small style="color:#dc2626; font-weight:600;">⚠️ Karyawan akan HUTANG CUTI ${Math.abs(projectedBalance)} hari (dipotong dari jatah tahun depan)</small>` : ''}
+                  ${isDebt ? `<br><small style="color:#dc2626; font-weight:600;">️ Karyawan akan HUTANG CUTI ${Math.abs(projectedBalance)} hari (dipotong dari jatah tahun depan)</small>` : ''}
                 </div>
               </div>
               <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
@@ -1075,7 +1099,7 @@
           ${leaveNotifHTML}
         </div>
         <div class="card">
-          <h3>⚙️ Approval Adjust Cuti (${pendingAdjust.length})</h3>
+          <h3>️ Approval Adjust Cuti (${pendingAdjust.length})</h3>
           <div class="hint-box">💡 Setelah disetujui, saldo cuti karyawan akan otomatis berubah.</div>
           ${adjustNotifHTML}
         </div>
@@ -1083,7 +1107,6 @@
     } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
   }
 
-  // ✅ BARU: Dashboard Direktur untuk approve cuti Kepala HRD
   async function renderDirectorApproval() {
     try {
       const empMap = {};
@@ -1122,7 +1145,7 @@
                 <div class="balance-info">
                   Sisa cuti saat ini: <strong>${currentBalance} hari</strong> &nbsp;|&nbsp; Pengajuan: <strong>${days} hari</strong><br>
                   ${isDebt 
-                    ? `<span class="balance-debt">⚠️ Proyeksi: Hutang ${Math.abs(projectedBalance)} hari</span>` 
+                    ? `<span class="balance-debt">️ Proyeksi: Hutang ${Math.abs(projectedBalance)} hari</span>` 
                     : `<span class="balance-safe">✅ Proyeksi Sisa: ${projectedBalance} hari</span>`
                   }
                 </div>
@@ -1136,14 +1159,13 @@
         });
       }
 
-      // Riwayat approval Direktur
-      const directorProcessed = processed.filter(r => r.approvedBy || r.rejectedBy);
+      const directorProcessed = processed.filter(r => r.directorApprovedBy || r.directorRejectedBy);
       const historyHTML = directorProcessed.length > 0 ? directorProcessed.map(r => {
         const days = daysBetween(r.startDate, r.endDate);
         const isApproved = r.status === 'approved';
         const badge = isApproved ? 'badge-approved' : 'badge-rejected';
         const statusText = isApproved ? 'Disetujui' : 'Ditolak';
-        const decisionBy = r.approvedBy || r.rejectedBy;
+        const decisionBy = r.directorApprovedBy || r.directorRejectedBy;
         const decisionDate = r.directorApprovedAt || r.directorRejectedAt;
         return `
           <tr>
@@ -1161,7 +1183,7 @@
         <div class="card">
           <h3>✅ Approval Cuti Kepala HRD (${pendingDirector.length})</h3>
           <div class="flow-info">
-            <div class="icon"></div>
+            <div class="icon">📋</div>
             <div class="text">
               <strong>Alur Approval Kepala HRD</strong>
               <p>Kepala HRD mengajukan cuti → Langsung approval oleh Direktur (1 langkah)</p>
@@ -1289,7 +1311,7 @@
       <p><strong>Nama:</strong> ${e.name}</p>
       <p><strong>Tanggal Join:</strong> ${fmtDate(e.joinDate)}</p>
       <p><strong>Sisa Cuti:</strong> <span style="color: ${isDebt ? '#dc2626' : '#1e293b'}; font-weight: 700;">${e.leaveBalance} hari</span> ${isDebt ? '<span class="badge badge-debt">HUTANG</span>' : ''}</p>
-      <p><strong>Layak Cuti (≥1 Thn):</strong> ${eligible ? '✅ Ya (Jatah 12 hari)' : '⏳ Belum'}</p>
+      <p><strong>Layak Cuti (≥1 Thn):</strong> ${eligible ? '✅ Ya (Jatah 12 hari)' : ' Belum'}</p>
       <hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0">
       <h3 style="font-size:15px">Mutasi Cuti</h3>
       ${renderLeaveHistory(e.leaveHistory || [])}
@@ -1299,7 +1321,7 @@
 
   async function renderApplyLeave() {
     if (!currentUser.employeeId) {
-      return `<div class="card"><div class="empty-state"><div class="icon"></div><p>Data karyawan Anda belum terhubung.</p></div></div>`;
+      return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan Anda belum terhubung.</p></div></div>`;
     }
     
     const snap = await getDocs(query(collection(db, 'employees'), where('id', '==', currentUser.employeeId)));
@@ -1323,7 +1345,6 @@
 
     const reasonOptions = LEAVE_REASONS.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
 
-    // ✅ Info alur approval berdasarkan role
     let flowInfoHTML = '';
     if (currentUser.role === 'staff_hrd') {
       flowInfoHTML = `
@@ -1443,21 +1464,20 @@
     
     calcDiv.innerHTML = `
       <div class="calc-row"><span class="calc-label">📅 Periode Cuti</span><span class="calc-value">${fmtDate(start)} - ${fmtDate(end)}</span></div>
-      <div class="calc-row"><span class="calc-label">️ Jumlah Hari</span><span class="calc-value">${days} hari</span></div>
+      <div class="calc-row"><span class="calc-label">⏱️ Jumlah Hari</span><span class="calc-value">${days} hari</span></div>
       <div class="calc-row"><span class="calc-label">💰 Sisa Cuti Saat Ini</span><span class="calc-value">${currentBalance} hari</span></div>
       <div class="calc-row"><span class="calc-label">📊 Proyeksi Setelah Cuti</span><span class="calc-value">${projectedBalance} hari</span></div>
       ${isDebt ? `<div class="debt-alert">⚠️ PERINGATAN: Anda akan memakai jatah cuti tahun depan (HUTANG CUTI ${Math.abs(projectedBalance)} hari)</div>` : `<div style="background: #10b981; color: white; padding: 10px 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; font-weight: 600; text-align: center;">✅ Saldo cuti Anda mencukupi</div>`}
     `;
   };
 
-  // ✅ PERBAIKAN: submitLeave set status berdasarkan role
   window.submitLeave = async (empId, empName, currentBalance) => {
     const s = document.getElementById('leaveStart').value;
     const e = document.getElementById('leaveEnd').value;
     const reasonType = document.getElementById('leaveReasonType').value;
     const otherReasonText = document.getElementById('otherReasonText').value.trim();
     
-    if (!s || !e) { alert('⚠️ Pilih tanggal mulai dan selesai!'); return; }
+    if (!s || !e) { alert('️ Pilih tanggal mulai dan selesai!'); return; }
     if (new Date(e) < new Date(s)) { alert('⚠️ Tanggal selesai harus setelah tanggal mulai!'); return; }
     if (!reasonType) { alert('⚠️ Pilih alasan cuti!'); return; }
     
@@ -1475,7 +1495,7 @@
     
     if (isDateLocked(s) || isDateLocked(e)) {
       const lock = getLeaveLockStatus();
-      alert(`🔒 ${lock.message}\n\nSilakan ajukan cuti untuk bulan ini atau bulan depan.`);
+      alert(` ${lock.message}\n\nSilakan ajukan cuti untuk bulan ini atau bulan depan.`);
       return;
     }
     
@@ -1487,7 +1507,6 @@
       if (!confirm(confirmMsg)) return;
     }
     
-    // ✅ SET STATUS BERDASARKAN ROLE
     let initialStatus = 'pending_staff';
     if (currentUser.role === 'staff_hrd') {
       initialStatus = 'pending_staff_hrd_peer';
@@ -1498,7 +1517,7 @@
     await addDoc(collection(db, 'leaveRequests'), {
       employeeId: empId, 
       employeeName: empName,
-      employeeRole: currentUser.role, // Simpan role untuk referensi
+      employeeRole: currentUser.role,
       startDate: s, 
       endDate: e, 
       reason: finalReason,
@@ -1584,7 +1603,6 @@
     showTab('leave_mgmt');
   };
 
-  // ✅ PERBAIKAN: renderLeaveRequests tampilkan semua pending (termasuk dari Staff HRD lain)
   async function renderLeaveRequests() {
     try {
       const empMap = {};
@@ -1592,7 +1610,6 @@
 
       const all = (await getDocs(collection(db, 'leaveRequests'))).docs.map(d => ({ id: d.id, ...d.data() }));
       
-      // ✅ Tampilkan pending_staff DAN pending_staff_hrd_peer (kecuali dari diri sendiri)
       const pending = all.filter(r => 
         (r.status === 'pending_staff' || r.status === 'pending_staff_hrd_peer') &&
         r.employeeId !== currentUser.employeeId
@@ -1647,7 +1664,7 @@
       return `
         <div class="card">
           <h3>Pengajuan Menunggu Review (${pending.length})</h3>
-          <div class="hint-box orange"> Multi-Staff HRD: Yang pertama klik Terima/Tolak akan tercatat sebagai reviewer. Anda tidak bisa mereview pengajuan sendiri.</div>
+          <div class="hint-box orange">👥 Multi-Staff HRD: Yang pertama klik Terima/Tolak akan tercatat sebagai reviewer. Anda tidak bisa mereview pengajuan sendiri.</div>
           <div class="table-wrapper">
             <table>
               <thead><tr><th>Karyawan</th><th>Periode</th><th>Durasi & Proyeksi Saldo</th><th>Alasan</th><th>Status</th>${pending.length?'<th>Aksi</th>':''}</tr></thead>
@@ -1668,7 +1685,6 @@
     } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
   }
 
-  // ✅ PERBAIKAN: staffApprove cek self-review
   window.staffApprove = async (reqId) => {
     try {
       const reqRef = doc(db, 'leaveRequests', reqId);
@@ -1676,7 +1692,6 @@
       if (!reqSnap.exists()) { alert('❌ Data tidak ditemukan!'); return; }
       const reqData = reqSnap.data();
       
-      // ✅ CEK: Jangan bisa approve pengajuan sendiri
       if (reqData.employeeId === currentUser.employeeId) {
         alert('⚠️ Anda tidak bisa mereview pengajuan cuti sendiri!\n\nPengajuan ini akan otomatis diteruskan ke Staff HRD lain.');
         showTab('leave_requests');
@@ -1707,15 +1722,14 @@
       if (!reqSnap.exists()) { alert('❌ Data tidak ditemukan!'); return; }
       const reqData = reqSnap.data();
       
-      // ✅ CEK: Jangan bisa reject pengajuan sendiri
       if (reqData.employeeId === currentUser.employeeId) {
-        alert('⚠️ Anda tidak bisa menolak pengajuan cuti sendiri!');
+        alert('️ Anda tidak bisa menolak pengajuan cuti sendiri!');
         showTab('leave_requests');
         return;
       }
       
       if (reqData.status !== 'pending_staff' && reqData.status !== 'pending_staff_hrd_peer') {
-        alert(`⚠️ Pengajuan ini sudah diproses!\n\nStatus: ${getStatusLabel(reqData.status)}\nOleh: ${reqData.staffHrdName || reqData.rejectedBy || '-'}\n\nSilakan refresh.`);
+        alert(`️ Pengajuan ini sudah diproses!\n\nStatus: ${getStatusLabel(reqData.status)}\nOleh: ${reqData.staffHrdName || reqData.rejectedBy || '-'}\n\nSilakan refresh.`);
         showTab('leave_requests');
         return;
       }
@@ -1771,7 +1785,6 @@
     } catch (e) { alert('❌ Gagal: ' + e.message); }
   };
 
-  // ✅ BARU: Fungsi approval untuk Direktur
   window.directorApprove = async (reqId) => {
     if (!confirm('Setujui pengajuan cuti Kepala HRD ini? Saldo cuti akan otomatis dikurangi.')) return;
     try {
@@ -1915,7 +1928,7 @@
     return `
       <div class="card">
         <h3>📅 Mutasi Cuti Semua Karyawan</h3>
-        <div class="hint-box">💡 Data diurutkan dari yang terbaru dengan saldo berjalan (running balance). Gunakan filter untuk melihat mutasi karyawan tertentu.</div>
+        <div class="hint-box"> Data diurutkan dari yang terbaru dengan saldo berjalan (running balance). Gunakan filter untuk melihat mutasi karyawan tertentu.</div>
         
         <div class="filter-bar">
           <label for="filterEmployee">🔍 Filter Karyawan:</label>
@@ -1990,6 +2003,7 @@
     applyLeaveViewFilter();
   };
 
+  // ✅ PERBAIKAN BESAR: Laporan Bulanan dengan data yang akurat
   async function renderMonthlyReport() {
     try {
       const report = await ensureMonthlyReport();
@@ -1998,7 +2012,7 @@
         return `
           <div class="card">
             <h3>📊 Laporan Bulanan</h3>
-            <div class="hint-box warning">⏳ Laporan akan otomatis digenerate pada <strong>tanggal 11</strong> setiap bulannya.<br>Saat ini masih tanggal ${new Date().getDate()}, silakan cek kembali nanti.</div>
+            <div class="hint-box warning"> Laporan akan otomatis digenerate pada <strong>tanggal 11</strong> setiap bulannya.<br>Saat ini masih tanggal ${new Date().getDate()}, silakan cek kembali nanti.</div>
             <div class="empty-state"><div class="icon">📊</div><p>Laporan belum tersedia untuk bulan ini.</p></div>
           </div>
         `;
@@ -2026,7 +2040,7 @@
         <div class="chart-grid">
           <div class="chart-card"><h4>📊 Distribusi Status Pengajuan</h4><div class="chart-container"><canvas id="chartStatus"></canvas></div></div>
           <div class="chart-card"><h4>🏆 Top 5 Pengguna Cuti Terbanyak</h4><div class="chart-container"><canvas id="chartTopUsers"></canvas></div></div>
-          <div class="chart-card"><h4> Distribusi Alasan Cuti</h4><div class="chart-container"><canvas id="chartReason"></canvas></div></div>
+          <div class="chart-card"><h4>📋 Distribusi Alasan Cuti</h4><div class="chart-container"><canvas id="chartReason"></canvas></div></div>
           <div class="chart-card"><h4>💰 Distribusi Saldo Cuti Karyawan</h4><div class="chart-container"><canvas id="chartBalance"></canvas></div></div>
         </div>
         ${report.employeesWithDebt.length > 0 ? `
@@ -2047,11 +2061,11 @@
             <p>📌 <strong>Rata-rata cuti per karyawan:</strong> ${report.averageLeavePerEmployee} hari/bulan</p>
             <p>📌 <strong>Rata-rata saldo cuti:</strong> ${report.averageBalance} hari/karyawan</p>
             <p>📌 <strong>Karyawan dengan hutang:</strong> ${report.employeesWithDebt.length} dari ${report.totalEmployees} karyawan (${report.totalEmployees > 0 ? Math.round((report.employeesWithDebt.length / report.totalEmployees) * 100) : 0}%)</p>
-            <p> <strong>Total adjustment cuti bulan ini:</strong> ${report.totalAdjustments} request (${report.approvedAdjustments} disetujui)</p>
+            <p>📌 <strong>Total adjustment cuti bulan ini:</strong> ${report.totalAdjustments} request (${report.approvedAdjustments} disetujui)</p>
           </div>
         </div>
       `;
-    } catch (e) { return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`; }
+    } catch (e) { return `<div class="card"><div class="hint-box danger"> Error: ${e.message}</div></div>`; }
   }
 
   function renderCharts(report) {
@@ -2070,18 +2084,44 @@
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
     
+    // ✅ PERBAIKAN: Top 5 dengan data yang benar
+    const topUsersData = report.topLeaveUsers || [];
     new Chart(document.getElementById('chartTopUsers'), {
       type: 'bar',
-      data: { labels: report.topLeaveUsers.map(u => u.name), datasets: [{ label: 'Hari Cuti', data: report.topLeaveUsers.map(u => u.days), backgroundColor: '#4f46e5', borderRadius: 6 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      data: { 
+        labels: topUsersData.map(u => u.name), 
+        datasets: [{ 
+          label: 'Hari Cuti', 
+          data: topUsersData.map(u => u.days), 
+          backgroundColor: '#4f46e5', 
+          borderRadius: 6 
+        }] 
+      },
+      options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        plugins: { legend: { display: false } }, 
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } 
+      }
     });
     
-    const reasonEntries = Object.entries(report.leaveByReason);
-    const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#8b5cf6', '#ec4899'];
+    // ✅ PERBAIKAN: Distribusi alasan dengan data yang benar
+    const reasonEntries = Object.entries(report.leaveByReason || {});
+    const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
     new Chart(document.getElementById('chartReason'), {
       type: 'pie',
-      data: { labels: reasonEntries.map(e => e[0]), datasets: [{ data: reasonEntries.map(e => e[1]), backgroundColor: colors.slice(0, reasonEntries.length) }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+      data: { 
+        labels: reasonEntries.map(e => e[0]), 
+        datasets: [{ 
+          data: reasonEntries.map(e => e[1]), 
+          backgroundColor: colors.slice(0, reasonEntries.length) 
+        }] 
+      },
+      options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } 
+      }
     });
     
     new Chart(document.getElementById('chartBalance'), {
