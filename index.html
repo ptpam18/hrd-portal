@@ -87,11 +87,14 @@
   .stat-card.emerald { border-left: 4px solid #10b981; }
   .stat-card.amber { border-left: 4px solid #f59e0b; }
   .stat-card.rose { border-left: 4px solid #f43f5e; }
+  .stat-card.debt { border-left: 4px solid #dc2626; background: #fef2f2; }
 
   table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
   th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
   th { background: #f8fafc; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
   tr:hover { background: #f8fafc; }
+  tr.debt-row { background: #fef2f2; }
+  tr.debt-row:hover { background: #fee2e2; }
 
   .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; }
   .badge-pending { background: #fef3c7; color: #92400e; }
@@ -99,6 +102,7 @@
   .badge-rejected { background: #fee2e2; color: #991b1b; }
   .badge-minus { background: #fee2e2; color: #991b1b; }
   .badge-plus { background: #d1fae5; color: #065f46; }
+  .badge-debt { background: #dc2626; color: white; font-weight: 700; }
 
   .notification {
     background: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px; border-radius: 10px;
@@ -113,6 +117,15 @@
   }
   .balance-safe { color: #059669; font-weight: 600; }
   .balance-debt { color: #dc2626; font-weight: 700; }
+
+  .debt-warning {
+    background: #fef2f2; border: 2px solid #dc2626; border-radius: 12px; padding: 16px;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .debt-warning .icon { font-size: 32px; }
+  .debt-warning .text { flex: 1; }
+  .debt-warning .text strong { color: #dc2626; font-size: 16px; }
+  .debt-warning .text p { color: #991b1b; font-size: 13px; margin-top: 4px; }
 
   .empty-state { text-align: center; padding: 30px 15px; color: #94a3b8; }
   .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
@@ -161,7 +174,7 @@
 <!-- LOGIN SCREEN -->
 <div class="login-wrapper" id="loginScreen">
   <div class="login-card">
-    <h1>🌿 HRD Portal</h1>
+    <h1> HRD Portal</h1>
     <p class="subtitle">Sistem Manajemen Karyawan & Cuti</p>
     <div class="form-group">
       <label>Username</label>
@@ -182,7 +195,7 @@
 <div class="app-wrapper" id="appScreen">
   <div class="container">
     <div class="topbar">
-      <h2>🌿 HRD Portal</h2>
+      <h2> HRD Portal</h2>
       <div class="user-info">
         <div class="user-detail">
           <div class="name" id="userName">-</div>
@@ -338,10 +351,10 @@
     if (r === 'superuser') {
       tabs.push({ id: 'manage_accounts', label: '👑 Manajemen Akun' });
       tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
-      tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
+      tabs.push({ id: 'leave_view', label: ' Mutasi Cuti' });
       tabs.push({ id: 'reset_db', label: '🔄 Reset Database' });
     } else if (r === 'staff' || r === 'staff_hrd' || r === 'kepala_hrd') {
-      tabs.push({ id: 'dashboard', label: '📊 Dashboard' });
+      tabs.push({ id: 'dashboard', label: ' Dashboard' });
       tabs.push({ id: 'apply_leave', label: '📝 Ajukan Cuti' });
     }
     
@@ -354,7 +367,7 @@
       tabs.push({ id: 'employees', label: '👥 Karyawan' });
     }
     if (r === 'direktur' || r === 'komisaris') {
-      tabs.push({ id: 'employees', label: '👥 Data Karyawan' });
+      tabs.push({ id: 'employees', label: ' Data Karyawan' });
       tabs.push({ id: 'leave_view', label: '📅 Mutasi Cuti' });
     }
     
@@ -451,7 +464,6 @@
     `);
   };
 
-  // ✅ DIPERBAIKI: Validasi ID yang lebih aman
   window.saveNewAccount = async () => {
     const name = document.getElementById('newAccName').value.trim();
     const username = document.getElementById('newAccUsername').value.trim().toLowerCase();
@@ -474,13 +486,12 @@
       
       let num = 1;
       if (emps.length > 0) {
-        // Hanya ambil ID yang formatnya valid (E diikuti angka)
         const validEmps = emps.filter(e => /^E\d{3,}$/.test(e.id));
         if (validEmps.length > 0) {
           validEmps.sort((a, b) => b.id.localeCompare(a.id));
           num = parseInt(validEmps[0].id.substring(1)) + 1;
         } else {
-          num = emps.length + 1; // Fallback jika format ID rusak
+          num = emps.length + 1;
         }
       }
       const newEmpId = 'E' + String(num).padStart(3, '0');
@@ -599,7 +610,6 @@
     return '<div class="card"><div class="empty-state"><div class="icon">📊</div><p>Silakan pilih menu di atas.</p></div></div>';
   }
 
-  // ✅ DIPERBAIKI: Sorting tanggal dengan fallback aman
   function renderMyNotifications(notifications) {
     if (notifications.length === 0) {
       return `<div class="empty-state" style="padding: 20px;"><div class="icon">🔔</div><p>Belum ada notifikasi pengajuan.</p></div>`;
@@ -614,9 +624,7 @@
       const date = isLeave ? `${fmtDate(n.startDate)} - ${fmtDate(n.endDate)}` : `${days} hari`;
       const reason = n.reason || n.note;
       const decisionBy = n.approvedBy || n.rejectedBy || 'Sistem';
-      
-      // Fallback ke 0 jika semua field tanggal tidak ada, mencegah Invalid Date
-      const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || n.createdAt || 0;
+      const decisionDate = n.headApprovedAt || n.rejectedAt || n.approvedAt || 0;
 
       return `
         <div class="notification" style="border-left-color: ${isApproved ? '#10b981' : '#ef4444'}; background: ${isApproved ? '#f0fdf4' : '#fef2f2'}; margin-bottom: 8px;">
@@ -640,6 +648,7 @@
     
     const emp = snap.docs[0].data();
     const eligible = getEligibleLeave(emp.joinDate);
+    const isDebt = emp.leaveBalance < 0;
     
     const leaveReqsSnap = await getDocs(query(collection(db, 'leaveRequests'), where('employeeId', '==', currentUser.employeeId)));
     const leaveReqs = leaveReqsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
@@ -658,8 +667,17 @@
       .slice(0, 5);
     
     return `
+      ${isDebt ? `
+        <div class="debt-warning">
+          <div class="icon">⚠️</div>
+          <div class="text">
+            <strong>HUTANG CUTI: ${Math.abs(emp.leaveBalance)} hari</strong>
+            <p>Anda telah menggunakan cuti melebihi saldo yang tersedia. Sisa cuti akan dipotong dari jatah tahun depan.</p>
+          </div>
+        </div>
+      ` : ''}
       <div class="stats-grid">
-        <div class="stat-card indigo"><div class="label">Sisa Cuti</div><div class="value">${emp.leaveBalance} <span style="font-size:14px;color:#64748b">hari</span></div></div>
+        <div class="stat-card ${isDebt ? 'debt' : 'indigo'}"><div class="label">Sisa Cuti</div><div class="value">${emp.leaveBalance} <span style="font-size:14px;color:#64748b">hari</span></div></div>
         <div class="stat-card emerald"><div class="label">Status Kelayakan</div><div class="value" style="font-size:16px">${eligible ? '✅ Layak Cuti' : '⏳ Belum 1 Thn'}</div></div>
         <div class="stat-card amber"><div class="label">Tanggal Bergabung</div><div class="value" style="font-size:16px">${fmtDate(emp.joinDate)}</div></div>
       </div>
@@ -880,12 +898,13 @@
     
     const rows = emps.map(e => {
       const eligible = getEligibleLeave(e.joinDate);
+      const isDebt = e.leaveBalance < 0;
       return `
-        <tr>
+        <tr class="${isDebt ? 'debt-row' : ''}">
           <td>${e.id}</td>
           <td><strong>${e.name}</strong></td>
           <td>${fmtDate(e.joinDate)}</td>
-          <td>${eligible ? '✅' : '⏳'} <strong>${e.leaveBalance}</strong> hari</td>
+          <td>${eligible ? '✅' : ''} <strong style="color: ${isDebt ? '#dc2626' : '#1e293b'}">${e.leaveBalance}</strong> hari ${isDebt ? '<span class="badge badge-debt">HUTANG</span>' : ''}</td>
           <td>
             <button class="btn btn-secondary btn-sm" onclick="viewEmpDetail('${e.id}')">Detail</button>
             ${canManage && !e.isSuperuser ? `<button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.docId}', '${e.name}', '${e.id}')">Hapus</button>` : ''}
@@ -924,7 +943,6 @@
     `);
   };
 
-  // ✅ DIPERBAIKI: Validasi ID yang lebih aman (sama seperti saveNewAccount)
   window.saveNewStaff = async () => {
     const name = document.getElementById('newStaffName').value.trim();
     const username = document.getElementById('newStaffUsername').value.trim().toLowerCase();
@@ -980,14 +998,15 @@
     if (d.empty) return;
     const e = d.docs[0].data();
     const eligible = getEligibleLeave(e.joinDate);
+    const isDebt = e.leaveBalance < 0;
     
     window.openModal(`
       <h3>Detail Karyawan</h3>
       <p><strong>ID:</strong> ${e.id}</p>
       <p><strong>Nama:</strong> ${e.name}</p>
       <p><strong>Tanggal Join:</strong> ${fmtDate(e.joinDate)}</p>
-      <p><strong>Sisa Cuti:</strong> ${e.leaveBalance} hari</p>
-      <p><strong>Layak Cuti (≥1 Thn):</strong> ${eligible ? '✅ Ya (Jatah 12 hari)' : '⏳ Belum'}</p>
+      <p><strong>Sisa Cuti:</strong> <span style="color: ${isDebt ? '#dc2626' : '#1e293b'}; font-weight: 700;">${e.leaveBalance} hari</span> ${isDebt ? '<span class="badge badge-debt">HUTANG</span>' : ''}</p>
+      <p><strong>Layak Cuti (≥1 Thn):</strong> ${eligible ? '✅ Ya (Jatah 12 hari)' : ' Belum'}</p>
       <hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0">
       <h3 style="font-size:15px">Mutasi Cuti</h3>
       ${renderLeaveHistory(e.leaveHistory || [])}
@@ -1008,6 +1027,7 @@
     if (snap.empty) return `<div class="card"><div class="empty-state"><div class="icon">👤</div><p>Data karyawan tidak ditemukan.</p></div></div>`;
     
     const emp = snap.docs[0].data();
+    const isDebt = emp.leaveBalance < 0;
     const reqSnap = await getDocs(collection(db, 'leaveRequests'));
     const myReqs = reqSnap.docs
       .map(d => ({ id: d.id, ...d.data() }))
@@ -1023,9 +1043,18 @@
     }).join('');
 
     return `
+      ${isDebt ? `
+        <div class="debt-warning">
+          <div class="icon">⚠️</div>
+          <div class="text">
+            <strong>HUTANG CUTI: ${Math.abs(emp.leaveBalance)} hari</strong>
+            <p>Anda telah menggunakan cuti melebihi saldo. Cuti tambahan akan menambah hutang.</p>
+          </div>
+        </div>
+      ` : ''}
       <div class="card">
         <h3>Form Pengajuan Cuti</h3>
-        <div class="hint-box">💡 Sisa cuti Anda saat ini: <strong>${emp.leaveBalance} hari</strong></div>
+        <div class="hint-box ${isDebt ? 'danger' : ''}">💡 Sisa cuti Anda saat ini: <strong style="color: ${isDebt ? '#dc2626' : '#4f46e5'}">${emp.leaveBalance} hari</strong> ${isDebt ? '(HUTANG)' : ''}</div>
         <div class="form-group"><label>Tanggal Mulai</label><input type="date" id="leaveStart"></div>
         <div class="form-group"><label>Tanggal Selesai</label><input type="date" id="leaveEnd"></div>
         <div class="form-group"><label>Alasan Cuti</label><textarea id="leaveReason" rows="3" placeholder="Tuliskan alasan cuti Anda..."></textarea></div>
@@ -1066,12 +1095,15 @@
   async function renderLeaveMgmt() {
     const snap = await getDocs(collection(db, 'employees'));
     const emps = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.name.localeCompare(b.name));
-    const rows = emps.map(e => `
-      <tr>
-        <td>${e.id}</td><td><strong>${e.name}</strong></td><td>${e.leaveBalance} hari</td>
-        <td><button class="btn btn-warning btn-sm" onclick="openRequestAdjust('${e.id}', '${e.name}', ${e.leaveBalance})">Request Adjust</button></td>
-      </tr>
-    `).join('');
+    const rows = emps.map(e => {
+      const isDebt = e.leaveBalance < 0;
+      return `
+        <tr class="${isDebt ? 'debt-row' : ''}">
+          <td>${e.id}</td><td><strong>${e.name}</strong></td><td><strong style="color: ${isDebt ? '#dc2626' : '#1e293b'}">${e.leaveBalance}</strong> hari ${isDebt ? '<span class="badge badge-debt">HUTANG</span>' : ''}</td>
+          <td><button class="btn btn-warning btn-sm" onclick="openRequestAdjust('${e.id}', '${e.name}', ${e.leaveBalance})">Request Adjust</button></td>
+        </tr>
+      `;
+    }).join('');
     
     return `
       <div class="card">
@@ -1188,7 +1220,7 @@
       `;
     } catch (e) {
       console.error(e);
-      return `<div class="card"><div class="hint-box danger">❌ Error: ${e.message}</div></div>`;
+      return `<div class="card"><div class="hint-box danger"> Error: ${e.message}</div></div>`;
     }
   }
 
@@ -1219,17 +1251,47 @@
   };
 
   // ==========================================
-  // APPROVAL FUNCTIONS (Kepala HRD)
+  // APPROVAL FUNCTIONS (Kepala HRD) - DIPERBAIKI
   // ==========================================
   window.headApprove = async (reqId) => {
-    if (!confirm('Setujui pengajuan cuti ini?')) return;
+    if (!confirm('Setujui pengajuan cuti ini? Saldo cuti karyawan akan otomatis dikurangi.')) return;
     try {
-      await updateDoc(doc(db, 'leaveRequests', reqId), { 
+      const reqRef = doc(db, 'leaveRequests', reqId);
+      const reqSnap = await getDoc(reqRef);
+      if (!reqSnap.exists()) { alert('❌ Data tidak ditemukan!'); return; }
+      const reqData = reqSnap.data();
+
+      // ✅ KURANGI SALDO CUTI KARYAWAN
+      const eq = query(collection(db, 'employees'), where('id', '==', reqData.employeeId));
+      const eSnap = await getDocs(eq);
+      if (!eSnap.empty) {
+        const empRef = eSnap.docs[0].ref;
+        const empData = eSnap.docs[0].data();
+        const days = daysBetween(reqData.startDate, reqData.endDate);
+        const newBalance = empData.leaveBalance - days;
+        const isDebt = newBalance < 0;
+        
+        const newHistory = [...(empData.leaveHistory || []), {
+          date: new Date().toISOString().split('T')[0],
+          type: 'Cuti (Disetujui)',
+          days: days,
+          amount: -days,
+          note: `${reqData.reason} | Disetujui: ${currentUser.name}${isDebt ? ' | HUTANG CUTI' : ''}`
+        }];
+        
+        await updateDoc(empRef, { 
+          leaveBalance: newBalance, 
+          leaveHistory: newHistory 
+        });
+      }
+
+      await updateDoc(reqRef, { 
         status: 'approved', 
         headApprovedAt: new Date().toISOString(), 
         approvedBy: currentUser.name
       });
-      alert('✅ Cuti disetujui!');
+      
+      alert('✅ Cuti disetujui dan saldo telah dikurangi!');
       showTab('dashboard');
     } catch (e) {
       console.error(e);
@@ -1263,12 +1325,13 @@
         const empRef = eSnap.docs[0].ref;
         const empData = eSnap.docs[0].data();
         const newBalance = empData.leaveBalance + reqData.adjustmentDays;
+        const isDebt = newBalance < 0;
         const newHistory = [...(empData.leaveHistory || []), {
           date: new Date().toISOString().split('T')[0],
           type: 'Adjustment (Disetujui)',
           days: Math.abs(reqData.adjustmentDays),
           amount: reqData.adjustmentDays,
-          note: `${reqData.note} | Diajukan: ${reqData.requestedBy}, Disetujui: ${currentUser.name}`
+          note: `${reqData.note} | Diajukan: ${reqData.requestedBy}, Disetujui: ${currentUser.name}${isDebt ? ' | HUTANG CUTI' : ''}`
         }];
         await updateDoc(empRef, { leaveBalance: newBalance, leaveHistory: newHistory });
       }
@@ -1299,13 +1362,14 @@
   };
 
   // ==========================================
-  // TAB: LEAVE VIEW
+  // TAB: LEAVE VIEW - DIPERBAIKI DENGAN HIGHLIGHT HUTANG
   // ==========================================
   async function renderLeaveView() {
     const snap = await getDocs(collection(db, 'employees'));
     const emps = snap.docs.map(d => d.data()).sort((a, b) => a.name.localeCompare(b.name));
     
     const rows = emps.map(e => {
+      const isDebt = e.leaveBalance < 0;
       const history = (e.leaveHistory || []).slice().reverse().slice(0, 5);
       const histStr = history.length ? history.map(h =>
         `<div style="font-size:11px;color:#64748b;margin-top:6px;padding:6px;background:#f8fafc;border-radius:6px">
@@ -1314,10 +1378,10 @@
          </div>`
       ).join('') : '<div style="font-size:11px;color:#94a3b8;padding:6px">Belum ada mutasi</div>';
       return `
-        <tr>
+        <tr class="${isDebt ? 'debt-row' : ''}">
           <td>${e.id}</td>
           <td><strong>${e.name}</strong></td>
-          <td><span style="font-size:16px;font-weight:700;color:#4f46e5">${e.leaveBalance}</span> hari</td>
+          <td><span style="font-size:16px;font-weight:700;color:${isDebt ? '#dc2626' : '#4f46e5'}">${e.leaveBalance}</span> hari ${isDebt ? '<span class="badge badge-debt">HUTANG</span>' : ''}</td>
           <td>${histStr}</td>
         </tr>
       `;
@@ -1326,6 +1390,7 @@
     return `
       <div class="card">
         <h3>Sisa Cuti & Mutasi Karyawan</h3>
+        <div class="hint-box">💡 Baris berwarna merah menunjukkan karyawan dengan hutang cuti (saldo minus).</div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>ID</th><th>Nama</th><th>Sisa Cuti</th><th>Riwayat Mutasi (5 Terbaru)</th></tr></thead>
